@@ -77,7 +77,6 @@ import {
   Box,
   ChevronDown,
   Clock,
-  Copy,
   Cpu,
   Gauge,
   Lock,
@@ -85,14 +84,15 @@ import {
   Menu,
   Mic,
   Monitor,
+  MoreHorizontal,
   Paperclip,
   Phone,
   Plus,
   Puzzle,
   Reply,
   Settings,
+  Smile,
   Square,
-  ThumbsUp,
   Volume2,
   X,
 } from "lucide-react";
@@ -4040,39 +4040,56 @@ const Transcript = memo(function Transcript({
             <div
               key={message.id}
               data-message-id={message.id}
-              className={peerReceipt ? "relative py-0.5" : "group/message relative pt-9 hover:z-20"}
+              className={peerReceipt ? "relative py-0.5" : "group/message relative hover:z-20"}
             >
-              {peerReceipt ? null : (
-                <MessageHoverActions message={message} onReply={onReply} onReact={onReact} />
-              )}
-              <MessageView
-                artifactTarget={artifactTarget}
-                message={message}
-                canAnswer={message.id === answerableAskMessageId}
-                onOpenBot={onOpenBot}
-                onOpenPeerMessages={onOpenPeerMessages}
-                onAnswer={onAnswer}
-                speakerName={
+              <div
+                className={
                   peerReceipt
                     ? undefined
-                    : message.role === "bot"
-                      ? memberName?.(message.botId)
-                      : undefined
+                    : `relative flex ${message.role === "user" ? "justify-end" : "justify-start"}`
                 }
-                memberName={memberName}
-                peerBot={peerBot}
-                replyPreview={
-                  message.replyToMessageId ? messageById.get(message.replyToMessageId) : undefined
-                }
-                replyToMessageId={message.replyToMessageId}
-                onJumpToMessage={onJumpToMessage}
-                onRefresh={onRefresh}
-                onBotChanged={onBotChanged}
-                onAddRoutine={onAddRoutine}
-                voiceReady={voiceReady}
-                speaking={speakingMessageId === message.id}
-                onSpeak={() => onSpeak(message)}
-              />
+              >
+                <div className={peerReceipt ? undefined : "relative max-w-full min-w-0"}>
+                  {peerReceipt ? null : (
+                    <MessageHoverActions
+                      message={message}
+                      side={message.role === "user" ? "start" : "end"}
+                      onReply={onReply}
+                      onReact={onReact}
+                    />
+                  )}
+                  <MessageView
+                    artifactTarget={artifactTarget}
+                    message={message}
+                    canAnswer={message.id === answerableAskMessageId}
+                    onOpenBot={onOpenBot}
+                    onOpenPeerMessages={onOpenPeerMessages}
+                    onAnswer={onAnswer}
+                    speakerName={
+                      peerReceipt
+                        ? undefined
+                        : message.role === "bot"
+                          ? memberName?.(message.botId)
+                          : undefined
+                    }
+                    memberName={memberName}
+                    peerBot={peerBot}
+                    replyPreview={
+                      message.replyToMessageId
+                        ? messageById.get(message.replyToMessageId)
+                        : undefined
+                    }
+                    replyToMessageId={message.replyToMessageId}
+                    onJumpToMessage={onJumpToMessage}
+                    onRefresh={onRefresh}
+                    onBotChanged={onBotChanged}
+                    onAddRoutine={onAddRoutine}
+                    voiceReady={voiceReady}
+                    speaking={speakingMessageId === message.id}
+                    onSpeak={() => onSpeak(message)}
+                  />
+                </div>
+              </div>
               {!peerReceipt && message.thumbsUp ? (
                 <button
                   type="button"
@@ -4841,14 +4858,36 @@ function previewMessageText(message: ThreadMessage): string {
 
 function MessageHoverActions({
   message,
+  side,
   onReply,
   onReact,
 }: {
   message: ThreadMessage;
+  side: "start" | "end";
   onReply: (message: ThreadMessage) => void;
   onReact: (message: ThreadMessage) => Promise<void>;
 }) {
   const { t } = useLingui();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    function onPointerDown(event: PointerEvent) {
+      if (moreRef.current?.contains(event.target as Node)) return;
+      setMoreOpen(false);
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMoreOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [moreOpen]);
+
   // Streaming progress bubbles keep hover free for selection / stop clicks.
   if (message.id.startsWith("progress:")) return null;
 
@@ -4856,43 +4895,67 @@ function MessageHoverActions({
     const text = copyableMessageText(message);
     if (!text || !navigator.clipboard) return;
     void navigator.clipboard.writeText(text).catch(() => undefined);
+    setMoreOpen(false);
   }
 
+  const iconButtonClass =
+    "grid h-7 w-7 place-items-center text-[#C9C9CE] transition-colors hover:text-[#ECECEE]";
+
   return (
-    <MessageHoverMetadata createdAt={message.createdAt}>
+    <MessageHoverMetadata createdAt={message.createdAt} pinned={moreOpen} side={side}>
       <div
         data-testid="message-hover-actions"
-        className="flex items-center gap-0.5 rounded-full bg-[#1C1C1F] p-0.5 shadow-[0_1px_4px_rgba(0,0,0,0.45)]"
+        className={`flex items-center gap-0.5 ${moreOpen ? "pointer-events-auto opacity-100" : ""}`}
       >
-        <button
-          type="button"
-          aria-label={t`Reply`}
-          onClick={() => onReply(message)}
-          className="grid h-7 w-7 place-items-center rounded-full text-[#C9C9CE] hover:bg-[#2A2A2F] hover:text-[#ECECEE]"
-        >
-          <Reply size={14} strokeWidth={1.8} />
-        </button>
         {canReactToThreadMessage(message) ? (
           <button
             type="button"
             aria-label={message.thumbsUp ? t`Remove thumbs-up` : t`Add thumbs-up`}
             aria-pressed={Boolean(message.thumbsUp)}
             onClick={() => void onReact(message)}
-            className={`grid h-7 w-7 place-items-center rounded-full hover:bg-[#2A2A2F] hover:text-[#ECECEE] ${
-              message.thumbsUp ? "text-[#E9C46A]" : "text-[#C9C9CE]"
-            }`}
+            className={`${iconButtonClass} ${message.thumbsUp ? "text-[#E9C46A]" : ""}`}
           >
-            <ThumbsUp size={14} strokeWidth={1.8} />
+            <Smile size={15} strokeWidth={1.7} />
           </button>
         ) : null}
         <button
           type="button"
-          aria-label={t`Copy`}
-          onClick={copyMessage}
-          className="grid h-7 w-7 place-items-center rounded-full text-[#C9C9CE] hover:bg-[#2A2A2F] hover:text-[#ECECEE]"
+          aria-label={t`Reply`}
+          onClick={() => onReply(message)}
+          className={iconButtonClass}
         >
-          <Copy size={14} strokeWidth={1.8} />
+          <Reply size={15} strokeWidth={1.7} />
         </button>
+        <div ref={moreRef} className="relative">
+          <button
+            type="button"
+            aria-label={t`More`}
+            aria-expanded={moreOpen}
+            aria-haspopup="menu"
+            onClick={() => setMoreOpen((open) => !open)}
+            className={iconButtonClass}
+          >
+            <MoreHorizontal size={15} strokeWidth={1.7} />
+          </button>
+          {moreOpen ? (
+            <div
+              role="menu"
+              className={`absolute top-full z-20 mt-1 min-w-[7.5rem] rounded-lg border border-[#303034] bg-[#1C1C1F] py-1 shadow-[0_8px_24px_rgba(0,0,0,.45)] ${
+                side === "end" ? "start-0" : "end-0"
+              }`}
+            >
+              <button
+                type="button"
+                role="menuitem"
+                aria-label={t`Copy`}
+                onClick={copyMessage}
+                className="flex w-full items-center px-3 py-1.5 text-start text-[13px] text-[#C9C9CE] hover:bg-[#2A2A2F] hover:text-[#ECECEE]"
+              >
+                <Trans>Copy</Trans>
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </MessageHoverMetadata>
   );
