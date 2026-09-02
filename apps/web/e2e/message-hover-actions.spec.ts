@@ -89,7 +89,33 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
     })
     .toEqual({ beside: true, centered: true, notBelow: true });
 
+  // Long user bubble: rail stays ~6px beside the bubble edge, not the full row width.
+  const longText = `hover-long-${stamp}-${"x".repeat(220)}`;
+  await composer.fill(longText);
+  await composer.press("Enter");
+  const longRow = transcript
+    .locator(`[data-message-id]`)
+    .filter({ hasText: longText.slice(0, 40) })
+    .first();
+  await expect(longRow).toBeVisible({ timeout: 20_000 });
+  const longRail = await revealHoverRail(longRow);
+  const longBubble = longRow
+    .locator("div")
+    .filter({ hasText: longText.slice(0, 40) })
+    .last();
+  await expect
+    .poll(async () => {
+      const railBox = await longRail.boundingBox();
+      const bubbleBox = await longBubble.boundingBox();
+      if (!railBox || !bubbleBox) return null;
+      return Math.abs(bubbleBox.x - (railBox.x + railBox.width));
+    })
+    .toBeLessThan(10);
+  await clearHoverRail(longRail);
+
   // Quiet timestamp is in-flow under the bubble (reserves height; not absolute overlay).
+  // Re-hover the short parent for the remaining assertions.
+  await revealHoverRail(parentRow);
   const time = parentRow.getByTestId("message-hover-time");
   await expect
     .poll(async () => {

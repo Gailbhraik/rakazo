@@ -4049,7 +4049,15 @@ const Transcript = memo(function Transcript({
                     : `relative flex ${message.role === "user" ? "justify-end" : "justify-start"}`
                 }
               >
-                <div className={peerReceipt ? undefined : "relative max-w-full min-w-0"}>
+                <div
+                  className={
+                    peerReceipt
+                      ? undefined
+                      : `relative w-fit min-w-0 ${
+                          message.role === "user" ? "max-w-[70%]" : "max-w-[74%]"
+                        }`
+                  }
+                >
                   {peerReceipt ? null : (
                     <MessageHoverActions
                       message={message}
@@ -4877,15 +4885,26 @@ function MessageHoverActions({
   const morePanelId = useId();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+
+  function closeMore({ restoreFocus }: { restoreFocus: boolean }) {
+    setMoreOpen(false);
+    if (restoreFocus) {
+      queueMicrotask(() => moreButtonRef.current?.focus());
+    }
+  }
 
   useEffect(() => {
     if (!moreOpen) return;
     function onPointerDown(event: PointerEvent) {
       if (moreRef.current?.contains(event.target as Node)) return;
-      setMoreOpen(false);
+      closeMore({ restoreFocus: false });
     }
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setMoreOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeMore({ restoreFocus: true });
+      }
     }
     document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
@@ -4902,7 +4921,7 @@ function MessageHoverActions({
     const text = copyableMessageText(message);
     if (!text || !navigator.clipboard) return;
     void navigator.clipboard.writeText(text).catch(() => undefined);
-    setMoreOpen(false);
+    closeMore({ restoreFocus: true });
   }
 
   const iconButtonClass =
@@ -4935,6 +4954,7 @@ function MessageHoverActions({
         </button>
         <div ref={moreRef} className="relative">
           <button
+            ref={moreButtonRef}
             type="button"
             aria-label={t`More`}
             aria-expanded={moreOpen}
@@ -5080,7 +5100,7 @@ const MessageView = memo(function MessageView({
           data-testid="reply-parent-preview"
           aria-label={t`Jump to replied message`}
           onClick={() => onJumpToMessage?.(parentJumpId)}
-          className="mb-2 block max-w-[74%] truncate rounded-[14px] border border-[#26262A] bg-[#131315] px-3 py-2 text-start text-[12.5px] text-[#85858A] hover:border-[#34343B] hover:text-[#C9C9CE]"
+          className="mb-2 block max-w-full truncate rounded-[14px] border border-[#26262A] bg-[#131315] px-3 py-2 text-start text-[12.5px] text-[#85858A] hover:border-[#34343B] hover:text-[#C9C9CE]"
           dir="auto"
         >
           {replyPreview ? previewMessageText(replyPreview) : t`Earlier message`}
@@ -5094,7 +5114,7 @@ const MessageView = memo(function MessageView({
         {messageContext}
         <div className="flex justify-start">
           <div
-            className="max-w-[74%] space-y-2.5 rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
+            className="max-w-full space-y-2.5 rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
             dir="auto"
           >
             {message.blocks.map((block, i) => {
@@ -5199,7 +5219,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-start">
               <div
-                className="max-w-[74%] rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
+                className="max-w-full rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
                 dir="auto"
               >
                 <ChatMarkdown streaming>{block.text}</ChatMarkdown>
@@ -5211,7 +5231,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-start">
               <div
-                className="max-w-[74%] space-y-1.5 rounded-[20px] bg-[#1A1A1D] px-[18px] py-3"
+                className="max-w-full space-y-1.5 rounded-[20px] bg-[#1A1A1D] px-[18px] py-3"
                 dir="ltr"
               >
                 <ToolActivityDisclosure
@@ -5374,7 +5394,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-end">
               <div
-                className="max-w-[70%] whitespace-pre-wrap rounded-[20px] bg-[#F1F1EF] px-[18px] py-3 text-[15.5px] leading-[1.45] text-[#1A1A1A]"
+                className="max-w-full whitespace-pre-wrap rounded-[20px] bg-[#F1F1EF] px-[18px] py-3 text-[15.5px] leading-[1.45] text-[#1A1A1A]"
                 dir="auto"
               >
                 {block.text}
@@ -5386,7 +5406,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-start">
               <div
-                className="max-w-[74%] rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
+                className="max-w-full rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
                 dir="auto"
               >
                 <ChatMarkdown>{block.text}</ChatMarkdown>
@@ -6708,7 +6728,7 @@ function McpApprovalCard({
 
   const summary = endpoint ?? `stdio · ${transport}`;
   return (
-    <BuiCard className="max-w-[74%] p-4">
+    <BuiCard className="max-w-full p-4">
       <div className="flex items-center gap-2">
         <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#30356A] text-xs text-[#E2E4FF]">
           M
@@ -6788,7 +6808,7 @@ function ChartBlockView({
   const expandedViewport = chartViewport(viewport.width, viewport.height);
   return (
     <>
-      <div className="group relative max-w-[74%] rounded-[20px] bg-[#17171A] p-4">
+      <div className="group relative max-w-full rounded-[20px] bg-[#17171A] p-4">
         <ChartCanvas spec={spec} data={data} width={520} />
         <button
           type="button"

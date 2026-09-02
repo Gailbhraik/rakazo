@@ -50,7 +50,7 @@ export function MessageHoverTimestamp({
     <time
       dateTime={createdAt}
       data-testid="message-hover-time"
-      className={`mt-1 block h-[14px] text-[11px] leading-[14px] tabular-nums text-[#85858A] opacity-0 transition-opacity group-hover/message:opacity-100 ${
+      className={`mt-1 block h-[14px] text-[11px] leading-[14px] tabular-nums text-[#85858A] opacity-0 transition-opacity group-hover/message:opacity-100 group-focus-within/message:opacity-100 ${
         side === "end" ? "text-start" : "text-end"
       }`}
     >

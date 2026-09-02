@@ -62,7 +62,7 @@ describe("MessageHoverTimestamp", () => {
     expect(html).toContain("text-start");
     expect(html).not.toContain("absolute");
     expect(html).toContain(
-      `<time dateTime="${createdAt}" data-testid="message-hover-time" class="mt-1 block h-[14px] text-[11px] leading-[14px] tabular-nums text-[#85858A] opacity-0 transition-opacity group-hover/message:opacity-100 text-start">6:14 PM</time>`,
+      `<time dateTime="${createdAt}" data-testid="message-hover-time" class="mt-1 block h-[14px] text-[11px] leading-[14px] tabular-nums text-[#85858A] opacity-0 transition-opacity group-hover/message:opacity-100 group-focus-within/message:opacity-100 text-start">6:14 PM</time>`,
     );
   });
 
