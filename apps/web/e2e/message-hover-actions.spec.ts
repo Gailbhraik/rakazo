@@ -121,7 +121,7 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
 
   await parentRow.hover();
   await toolbar.getByRole("button", { name: "More" }).click();
-  await toolbar.getByRole("menuitem", { name: "Copy" }).click();
+  await toolbar.getByRole("button", { name: "Copy" }).click();
   await expect
     .poll(async () => page.evaluate(() => navigator.clipboard.readText()))
     .toBe(parentText);

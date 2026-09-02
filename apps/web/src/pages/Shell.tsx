@@ -4868,6 +4868,7 @@ function MessageHoverActions({
   onReact: (message: ThreadMessage) => Promise<void>;
 }) {
   const { t } = useLingui();
+  const morePanelId = useId();
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 
@@ -4902,7 +4903,7 @@ function MessageHoverActions({
     "grid h-7 w-7 place-items-center text-[#C9C9CE] transition-colors hover:text-[#ECECEE]";
 
   return (
-    <MessageHoverMetadata createdAt={message.createdAt} pinned={moreOpen} side={side}>
+    <MessageHoverMetadata pinned={moreOpen} side={side}>
       <div
         data-testid="message-hover-actions"
         className={`flex items-center gap-0.5 ${moreOpen ? "pointer-events-auto opacity-100" : ""}`}
@@ -4931,7 +4932,7 @@ function MessageHoverActions({
             type="button"
             aria-label={t`More`}
             aria-expanded={moreOpen}
-            aria-haspopup="menu"
+            aria-controls={moreOpen ? morePanelId : undefined}
             onClick={() => setMoreOpen((open) => !open)}
             className={iconButtonClass}
           >
@@ -4939,14 +4940,13 @@ function MessageHoverActions({
           </button>
           {moreOpen ? (
             <div
-              role="menu"
+              id={morePanelId}
               className={`absolute top-full z-20 mt-1 min-w-[7.5rem] rounded-lg border border-[#303034] bg-[#1C1C1F] py-1 shadow-[0_8px_24px_rgba(0,0,0,.45)] ${
                 side === "end" ? "start-0" : "end-0"
               }`}
             >
               <button
                 type="button"
-                role="menuitem"
                 aria-label={t`Copy`}
                 onClick={copyMessage}
                 className="flex w-full items-center px-3 py-1.5 text-start text-[13px] text-[#C9C9CE] hover:bg-[#2A2A2F] hover:text-[#ECECEE]"
