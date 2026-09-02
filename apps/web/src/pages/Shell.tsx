@@ -4052,6 +4052,7 @@ const Transcript = memo(function Transcript({
                 }
               >
                 <div
+                  data-testid={peerReceipt ? undefined : "message-bubble-frame"}
                   className={
                     peerReceipt
                       ? undefined

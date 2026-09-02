@@ -37,19 +37,21 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
   const botToolbar = botRow.getByTestId("message-hover-actions");
   await expect(botToolbar.getByRole("button", { name: "Reply" })).toBeVisible();
   await expect(botToolbar.getByRole("button", { name: "More" })).toBeVisible();
-  const botBubble = botRow.locator("div").filter({ hasText: /.+/ }).last();
+  // Measure against the bubble frame (rail offset parent), not an inner markdown
+  // div — padding inside the rounded bubble made the old locator look >8px away.
+  const botFrame = botRow.getByTestId("message-bubble-frame");
   await expect
     .poll(async () => {
       const railBox = await botRail.boundingBox();
-      const bubbleBox = await botBubble.boundingBox();
-      if (!railBox || !bubbleBox) return null;
+      const frameBox = await botFrame.boundingBox();
+      if (!railBox || !frameBox) return null;
       const railMid = railBox.y + railBox.height / 2;
-      const bubbleMid = bubbleBox.y + bubbleBox.height / 2;
+      const frameMid = frameBox.y + frameBox.height / 2;
       return {
-        beside: railBox.x >= bubbleBox.x + bubbleBox.width - 2,
-        flush: railBox.x - (bubbleBox.x + bubbleBox.width) < 8,
-        centered: Math.abs(railMid - bubbleMid) <= 12,
-        notBelow: railBox.y + railBox.height <= bubbleBox.y + bubbleBox.height + 12,
+        beside: railBox.x >= frameBox.x + frameBox.width - 2,
+        flush: railBox.x - (frameBox.x + frameBox.width) < 8,
+        centered: Math.abs(railMid - frameMid) <= 12,
+        notBelow: railBox.y + railBox.height <= frameBox.y + frameBox.height + 12,
       };
     })
     .toEqual({ beside: true, flush: true, centered: true, notBelow: true });
@@ -78,19 +80,19 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
     .not.toMatch(/255,\s*2(0[0-9]|1[0-9]|2[0-9]|3[0-5])/); // not yellow-ish rgb
 
   // User bubble (right): icons sit to the left, vertically centered — not under the bubble.
-  const bubble = parentRow.locator("div").filter({ hasText: parentText }).last();
+  const frame = parentRow.getByTestId("message-bubble-frame");
   await expect
     .poll(async () => {
       const railBox = await rail.boundingBox();
-      const bubbleBox = await bubble.boundingBox();
-      if (!railBox || !bubbleBox) return null;
+      const frameBox = await frame.boundingBox();
+      if (!railBox || !frameBox) return null;
       const railMid = railBox.y + railBox.height / 2;
-      const bubbleMid = bubbleBox.y + bubbleBox.height / 2;
+      const frameMid = frameBox.y + frameBox.height / 2;
       return {
-        beside: railBox.x + railBox.width <= bubbleBox.x + 2,
-        flush: bubbleBox.x - (railBox.x + railBox.width) < 8,
-        centered: Math.abs(railMid - bubbleMid) <= 12,
-        notBelow: railBox.y >= bubbleBox.y - 12,
+        beside: railBox.x + railBox.width <= frameBox.x + 2,
+        flush: frameBox.x - (railBox.x + railBox.width) < 8,
+        centered: Math.abs(railMid - frameMid) <= 12,
+        notBelow: railBox.y >= frameBox.y - 12,
       };
     })
     .toEqual({ beside: true, flush: true, centered: true, notBelow: true });
@@ -105,16 +107,13 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
     .first();
   await expect(longRow).toBeVisible({ timeout: 20_000 });
   const longRail = await revealHoverRail(longRow);
-  const longBubble = longRow
-    .locator("div")
-    .filter({ hasText: longText.slice(0, 40) })
-    .last();
+  const longFrame = longRow.getByTestId("message-bubble-frame");
   await expect
     .poll(async () => {
       const railBox = await longRail.boundingBox();
-      const bubbleBox = await longBubble.boundingBox();
-      if (!railBox || !bubbleBox) return null;
-      return Math.abs(bubbleBox.x - (railBox.x + railBox.width));
+      const frameBox = await longFrame.boundingBox();
+      if (!railBox || !frameBox) return null;
+      return Math.abs(frameBox.x - (railBox.x + railBox.width));
     })
     .toBeLessThan(8);
   await clearHoverRail(longRail);
@@ -131,18 +130,18 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
   await expect(toolbar.getByRole("button", { name: "More" })).toBeFocused();
 
   const railBox = await rail.boundingBox();
-  const bubbleBox = await bubble.boundingBox();
-  if (!railBox || !bubbleBox) throw new Error("missing hover toolbar geometry");
+  const frameBox = await frame.boundingBox();
+  if (!railBox || !frameBox) throw new Error("missing hover toolbar geometry");
   const pad = 16;
-  const top = Math.min(railBox.y, bubbleBox.y);
+  const top = Math.min(railBox.y, frameBox.y);
   const clip = {
-    x: Math.max(0, Math.min(railBox.x, bubbleBox.x) - pad),
+    x: Math.max(0, Math.min(railBox.x, frameBox.x) - pad),
     y: Math.max(0, top - pad),
     width:
-      Math.max(railBox.x + railBox.width, bubbleBox.x + bubbleBox.width) -
-      Math.min(railBox.x, bubbleBox.x) +
+      Math.max(railBox.x + railBox.width, frameBox.x + frameBox.width) -
+      Math.min(railBox.x, frameBox.x) +
       pad * 2,
-    height: Math.max(railBox.y + railBox.height, bubbleBox.y + bubbleBox.height) - top + pad * 2,
+    height: Math.max(railBox.y + railBox.height, frameBox.y + frameBox.height) - top + pad * 2,
   };
   const hoverPath = testInfo.outputPath("message-hover-toolbar.png");
   await page.screenshot({
