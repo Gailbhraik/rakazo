@@ -124,7 +124,7 @@ import {
   ComputersUnavailableHint,
   computersAreUnavailable,
 } from "../components/ComputersUnavailableHint";
-import { MessageHoverMetadata } from "../components/MessageHoverMetadata";
+import { MessageHoverMetadata, MessageHoverTimestamp } from "../components/MessageHoverMetadata";
 import { ToolActivityDisclosure, ToolSteps } from "../components/ToolActivityDisclosure";
 import { SkillDraftCard } from "../components/teach/SkillDraftCard";
 import { TeachCaptureOverlay } from "../components/teach/TeachCaptureOverlay";
@@ -4088,6 +4088,12 @@ const Transcript = memo(function Transcript({
                     speaking={speakingMessageId === message.id}
                     onSpeak={() => onSpeak(message)}
                   />
+                  {peerReceipt ? null : (
+                    <MessageHoverTimestamp
+                      createdAt={message.createdAt}
+                      side={message.role === "user" ? "start" : "end"}
+                    />
+                  )}
                 </div>
               </div>
               {!peerReceipt && message.thumbsUp ? (

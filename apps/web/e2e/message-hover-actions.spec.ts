@@ -89,6 +89,17 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
     })
     .toEqual({ beside: true, centered: true, notBelow: true });
 
+  // Quiet timestamp is in-flow under the bubble (reserves height; not absolute overlay).
+  const time = parentRow.getByTestId("message-hover-time");
+  await expect
+    .poll(async () => {
+      const timeBox = await time.boundingBox();
+      const bubbleBox = await bubble.boundingBox();
+      if (!timeBox || !bubbleBox) return null;
+      return timeBox.y >= bubbleBox.y + bubbleBox.height - 1;
+    })
+    .toBe(true);
+
   const railBox = await rail.boundingBox();
   const bubbleBox = await bubble.boundingBox();
   if (!railBox || !bubbleBox) throw new Error("missing hover toolbar geometry");

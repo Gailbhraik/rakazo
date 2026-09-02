@@ -1,6 +1,7 @@
+import { i18n } from "@lingui/core";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
-import { MessageHoverMetadata } from "./MessageHoverMetadata";
+import { afterEach, describe, expect, it } from "vitest";
+import { MessageHoverMetadata, MessageHoverTimestamp } from "./MessageHoverMetadata";
 
 describe("MessageHoverMetadata", () => {
   it("places bot actions to the right of the bubble", () => {
@@ -40,5 +41,48 @@ describe("MessageHoverMetadata", () => {
 
     expect(html).toContain("pointer-events-auto opacity-100");
     expect(html).not.toContain("group-hover/message:opacity-100");
+  });
+});
+
+describe("MessageHoverTimestamp", () => {
+  afterEach(() => {
+    i18n.load("en", {});
+    i18n.activate("en");
+  });
+
+  it("renders an in-flow quiet time under the bubble, not in the icon rail", () => {
+    i18n.load("en", {});
+    i18n.activate("en");
+
+    const createdAt = new Date(2026, 7, 21, 18, 14).toISOString();
+    const html = renderToStaticMarkup(<MessageHoverTimestamp createdAt={createdAt} side="end" />);
+
+    expect(html).toContain('data-testid="message-hover-time"');
+    expect(html).toContain("mt-1 block h-[14px]");
+    expect(html).toContain("text-start");
+    expect(html).not.toContain("absolute");
+    expect(html).toContain(
+      `<time dateTime="${createdAt}" data-testid="message-hover-time" class="mt-1 block h-[14px] text-[11px] leading-[14px] tabular-nums text-[#85858A] opacity-0 transition-opacity group-hover/message:opacity-100 text-start">6:14 PM</time>`,
+    );
+  });
+
+  it("mirrors alignment for user bubbles", () => {
+    const html = renderToStaticMarkup(
+      <MessageHoverTimestamp createdAt={new Date().toISOString()} side="start" />,
+    );
+    expect(html).toContain("text-end");
+    expect(html).not.toContain("text-start");
+  });
+
+  it("formats the displayed time with the active i18n locale", () => {
+    i18n.load("de", {});
+    i18n.activate("de");
+
+    const createdAt = new Date(2026, 7, 21, 18, 14).toISOString();
+    const html = renderToStaticMarkup(<MessageHoverTimestamp createdAt={createdAt} side="end" />);
+
+    expect(html).toContain(`dateTime="${createdAt}"`);
+    expect(html).toContain(">18:14</time>");
+    expect(html).not.toContain("6:14 PM");
   });
 });
