@@ -47,11 +47,12 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
       const bubbleMid = bubbleBox.y + bubbleBox.height / 2;
       return {
         beside: railBox.x >= bubbleBox.x + bubbleBox.width - 2,
+        flush: railBox.x - (bubbleBox.x + bubbleBox.width) < 8,
         centered: Math.abs(railMid - bubbleMid) <= 12,
         notBelow: railBox.y + railBox.height <= bubbleBox.y + bubbleBox.height + 12,
       };
     })
-    .toEqual({ beside: true, centered: true, notBelow: true });
+    .toEqual({ beside: true, flush: true, centered: true, notBelow: true });
   await captureScreenshot(page, testInfo, "message-bot-actions-desktop");
   await clearHoverRail(botRail);
 
@@ -71,6 +72,10 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
   await expect(toolbar.getByRole("button", { name: "More" })).toBeVisible();
   const thumbsUp = toolbar.getByRole("button", { name: "Add thumbs-up" });
   await expect(thumbsUp).toBeVisible();
+  // Default smile matches reply/more: muted gray, not yellow.
+  await expect
+    .poll(async () => thumbsUp.evaluate((el) => getComputedStyle(el).color))
+    .not.toMatch(/255,\s*2(0[0-9]|1[0-9]|2[0-9]|3[0-5])/); // not yellow-ish rgb
 
   // User bubble (right): icons sit to the left, vertically centered — not under the bubble.
   const bubble = parentRow.locator("div").filter({ hasText: parentText }).last();
@@ -83,11 +88,12 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
       const bubbleMid = bubbleBox.y + bubbleBox.height / 2;
       return {
         beside: railBox.x + railBox.width <= bubbleBox.x + 2,
+        flush: bubbleBox.x - (railBox.x + railBox.width) < 8,
         centered: Math.abs(railMid - bubbleMid) <= 12,
         notBelow: railBox.y >= bubbleBox.y - 12,
       };
     })
-    .toEqual({ beside: true, centered: true, notBelow: true });
+    .toEqual({ beside: true, flush: true, centered: true, notBelow: true });
 
   // Long user bubble: rail stays ~6px beside the bubble edge, not the full row width.
   const longText = `hover-long-${stamp}-${"x".repeat(220)}`;
@@ -110,21 +116,18 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
       if (!railBox || !bubbleBox) return null;
       return Math.abs(bubbleBox.x - (railBox.x + railBox.width));
     })
-    .toBeLessThan(10);
+    .toBeLessThan(8);
   await clearHoverRail(longRail);
 
-  // Quiet timestamp is in-flow under the bubble (reserves height; not absolute overlay).
-  // Re-hover the short parent for the remaining assertions.
+  // No transcript timestamp under the bubble (Grok Bot). Time lives in More.
+  await expect(parentRow.getByTestId("message-hover-time")).toHaveCount(0);
   await revealHoverRail(parentRow);
-  const time = parentRow.getByTestId("message-hover-time");
-  await expect
-    .poll(async () => {
-      const timeBox = await time.boundingBox();
-      const bubbleBox = await bubble.boundingBox();
-      if (!timeBox || !bubbleBox) return null;
-      return timeBox.y >= bubbleBox.y + bubbleBox.height - 1;
-    })
-    .toBe(true);
+  await toolbar.getByRole("button", { name: "More" }).click();
+  const moreTime = parentRow.getByTestId("message-hover-time");
+  await expect(moreTime).toBeVisible();
+  await expect(moreTime).toHaveText(/\d/);
+  // Close more before continuing.
+  await page.keyboard.press("Escape");
 
   const railBox = await rail.boundingBox();
   const bubbleBox = await bubble.boundingBox();

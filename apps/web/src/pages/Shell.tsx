@@ -1,3 +1,4 @@
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { ChatMarkdown } from "@rakazo/chat-ui/web";
@@ -77,6 +78,7 @@ import {
   Box,
   ChevronDown,
   Clock,
+  Copy,
   Cpu,
   Gauge,
   Lock,
@@ -124,7 +126,7 @@ import {
   ComputersUnavailableHint,
   computersAreUnavailable,
 } from "../components/ComputersUnavailableHint";
-import { MessageHoverMetadata, MessageHoverTimestamp } from "../components/MessageHoverMetadata";
+import { MessageHoverMetadata } from "../components/MessageHoverMetadata";
 import { ToolActivityDisclosure, ToolSteps } from "../components/ToolActivityDisclosure";
 import { SkillDraftCard } from "../components/teach/SkillDraftCard";
 import { TeachCaptureOverlay } from "../components/teach/TeachCaptureOverlay";
@@ -4096,12 +4098,6 @@ const Transcript = memo(function Transcript({
                     speaking={speakingMessageId === message.id}
                     onSpeak={() => onSpeak(message)}
                   />
-                  {peerReceipt ? null : (
-                    <MessageHoverTimestamp
-                      createdAt={message.createdAt}
-                      side={message.role === "user" ? "start" : "end"}
-                    />
-                  )}
                 </div>
               </div>
               {!peerReceipt && message.thumbsUp ? (
@@ -4939,7 +4935,7 @@ function MessageHoverActions({
             aria-label={message.thumbsUp ? t`Remove thumbs-up` : t`Add thumbs-up`}
             aria-pressed={Boolean(message.thumbsUp)}
             onClick={() => void onReact(message)}
-            className={`${iconButtonClass} ${message.thumbsUp ? "text-[#E9C46A]" : ""}`}
+            className={`${iconButtonClass} ${message.thumbsUp ? "text-[#ECECEE]" : ""}`}
           >
             <Smile size={15} strokeWidth={1.7} />
           </button>
@@ -4975,10 +4971,20 @@ function MessageHoverActions({
                 type="button"
                 aria-label={t`Copy`}
                 onClick={copyMessage}
-                className="flex w-full items-center px-3 py-1.5 text-start text-[13px] text-[#C9C9CE] hover:bg-[#2A2A2F] hover:text-[#ECECEE]"
+                className="flex w-full items-center gap-2 px-3 py-1.5 text-start text-[13px] text-[#C9C9CE] hover:bg-[#2A2A2F] hover:text-[#ECECEE]"
               >
+                <Copy size={14} strokeWidth={1.7} />
                 <Trans>Copy</Trans>
               </button>
+              <div
+                data-testid="message-hover-time"
+                className="px-3 py-1.5 text-[12px] tabular-nums text-[#85858A]"
+              >
+                {new Date(message.createdAt).toLocaleTimeString(i18n.locale || "en", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </div>
             </div>
           ) : null}
         </div>
@@ -5112,7 +5118,7 @@ const MessageView = memo(function MessageView({
     return (
       <>
         {messageContext}
-        <div className="flex justify-start">
+        <div className="flex w-fit max-w-full justify-start">
           <div
             className="max-w-full space-y-2.5 rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
             dir="auto"
@@ -5217,7 +5223,7 @@ const MessageView = memo(function MessageView({
         }
         if (block.kind === "progress") {
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <div
                 className="max-w-full rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
                 dir="auto"
@@ -5229,7 +5235,7 @@ const MessageView = memo(function MessageView({
         }
         if (block.kind === "steps") {
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <div
                 className="max-w-full space-y-1.5 rounded-[20px] bg-[#1A1A1D] px-[18px] py-3"
                 dir="ltr"
@@ -5334,21 +5340,21 @@ const MessageView = memo(function MessageView({
           const botId = "botId" in artifactTarget ? artifactTarget.botId : message.botId;
           if (!botId) return null;
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <AppConnectCard botId={botId} block={block} />
             </div>
           );
         }
         if (block.kind === "chart") {
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <ChartBlockView name={block.name} spec={block.spec} data={block.data} />
             </div>
           );
         }
         if (block.kind === "mcp_approval") {
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <McpApprovalCard
                 botId={"botId" in artifactTarget ? artifactTarget.botId : message.botId}
                 name={block.name}
@@ -5364,7 +5370,7 @@ const MessageView = memo(function MessageView({
           return (
             <div
               key={i}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex w-fit max-w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <ArtifactImage
                 target={artifactTarget}
@@ -5378,7 +5384,7 @@ const MessageView = memo(function MessageView({
           return (
             <div
               key={i}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex w-fit max-w-full ${message.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <ArtifactFileCard
                 target={artifactTarget}
@@ -5392,7 +5398,7 @@ const MessageView = memo(function MessageView({
         }
         if (block.kind === "text" && message.role === "user") {
           return (
-            <div key={i} className="flex justify-end">
+            <div key={i} className="flex w-fit max-w-full justify-end">
               <div
                 className="max-w-full whitespace-pre-wrap rounded-[20px] bg-[#F1F1EF] px-[18px] py-3 text-[15.5px] leading-[1.45] text-[#1A1A1A]"
                 dir="auto"
@@ -5404,7 +5410,7 @@ const MessageView = memo(function MessageView({
         }
         if (block.kind === "text") {
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <div
                 className="max-w-full rounded-[20px] bg-[#1A1A1D] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#DFDFE2]"
                 dir="auto"
@@ -5426,7 +5432,7 @@ const MessageView = memo(function MessageView({
         }
         if (block.kind === "card") {
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <div className="flex flex-col gap-2 rounded-[20px] bg-[#1A1A1D] px-5 py-4">
                 {block.lines.map((line) => (
                   <div key={line.k} className="flex items-baseline gap-2.5 text-[15px]">
@@ -5452,7 +5458,7 @@ const MessageView = memo(function MessageView({
         }
         if (block.kind === "skill_draft") {
           return (
-            <div key={i} className="flex justify-start">
+            <div key={i} className="flex w-fit max-w-full justify-start">
               <SkillDraftCard block={block} onRefresh={onRefresh} onAddRoutine={onAddRoutine} />
             </div>
           );
@@ -6467,7 +6473,7 @@ function ChoiceCard({
   }
 
   return (
-    <div className="flex justify-start">
+    <div className="flex w-fit max-w-full justify-start">
       <div className="w-[min(420px,80%)] rounded-[20px] bg-[#1A1A1D] px-[18px] py-[14px]">
         <div className="text-[15.5px] text-[#DFDFE2]">{block.question}</div>
         {block.subtitle ? (
