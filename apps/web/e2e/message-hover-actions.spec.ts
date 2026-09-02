@@ -126,8 +126,9 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
   const moreTime = parentRow.getByTestId("message-hover-time");
   await expect(moreTime).toBeVisible();
   await expect(moreTime).toHaveText(/\d/);
-  // Close more before continuing.
+  // Escape closes More and restores focus to the trigger so the rail stays up.
   await page.keyboard.press("Escape");
+  await expect(toolbar.getByRole("button", { name: "More" })).toBeFocused();
 
   const railBox = await rail.boundingBox();
   const bubbleBox = await bubble.boundingBox();
@@ -165,6 +166,7 @@ test("message hover shows beside-bubble actions; reply links to parent", async (
   await expect
     .poll(async () => page.evaluate(() => navigator.clipboard.readText()))
     .toBe(parentText);
+  await expect(toolbar.getByRole("button", { name: "More" })).toBeFocused();
 
   await parentRow.hover();
   await toolbar.getByRole("button", { name: "Reply" }).click();
