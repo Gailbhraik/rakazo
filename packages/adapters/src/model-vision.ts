@@ -1,5 +1,6 @@
 import type { Models } from "@earendil-works/pi-ai";
 import { builtinModels } from "@earendil-works/pi-ai/providers/all";
+import { registerExtraModels } from "./pi-extra-models.js";
 import { registerLocalProvider } from "./pi-local-provider.js";
 import {
   OPENAI_COMPATIBLE_PROVIDER_ID,
@@ -21,7 +22,9 @@ const SCRIPTED_DEFAULT_MODEL_ID = "deepseek/deepseek-v4-flash-0731";
 let catalogModelsCache: Models | undefined;
 
 function catalogModels(): Models {
-  catalogModelsCache ??= registerOpenAiCompatibleCatalog(registerLocalProvider(builtinModels()));
+  catalogModelsCache ??= registerExtraModels(
+    registerOpenAiCompatibleCatalog(registerLocalProvider(builtinModels())),
+  );
   return catalogModelsCache;
 }
 
