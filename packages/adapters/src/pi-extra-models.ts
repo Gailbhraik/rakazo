@@ -42,6 +42,32 @@ const EXTRA_OPENROUTER_MODELS: Model<"openai-completions">[] = [
     maxTokens: 943_718,
     compat: { supportsDeveloperRole: false, thinkingFormat: "openrouter" },
   },
+  {
+    // Same release, without the data-contribution discount. The Contributor
+    // endpoint trains on prompts, so an OpenRouter account that forbids such
+    // providers gets "0 endpoints available" and a 404 for that id; this one
+    // is the variant such an account can actually reach.
+    id: "meta/muse-spark-1.3",
+    name: "Meta: Muse Spark 1.3",
+    api: "openai-completions",
+    baseUrl: "https://openrouter.ai/api/v1",
+    provider: "openrouter",
+    reasoning: true,
+    thinkingLevelMap: {
+      off: null,
+      minimal: "minimal",
+      low: "low",
+      medium: "medium",
+      high: "high",
+      xhigh: "xhigh",
+      max: null,
+    },
+    input: ["text", "image"],
+    cost: { input: 1.25, output: 4.25, cacheRead: 0.15, cacheWrite: 0 },
+    contextWindow: 1_048_576,
+    maxTokens: 943_718,
+    compat: { supportsDeveloperRole: false, thinkingFormat: "openrouter" },
+  },
 ];
 
 /**
