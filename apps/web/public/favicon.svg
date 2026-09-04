@@ -1,12 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
-  <title id="title">Rakazo mark</title>
+  <title id="title">Ashitaka mark</title>
   <defs>
-    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2965EC" />
-      <stop offset="1" stop-color="#5C89F8" />
+    <linearGradient id="top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2585C" />
+      <stop offset="1" stop-color="#E0393E" />
     </linearGradient>
+    <linearGradient id="bottom" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" />
+      <stop offset="1" stop-color="#DAD3D1" />
+    </linearGradient>
+    <clipPath id="ball">
+      <circle cx="256" cy="256" r="176" />
+    </clipPath>
   </defs>
-  <rect width="512" height="512" rx="148" fill="url(#blue)" />
-  <rect x="157" y="196" width="62" height="120" rx="31" fill="#F2F2F0" />
-  <rect x="293" y="196" width="62" height="120" rx="31" fill="#F2F2F0" />
+
+  <!-- Fond assorti au thème sombre : la moitié blanche de la ball reste lisible
+       sur un onglet clair comme sur un onglet sombre. -->
+  <rect width="512" height="512" rx="148" fill="#17110F" />
+
+  <g clip-path="url(#ball)">
+    <rect x="80" y="80" width="352" height="176" fill="url(#top)" />
+    <rect x="80" y="256" width="352" height="176" fill="url(#bottom)" />
+    <rect x="80" y="238" width="352" height="36" fill="#17110F" />
+  </g>
+
+  <circle cx="256" cy="256" r="176" fill="none" stroke="#17110F" stroke-width="16" />
+  <circle cx="256" cy="256" r="60" fill="#17110F" />
+  <circle cx="256" cy="256" r="40" fill="#F5F2F1" />
+  <circle cx="243" cy="243" r="13" fill="#FFFFFF" opacity="0.85" />
 </svg>
