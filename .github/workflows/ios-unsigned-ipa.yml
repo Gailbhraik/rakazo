@@ -35,15 +35,23 @@ jobs:
               | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
             echo "  $app -> Swift ${version:-inconnu}"
           done
-          apps=$(ls -d /Applications/Xcode_*.app | sort -V)
-          count=$(echo "$apps" | wc -l | tr -d ' ')
-          # L'avant-dernier tombe entre les deux bornes : le défaut de l'image
-          # reste sous 6.2, et le plus récent dépasse ce qu'expo-modules-jsi
-          # accepte. À défaut d'un second Xcode, on garde le seul disponible.
-          if [ "$count" -ge 2 ]; then
-            chosen=$(echo "$apps" | tail -2 | head -1)
-          else
-            chosen=$(echo "$apps" | tail -1)
+          # Le plus ancien Xcode qui franchisse la borne basse : l'image en
+          # propose de Swift 6.0 à 6.2.4, et seul l'intervalle [6.2, 6.2.4[
+          # convient. Prendre le plus bas laisse la marge maximale avant la
+          # borne haute quand l'image gagnera de nouvelles versions.
+          chosen=""
+          for app in $(ls -d /Applications/Xcode_*.app | sort -V); do
+            version=$(DEVELOPER_DIR="$app/Contents/Developer" swift --version 2>&1 \
+              | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
+            [ -n "$version" ] || continue
+            if [ "$(printf '%s\n6.2\n' "$version" | sort -V | head -1)" = "6.2" ]; then
+              chosen="$app"
+              break
+            fi
+          done
+          if [ -z "$chosen" ]; then
+            echo "Aucun Xcode avec Swift >= 6.2 sur cette image."
+            exit 1
           fi
           echo "Xcode retenu : $chosen"
           sudo xcode-select -s "$chosen"
