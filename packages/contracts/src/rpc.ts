@@ -239,6 +239,10 @@ export const appContract = {
     create: oc
       .input(threadTarget.safeExtend({ name: z.string().trim().min(1).max(60) }))
       .output(BotSectionSchema),
+    rename: oc
+      .input(z.object({ sectionId: Id, name: z.string().trim().min(1).max(60) }))
+      .output(BotSectionSchema),
+    remove: oc.input(z.object({ sectionId: Id })).output(z.object({ ok: z.literal(true) })),
   },
   threads: {
     head: oc.input(threadTarget).output(

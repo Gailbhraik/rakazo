@@ -1061,6 +1061,52 @@ export function createRouter(deps: RouterDeps) {
       create: authed.botSections.create.handler(async ({ context, input }) =>
         repos.createBotSection(context.actor, input),
       ),
+      rename: authed.botSections.rename.handler(async ({ context, input }) => {
+        const section = await deps.prisma.botSection.findFirst({
+          where: {
+            id: input.sectionId,
+            spaceId: context.actor.spaceId,
+            userId: context.actor.userId,
+          },
+          select: { id: true },
+        });
+        if (!section) throw new IsolationError();
+        const updated = await deps.prisma.botSection.update({
+          where: { id: section.id },
+          data: { name: input.name },
+          select: { id: true, name: true, position: true, createdAt: true, updatedAt: true },
+        });
+        return {
+          ...updated,
+          createdAt: updated.createdAt.toISOString(),
+          updatedAt: updated.updatedAt.toISOString(),
+        };
+      }),
+      remove: authed.botSections.remove.handler(async ({ context, input }) => {
+        const section = await deps.prisma.botSection.findFirst({
+          where: {
+            id: input.sectionId,
+            spaceId: context.actor.spaceId,
+            userId: context.actor.userId,
+          },
+          select: { id: true },
+        });
+        if (!section) throw new IsolationError();
+        // Supprimer une section ne supprime pas ses bots : ils repassent
+        // simplement dans la liste sans section.
+        await deps.prisma.$transaction([
+          deps.prisma.bot.updateMany({
+            where: { sectionId: section.id },
+            data: { sectionId: null },
+          }),
+          deps.prisma.chatGroup.updateMany({
+            where: { sectionId: section.id },
+            data: { sectionId: null },
+          }),
+          deps.prisma.botSection.delete({ where: { id: section.id } }),
+        ]);
+        return { ok: true as const };
+      }),
     },
     threads: {
       head: authed.threads.head.handler(async ({ context, input }) => {

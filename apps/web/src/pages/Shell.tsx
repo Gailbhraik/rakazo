@@ -87,6 +87,7 @@ import {
   Mic,
   Monitor,
   Paperclip,
+  Pencil,
   Phone,
   Plus,
   Puzzle,
@@ -95,6 +96,7 @@ import {
   Square,
   Star,
   ThumbsUp,
+  Trash2,
   Volume2,
   X,
 } from "lucide-react";
@@ -332,6 +334,7 @@ export function ShellPage() {
     peerBotName: string;
   } | null>(null);
   const [favoriteModelsOpen, setFavoriteModelsOpen] = useState(false);
+  const [renamingSection, setRenamingSection] = useState<{ id: string; name: string } | null>(null);
   // Ctrl/⌘+M ouvre les favoris : l'intérêt d'un raccourci de modèle est de ne
   // pas quitter le clavier ni la conversation en cours.
   const onMac =
@@ -2482,45 +2485,114 @@ export function ShellPage() {
                 return (
                   <div key={group.key} data-sidebar-group={group.key}>
                     {group.title ? (
-                      <div className="pt-2">
-                        <button
-                          type="button"
-                          className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-[#7B6561] hover:bg-[#201817] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#8B5CF6]"
-                          onClick={() => {
-                            if (group.emptySpaceId) {
-                              openSpaceChat(group.emptySpaceId, "/onboarding");
-                              return;
-                            }
-                            toggleSidebarSection(group.key);
-                          }}
-                          aria-expanded={group.emptySpaceId ? undefined : !collapsed}
-                          aria-label={
-                            group.emptySpaceId
-                              ? t`Open ${group.title}`
-                              : collapsed
-                                ? t`Expand ${group.title}`
-                                : t`Collapse ${group.title}`
-                          }
-                        >
-                          <span className="flex min-w-0 items-center gap-1.5 truncate">
-                            {group.showLock ? (
-                              <Lock size={11} strokeWidth={2} aria-hidden="true" />
-                            ) : null}
-                            <span className="truncate">{group.title}</span>
-                          </span>
-                          {group.emptySpaceId ? null : (
-                            <ChevronDown
-                              size={14}
-                              strokeWidth={1.8}
-                              className={
-                                collapsed
-                                  ? "-rotate-90 transition-transform"
-                                  : "transition-transform"
+                      <div className="group/section flex items-center gap-1 pt-2">
+                        {renamingSection && group.key === `section:${renamingSection.id}` ? (
+                          <form
+                            className="flex-1 px-2.5 py-0.5"
+                            onSubmit={(event) => {
+                              event.preventDefault();
+                              const name = renamingSection.name.trim();
+                              const id = renamingSection.id;
+                              setRenamingSection(null);
+                              if (!name) return;
+                              void rpc.botSections
+                                .rename({ sectionId: id, name })
+                                .then(() => refreshBots(true));
+                            }}
+                          >
+                            <input
+                              // Le champ ne surgit qu'après un clic sur Renommer : lui donner le
+                              // focus est la suite attendue du geste, pas un vol d'attention.
+                              ref={(element) => {
+                                if (element && document.activeElement !== element) element.focus();
+                              }}
+                              value={renamingSection.name}
+                              onChange={(event) =>
+                                setRenamingSection({
+                                  id: renamingSection.id,
+                                  name: event.target.value,
+                                })
                               }
-                              aria-hidden="true"
+                              onBlur={() => setRenamingSection(null)}
+                              onKeyDown={(event) => {
+                                if (event.key === "Escape") setRenamingSection(null);
+                              }}
+                              aria-label={t`Section name`}
+                              className="w-full rounded-md border border-[#463532] bg-[#100C0B] px-2 py-1 text-[12.5px] text-[#EEECEC] outline-none"
                             />
-                          )}
-                        </button>
+                          </form>
+                        ) : (
+                          <button
+                            type="button"
+                            className="flex flex-1 items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-[#7B6561] hover:bg-[#201817] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#8B5CF6]"
+                            onClick={() => {
+                              if (group.emptySpaceId) {
+                                openSpaceChat(group.emptySpaceId, "/onboarding");
+                                return;
+                              }
+                              toggleSidebarSection(group.key);
+                            }}
+                            aria-expanded={group.emptySpaceId ? undefined : !collapsed}
+                            aria-label={
+                              group.emptySpaceId
+                                ? t`Open ${group.title}`
+                                : collapsed
+                                  ? t`Expand ${group.title}`
+                                  : t`Collapse ${group.title}`
+                            }
+                          >
+                            <span className="flex min-w-0 items-center gap-1.5 truncate">
+                              {group.showLock ? (
+                                <Lock size={11} strokeWidth={2} aria-hidden="true" />
+                              ) : null}
+                              <span className="truncate">{group.title}</span>
+                            </span>
+                            {group.emptySpaceId ? null : (
+                              <ChevronDown
+                                size={14}
+                                strokeWidth={1.8}
+                                className={
+                                  collapsed
+                                    ? "-rotate-90 transition-transform"
+                                    : "transition-transform"
+                                }
+                                aria-hidden="true"
+                              />
+                            )}
+                          </button>
+                        )}
+                        {group.key.startsWith("section:") && !renamingSection ? (
+                          <span className="flex shrink-0 items-center opacity-0 transition group-hover/section:opacity-100 focus-within:opacity-100">
+                            <button
+                              type="button"
+                              aria-label={t`Rename ${group.title}`}
+                              title={t`Rename`}
+                              onClick={() =>
+                                setRenamingSection({
+                                  id: group.key.slice("section:".length),
+                                  name: group.title ?? "",
+                                })
+                              }
+                              className="rounded-md p-1 text-[#7B6561] hover:bg-[#201817] hover:text-[#EEECEC]"
+                            >
+                              <Pencil size={12} strokeWidth={1.9} />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={t`Delete section ${group.title}`}
+                              title={t`Delete section`}
+                              onClick={() => {
+                                const sectionId = group.key.slice("section:".length);
+                                void rpc.botSections
+                                  .remove({ sectionId })
+                                  .then(() => refreshBots(true));
+                              }}
+                              className="rounded-md p-1 text-[#7B6561] hover:bg-[#2A1517] hover:text-[#E0393E]"
+                            >
+                              <Trash2 size={12} strokeWidth={1.9} />
+                            </button>
+                          </span>
+                        ) : null}
                       </div>
                     ) : null}
                     {!collapsed &&
