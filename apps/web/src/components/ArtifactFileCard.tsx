@@ -46,10 +46,10 @@ export function ArtifactFileCard(props: ArtifactFileCardProps) {
         <button
           type="button"
           onClick={() => void startDownload()}
-          className="rounded-[20px] border border-[#26262A] bg-[#17171A] px-4 py-3 text-left text-[14px] text-[#DFDFE2] hover:bg-[#1F1F22]"
+          className="rounded-[20px] border border-[#2F2321] bg-[#1D1614] px-4 py-3 text-left text-[14px] text-[#E3DFDE] hover:bg-[#261D1B]"
         >
           <div className="font-medium">{props.name}</div>
-          <div className="mt-1 text-[#85858A]">
+          <div className="mt-1 text-[#967E79]">
             {props.mimeType} · {formatBytes(props.size)}
           </div>
         </button>
@@ -61,20 +61,20 @@ export function ArtifactFileCard(props: ArtifactFileCardProps) {
   return (
     <>
       <div>
-        <div className="flex min-w-[280px] overflow-hidden rounded-[20px] border border-[#343438] bg-[#1B1B1E] text-left text-[#DFDFE2]">
+        <div className="flex min-w-[280px] overflow-hidden rounded-[20px] border border-[#3F302D] bg-[#211918] text-left text-[#E3DFDE]">
           <button
             ref={previewButton}
             type="button"
             aria-label={t`Preview ${props.name}`}
             onClick={() => setPreviewOpen(true)}
-            className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left hover:bg-[#222226]"
+            className="flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left hover:bg-[#2A201E]"
           >
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-[#24344A] text-[#68A7FF]">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-[#4A2425] text-[#FF686D]">
               <FileText size={21} strokeWidth={1.8} />
             </span>
             <span className="min-w-0">
               <span className="block truncate text-[14px] font-medium">{props.name}</span>
-              <span className="mt-0.5 block text-[13px] text-[#85858A]">
+              <span className="mt-0.5 block text-[13px] text-[#967E79]">
                 {formatBytes(props.size)}
               </span>
             </span>
@@ -84,7 +84,7 @@ export function ArtifactFileCard(props: ArtifactFileCardProps) {
             aria-label={t`Download ${props.name}`}
             title={t`Download ${props.name}`}
             onClick={() => void startDownload()}
-            className="grid w-14 shrink-0 place-items-center border-l border-[#343438] text-[#9A9AA0] hover:bg-[#222226] hover:text-[#ECECEE]"
+            className="grid w-14 shrink-0 place-items-center border-l border-[#3F302D] text-[#A69794] hover:bg-[#2A201E] hover:text-[#EEECEC]"
           >
             <Download size={19} strokeWidth={1.8} />
           </button>
@@ -188,12 +188,12 @@ function MarkdownPreview({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative flex h-[min(88vh,900px)] w-[min(960px,94vw)] flex-col overflow-hidden rounded-[18px] border border-[#2B2B2F] bg-[#0D0D0F] shadow-2xl"
+        className="relative flex h-[min(88vh,900px)] w-[min(960px,94vw)] flex-col overflow-hidden rounded-[18px] border border-[#352825] bg-[#100C0C] shadow-2xl"
       >
-        <header className="flex h-14 shrink-0 items-center border-b border-[#27272B] px-5">
+        <header className="flex h-14 shrink-0 items-center border-b border-[#302422] px-5">
           <h2
             id={titleId}
-            className="min-w-0 flex-1 truncate text-[14px] font-medium text-[#E7E7E9]"
+            className="min-w-0 flex-1 truncate text-[14px] font-medium text-[#EAE7E6]"
           >
             {name}
           </h2>
@@ -212,7 +212,7 @@ function MarkdownPreview({
                 }
               })()
             }
-            className="grid h-9 w-9 place-items-center rounded-full text-[#929298] hover:bg-[#1D1D20] hover:text-[#ECECEE]"
+            className="grid h-9 w-9 place-items-center rounded-full text-[#9F8F8B] hover:bg-[#241B19] hover:text-[#EEECEC]"
           >
             <Download size={18} strokeWidth={1.8} />
           </button>
@@ -221,7 +221,7 @@ function MarkdownPreview({
             type="button"
             aria-label={t`Close preview`}
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-full text-[#929298] hover:bg-[#1D1D20] hover:text-[#ECECEE]"
+            className="grid h-9 w-9 place-items-center rounded-full text-[#9F8F8B] hover:bg-[#241B19] hover:text-[#EEECEC]"
           >
             <X size={19} strokeWidth={1.8} />
           </button>
@@ -232,9 +232,9 @@ function MarkdownPreview({
           </div>
         ) : null}
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <article className="mx-auto w-full max-w-[760px] px-8 py-10 text-[16px] leading-7 text-[#D5D5D8] sm:px-12 sm:py-12">
+          <article className="mx-auto w-full max-w-[760px] px-8 py-10 text-[16px] leading-7 text-[#D9D5D4] sm:px-12 sm:py-12">
             {state.status === "loading" ? (
-              <div className="text-[#85858A]">
+              <div className="text-[#967E79]">
                 <Trans>Loading preview…</Trans>
               </div>
             ) : state.status === "error" ? (

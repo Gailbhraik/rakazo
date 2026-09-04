@@ -48,14 +48,14 @@ function MemberPicker({
             type="button"
             onClick={() => toggle(bot.id)}
             className={`flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-start ${
-              checked ? "bg-[#1A1A1D]" : "hover:bg-[#141416]"
+              checked ? "bg-[#201817]" : "hover:bg-[#191311]"
             }`}
           >
             <BotAvatar color={bot.color} identity={bot.id} size={32} status={bot.status} />
-            <span className="flex-1 text-[15px] text-[#ECECEE]" dir="auto">
+            <span className="flex-1 text-[15px] text-[#EEECEC]" dir="auto">
               {bot.name}
             </span>
-            <span className="text-[13px] text-[#6C6C70]">{checked ? "✓" : ""}</span>
+            <span className="text-[13px] text-[#7B6561]">{checked ? "✓" : ""}</span>
           </button>
         );
       })}
@@ -94,7 +94,7 @@ export function CreateGroupForm({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-[13.5px] text-[#85858A]">
+        <span className="text-[13.5px] text-[#967E79]">
           <Trans>New group</Trans>
         </span>
         <button type="button" aria-label={t`Cancel new group`} onClick={onCancel}>
@@ -106,16 +106,16 @@ export function CreateGroupForm({
           {error}
         </p>
       ) : null}
-      <label className="block text-[14px] text-[#85858A]">
+      <label className="block text-[14px] text-[#967E79]">
         <Trans>Name</Trans>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t`Name this group`}
-          className="mt-2 w-full rounded-[11px] border border-[#26262A] bg-transparent px-3.5 py-3 text-[#ECECEE]"
+          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
         />
       </label>
-      <div className="mt-5 text-[14px] text-[#85858A]">
+      <div className="mt-5 text-[14px] text-[#967E79]">
         <Trans>
           Members (pick {GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX})
         </Trans>
@@ -188,7 +188,7 @@ export function GroupSettings({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-[13.5px] text-[#85858A]">
+        <span className="text-[13.5px] text-[#967E79]">
           <Trans>Group settings</Trans>
         </span>
       </div>
@@ -197,15 +197,15 @@ export function GroupSettings({
           {error}
         </p>
       ) : null}
-      <label className="block text-[14px] text-[#85858A]">
+      <label className="block text-[14px] text-[#967E79]">
         <Trans>Name</Trans>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-2 w-full rounded-[11px] border border-[#26262A] bg-transparent px-3.5 py-3 text-[#ECECEE]"
+          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
         />
       </label>
-      <div className="mt-5 text-[14px] text-[#85858A]">
+      <div className="mt-5 text-[14px] text-[#967E79]">
         <Trans>
           Members ({GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX})
         </Trans>

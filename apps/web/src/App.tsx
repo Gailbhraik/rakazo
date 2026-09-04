@@ -47,7 +47,7 @@ export function App() {
       <ShellSkeleton />
     ) : (
       <div
-        className="grid h-full place-items-center text-[#6C6C70]"
+        className="grid h-full place-items-center text-[#7B6561]"
         data-rakazo-app-state="session-pending"
       >
         <Trans>Loading…</Trans>
@@ -58,7 +58,7 @@ export function App() {
   const user = session.data?.user;
   return (
     <div className="h-full" data-rakazo-app-state="ready">
-      <Suspense fallback={<div className="h-full bg-[#050506]" />}>
+      <Suspense fallback={<div className="h-full bg-[#060505]" />}>
         <Routes>
           <Route path="/" element={user ? <Navigate to="/app" replace /> : <WelcomePage />} />
           <Route
@@ -128,10 +128,10 @@ function SessionUnavailable({ refetch }: { refetch: () => Promise<void> }) {
   }, [attempt, retryKey]);
 
   return (
-    <div className="grid h-full place-items-center bg-[#050506] px-6 text-center">
+    <div className="grid h-full place-items-center bg-[#060505] px-6 text-center">
       <div className="flex flex-col items-center">
         <LoadingState label={t`Reconnecting`} />
-        <p className="mt-3 text-[13.5px] text-[#6C6C70]">
+        <p className="mt-3 text-[13.5px] text-[#7B6561]">
           <Trans>Can&apos;t reach the server.</Trans>
         </p>
         <div className="mt-4">
@@ -153,29 +153,29 @@ function SessionUnavailable({ refetch }: { refetch: () => Promise<void> }) {
 function ShellSkeleton() {
   return (
     <div
-      className="flex h-full overflow-hidden bg-[#050506]"
+      className="flex h-full overflow-hidden bg-[#060505]"
       data-rakazo-app-state="session-pending"
     >
-      <aside className="hidden w-[316px] shrink-0 border-e border-[#171719] bg-[#0B0B0C] px-3.5 pt-16 md:block">
-        <div className="h-10 rounded-xl bg-[#141416]" />
+      <aside className="hidden w-[316px] shrink-0 border-e border-[#1C1514] bg-[#0D0A0A] px-3.5 pt-16 md:block">
+        <div className="h-10 rounded-xl bg-[#191311]" />
         <div className="mt-5 space-y-2 px-1">
           {[0, 1, 2, 3].map((row) => (
             <div key={row} className="flex items-center gap-3 rounded-xl px-2 py-2.5">
-              <div className="h-9 w-9 rounded-full bg-[#18181B]" />
+              <div className="h-9 w-9 rounded-full bg-[#1E1715]" />
               <div className="flex-1 space-y-2">
-                <div className="h-3 w-2/5 rounded bg-[#202024]" />
-                <div className="h-2.5 w-4/5 rounded bg-[#151518]" />
+                <div className="h-3 w-2/5 rounded bg-[#281E1C]" />
+                <div className="h-2.5 w-4/5 rounded bg-[#1A1413]" />
               </div>
             </div>
           ))}
         </div>
       </aside>
       <main className="flex flex-1 flex-col">
-        <div className="h-[74px] border-b border-[#141416]" />
-        <div className="flex flex-1 items-center justify-center text-[14px] text-[#55555A]">
+        <div className="h-[74px] border-b border-[#191311]" />
+        <div className="flex flex-1 items-center justify-center text-[14px] text-[#62514D]">
           <Trans>Opening your Space…</Trans>
         </div>
-        <div className="mx-6 mb-6 h-[54px] rounded-full border border-[#202023] bg-[#131315]" />
+        <div className="mx-6 mb-6 h-[54px] rounded-full border border-[#271E1C] bg-[#171211]" />
       </main>
     </div>
   );

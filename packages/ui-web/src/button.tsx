@@ -8,11 +8,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[#121215] text-[#FBFBF9] hover:bg-[#26262B]",
-        cream: "bg-[#F1F1EF] text-[#17171A] hover:opacity-90",
-        outline: "border border-[#26262A] text-[#ECECEE] hover:bg-[#1A1A1D]",
-        ghost: "text-[#C9C9CE] hover:bg-[#131315]",
-        pill: "rounded-full bg-[#1B1B1F] text-[#F2F2F3] hover:bg-[#26262B] hover:scale-[1.04]",
+        // L'action principale porte le rouge de marque ; les autres variantes
+        // restent des surfaces neutres, sans quoi le signal se noierait.
+        default: "bg-[#E0393E] text-white hover:bg-[#F2585C]",
+        surface: "bg-[#171110] text-[#FBFBF9] hover:bg-[#2F2422]",
+        cream: "bg-[#F1EFEF] text-[#1D1614] hover:opacity-90",
+        outline: "border border-[#2F2321] text-[#EEECEC] hover:bg-[#201817]",
+        ghost: "text-[#D0C8C7] hover:bg-[#171211]",
+        pill: "rounded-full bg-[#221A18] text-[#F3F2F2] hover:bg-[#2F2422] hover:scale-[1.04]",
       },
       size: {
         default: "h-10 px-4",

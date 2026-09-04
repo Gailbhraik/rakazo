@@ -25,7 +25,7 @@ export const GroupAvatar = memo(function GroupAvatar({
     return (
       <div
         className={cn(
-          "rakazo-group-avatar relative flex items-center justify-center rounded-full border border-[#2A2A32] bg-[#1A1A1E] text-[#9A9AA2]",
+          "rakazo-group-avatar relative flex items-center justify-center rounded-full border border-[#362926] bg-[#211917] text-[#A79895]",
           className,
         )}
         style={{ width: size, height: size, flex: "none" }}
@@ -101,7 +101,7 @@ export const GroupAvatar = memo(function GroupAvatar({
       ))}
       {members.length > 3 ? (
         <div
-          className="absolute right-0 bottom-0 z-[3] flex items-center justify-center rounded-full bg-[#202026] text-[10px] font-semibold text-[#E0E0E6]"
+          className="absolute right-0 bottom-0 z-[3] flex items-center justify-center rounded-full bg-[#291F1D] text-[10px] font-semibold text-[#E5E2E1]"
           style={{
             width: miniSize,
             height: miniSize,

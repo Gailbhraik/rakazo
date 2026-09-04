@@ -88,29 +88,29 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-[#F7F7F4] px-6 py-16 text-[#1B1B1E]">
+    <div className="flex min-h-full items-center justify-center bg-[#F7F7F4] px-6 py-16 text-[#211918]">
       <form onSubmit={submit} className="flex w-[460px] flex-col items-center">
-        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[#16161A]">
+        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[#1C1514]">
           <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
           <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
         </div>
         <h1 className="mb-[38px] mt-[30px] text-[38px] tracking-[-0.02em]">{title}</h1>
         {sent ? (
           <div role="status" className="w-full text-center">
-            <p className="text-[17px] text-[#1B1B1E]">
+            <p className="text-[17px] text-[#211918]">
               <Trans>Check your email</Trans>
             </p>
-            <p className="mt-3 text-[15px] leading-relaxed text-[#6E6E68]">
+            <p className="mt-3 text-[15px] leading-relaxed text-[#78625E]">
               <Trans>If an account exists for that address, we sent a password reset link.</Trans>
             </p>
-            <Link to="/sign-in" className="mt-6 inline-block font-medium text-[#1B1B1E]">
+            <Link to="/sign-in" className="mt-6 inline-block font-medium text-[#211918]">
               <Trans>Back to sign in</Trans>
             </Link>
           </div>
         ) : (
           <>
             {mode === "up" ? (
-              <label className="mb-4 w-full text-[16px] text-[#6E6E68]">
+              <label className="mb-4 w-full text-[16px] text-[#78625E]">
                 <Trans>Name</Trans>
                 <input
                   id="name"
@@ -119,11 +119,11 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t`Your name`}
-                  className="mt-2 w-full rounded-[13px] border border-[#E4E4DE] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#1B1B1E] outline-none"
+                  className="mt-2 w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#211918] outline-none"
                 />
               </label>
             ) : null}
-            <label className="w-full text-[16px] text-[#6E6E68]">
+            <label className="w-full text-[16px] text-[#78625E]">
               <Trans>Email</Trans>
               <input
                 id="email"
@@ -134,11 +134,11 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 placeholder={t`Your email address`}
                 type="email"
                 required
-                className="mt-2 w-full rounded-[13px] border border-[#E4E4DE] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#1B1B1E] outline-none"
+                className="mt-2 w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#211918] outline-none"
               />
             </label>
             {mode !== "forgot" ? (
-              <div className="mt-4 w-full text-[16px] text-[#6E6E68]">
+              <div className="mt-4 w-full text-[16px] text-[#78625E]">
                 <label htmlFor={passwordFieldId}>
                   <Trans>Password</Trans>
                 </label>
@@ -153,14 +153,14 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                     type={showPassword ? "text" : "password"}
                     required
                     minLength={8}
-                    className="w-full rounded-[13px] border border-[#E4E4DE] bg-[#F1F1ED] py-[17px] pl-[18px] pr-[52px] text-[17px] text-[#1B1B1E] outline-none"
+                    className="w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] py-[17px] pl-[18px] pr-[52px] text-[17px] text-[#211918] outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((shown) => !shown)}
                     aria-label={showPassword ? t`Hide password` : t`Show password`}
                     aria-pressed={showPassword}
-                    className="absolute inset-y-0 right-0 flex items-center px-[18px] text-[#8C8C86] hover:text-[#1B1B1E]"
+                    className="absolute inset-y-0 right-0 flex items-center px-[18px] text-[#97807B] hover:text-[#211918]"
                   >
                     {showPassword ? (
                       <svg
@@ -199,7 +199,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 </div>
                 {mode === "in" && reset?.passwordReset ? (
                   <div className="mt-2 text-right text-[14px]">
-                    <Link to="/forgot-password" className="font-medium text-[#1B1B1E]">
+                    <Link to="/forgot-password" className="font-medium text-[#211918]">
                       <Trans>Forgot password?</Trans>
                     </Link>
                   </div>
@@ -214,7 +214,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             <button
               type="submit"
               disabled={pending}
-              className="mt-3 w-full rounded-[13px] bg-[#121215] py-[18px] text-center text-[17px] font-medium text-[#FBFBF9] hover:bg-[#26262B]"
+              className="mt-3 w-full rounded-[13px] bg-[#E0393E] py-[18px] text-center text-[17px] font-medium text-white hover:bg-[#F2585C]"
             >
               {pending ? (
                 <Trans>Working…</Trans>
@@ -226,23 +226,23 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 <Trans>Create account</Trans>
               )}
             </button>
-            <p className="mt-[30px] text-[16px] text-[#8C8C86]">
+            <p className="mt-[30px] text-[16px] text-[#97807B]">
               {mode === "in" ? (
                 <>
                   <Trans>Don’t have an account?</Trans>{" "}
-                  <Link to="/sign-up" className="font-medium text-[#1B1B1E]">
+                  <Link to="/sign-up" className="font-medium text-[#211918]">
                     <Trans>Sign up</Trans>
                   </Link>
                 </>
               ) : mode === "up" ? (
                 <>
                   <Trans>Already have an account?</Trans>{" "}
-                  <Link to="/sign-in" className="font-medium text-[#1B1B1E]">
+                  <Link to="/sign-in" className="font-medium text-[#211918]">
                     <Trans>Sign in</Trans>
                   </Link>
                 </>
               ) : (
-                <Link to="/sign-in" className="font-medium text-[#1B1B1E]">
+                <Link to="/sign-in" className="font-medium text-[#211918]">
                   <Trans>Back to sign in</Trans>
                 </Link>
               )}
@@ -290,9 +290,9 @@ export function PasswordResetPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-[#F7F7F4] px-6 py-16 text-[#1B1B1E]">
+    <div className="flex min-h-full items-center justify-center bg-[#F7F7F4] px-6 py-16 text-[#211918]">
       <form onSubmit={submit} className="flex w-[460px] flex-col items-center">
-        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[#16161A]">
+        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[#1C1514]">
           <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
           <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
         </div>
@@ -331,7 +331,7 @@ export function PasswordResetPage() {
             <button
               type="submit"
               disabled={pending || !params.get("token")}
-              className="mt-4 w-full rounded-[13px] bg-[#121215] py-[18px] text-[17px] font-medium text-[#FBFBF9] disabled:opacity-60"
+              className="mt-4 w-full rounded-[13px] bg-[#E0393E] py-[18px] text-[17px] font-medium text-white disabled:opacity-60"
             >
               {pending ? <Trans>Working…</Trans> : <Trans>Reset password</Trans>}
             </button>
@@ -359,7 +359,7 @@ function PasswordField({
   className?: string;
 }) {
   return (
-    <label htmlFor={id} className={`w-full text-[16px] text-[#6E6E68] ${className}`}>
+    <label htmlFor={id} className={`w-full text-[16px] text-[#78625E] ${className}`}>
       {label}
       <input
         id={id}
@@ -370,7 +370,7 @@ function PasswordField({
         minLength={8}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-[13px] border border-[#E4E4DE] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#1B1B1E] outline-none"
+        className="mt-2 w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#211918] outline-none"
       />
     </label>
   );

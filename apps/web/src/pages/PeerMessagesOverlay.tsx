@@ -129,9 +129,9 @@ export function PeerMessagesOverlay({
       aria-labelledby="peer-conversation-title"
       data-testid="peer-conversation-view"
       tabIndex={-1}
-      className="absolute inset-0 z-50 flex flex-col bg-[#050506] outline-none"
+      className="absolute inset-0 z-50 flex flex-col bg-[#060505] outline-none"
     >
-      <div className="flex items-center justify-between gap-4 border-b border-[#171719] px-[18px] py-3.5">
+      <div className="flex items-center justify-between gap-4 border-b border-[#1C1514] px-[18px] py-3.5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <div className="flex items-center -space-x-2">
             <BotAvatar color={botColor} identity={botId} size={28} />
@@ -139,7 +139,7 @@ export function PeerMessagesOverlay({
           </div>
           <h1
             id="peer-conversation-title"
-            className="truncate text-[15.5px] font-medium text-[#ECECEE]"
+            className="truncate text-[15.5px] font-medium text-[#EEECEC]"
             dir="auto"
           >
             {title}
@@ -149,22 +149,22 @@ export function PeerMessagesOverlay({
           type="button"
           aria-label={t`Close`}
           onClick={onClose}
-          className="rounded-[9px] px-3 py-1.5 text-[13.5px] text-[#A8A8AD] hover:bg-[#1B1B1E] hover:text-[#ECECEE]"
+          className="rounded-[9px] px-3 py-1.5 text-[13.5px] text-[#B2A5A3] hover:bg-[#211918] hover:text-[#EEECEC]"
         >
           <Trans>Close</Trans>
         </button>
       </div>
 
       {!historyReady ? (
-        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#6C6C70]">
+        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#7B6561]">
           <Trans>Loading…</Trans>
         </div>
       ) : historyFailed ? (
-        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#6C6C70]">
+        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#7B6561]">
           <Trans>Could not load this chat.</Trans>
         </div>
       ) : !conversation || conversation.messages.length === 0 ? (
-        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#6C6C70]">
+        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#7B6561]">
           <Trans>No messages with {peerBotName} yet.</Trans>
         </div>
       ) : (
@@ -181,13 +181,13 @@ export function PeerMessagesOverlay({
               >
                 <div
                   className={`max-w-[80%] rounded-[16px] px-4 py-2.5 ${
-                    sent ? "bg-[#1F1F23]" : "bg-[#17171A]"
+                    sent ? "bg-[#271D1B]" : "bg-[#1D1614]"
                   }`}
                 >
-                  <div className="mb-1 text-[12px] text-[#7A7A80]" dir="auto">
+                  <div className="mb-1 text-[12px] text-[#8C736E]" dir="auto">
                     {sent ? botName : peerBotName}
                   </div>
-                  <div className="text-[14.5px] leading-[1.5] text-[#DFDFE2]" dir="auto">
+                  <div className="text-[14.5px] leading-[1.5] text-[#E3DFDE]" dir="auto">
                     <ChatMarkdown>{peerMessage.text}</ChatMarkdown>
                   </div>
                 </div>
@@ -197,14 +197,14 @@ export function PeerMessagesOverlay({
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-4 border-t border-[#171719] px-[18px] py-3.5">
-        <p className="text-[13.5px] text-[#6C6C70]">
+      <div className="flex items-center justify-between gap-4 border-t border-[#1C1514] px-[18px] py-3.5">
+        <p className="text-[13.5px] text-[#7B6561]">
           <Trans>This chat is view-only</Trans>
         </p>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-[9px] border border-[#2A2A2F] bg-[#141416] px-3.5 py-1.5 text-[13.5px] text-[#ECECEE] hover:bg-[#1B1B1E]"
+          className="rounded-[9px] border border-[#342725] bg-[#191311] px-3.5 py-1.5 text-[13.5px] text-[#EEECEC] hover:bg-[#211918]"
         >
           <Trans>Close</Trans>
         </button>

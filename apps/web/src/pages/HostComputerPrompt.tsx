@@ -43,12 +43,12 @@ export function HostComputerPrompt({ initialMe }: { initialMe?: Me }) {
   }
 
   return (
-    <div className="absolute inset-0 z-40 grid place-items-center bg-[#050506]/80 px-6">
-      <div className="w-[440px] rounded-[20px] border border-[#26262A] bg-[#121214] p-6">
-        <h2 className="text-[22px] font-medium text-[#F1F1F2]">
+    <div className="absolute inset-0 z-40 grid place-items-center bg-[#060505]/80 px-6">
+      <div className="w-[440px] rounded-[20px] border border-[#2F2321] bg-[#161110] p-6">
+        <h2 className="text-[22px] font-medium text-[#F2F1F1]">
           <Trans>Where should bots run?</Trans>
         </h2>
-        <p className="mt-2 text-[14px] leading-relaxed text-[#85858A]">
+        <p className="mt-2 text-[14px] leading-relaxed text-[#967E79]">
           <Trans>Docker is the default: bots use a shared Team Computer.</Trans>
           {mac ? (
             <Trans>
@@ -70,7 +70,7 @@ export function HostComputerPrompt({ initialMe }: { initialMe?: Me }) {
             type="button"
             disabled={pending}
             onClick={() => void choose("docker")}
-            className="rounded-[11px] bg-[#F1F1EF] px-5 py-2.5 text-[#17171A] disabled:opacity-40"
+            className="rounded-[11px] bg-[#F1EFEF] px-5 py-2.5 text-[#1D1614] disabled:opacity-40"
           >
             <Trans>Docker (recommended)</Trans>
           </button>
@@ -78,12 +78,12 @@ export function HostComputerPrompt({ initialMe }: { initialMe?: Me }) {
             type="button"
             disabled={pending}
             onClick={() => void choose("this-mac")}
-            className="rounded-[11px] border border-[#26262A] px-5 py-2.5 text-[#ECECEE] disabled:opacity-40"
+            className="rounded-[11px] border border-[#2F2321] px-5 py-2.5 text-[#EEECEC] disabled:opacity-40"
           >
             <Trans>Use {hostLabel}</Trans>
           </button>
         </div>
-        <p className="mt-3 text-[12px] leading-relaxed text-[#6C6C70]">
+        <p className="mt-3 text-[12px] leading-relaxed text-[#7B6561]">
           {mac ? (
             <Trans>
               This Mac runs shell commands with your account, including files in your home folder.

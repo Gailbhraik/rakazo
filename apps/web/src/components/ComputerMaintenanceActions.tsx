@@ -92,13 +92,13 @@ export function ComputerMaintenanceActions({
       aria-labelledby="reset-computer-title"
       aria-describedby="reset-computer-description"
     >
-      <BuiCard className="w-full max-w-[420px] border border-[#232326] p-5">
-        <div id="reset-computer-title" className="text-[16px] font-medium text-[#ECECEE]">
+      <BuiCard className="w-full max-w-[420px] border border-[#2B201E] p-5">
+        <div id="reset-computer-title" className="text-[16px] font-medium text-[#EEECEC]">
           <Trans>Reset computer?</Trans>
         </div>
         <p
           id="reset-computer-description"
-          className="mt-2 text-[14px] leading-[1.5] text-[#85858A]"
+          className="mt-2 text-[14px] leading-[1.5] text-[#967E79]"
         >
           <Trans>Restore the last saved workspace. Unsaved work on the computer is lost.</Trans>
         </p>
@@ -130,7 +130,7 @@ export function ComputerMaintenanceActions({
             setError(null);
             setMenuOpen((open) => !open);
           }}
-          className="grid h-8 w-8 place-items-center rounded-[10px] text-[#85858A] hover:bg-[#1B1B1E] hover:text-[#ECECEE] disabled:opacity-40"
+          className="grid h-8 w-8 place-items-center rounded-[10px] text-[#967E79] hover:bg-[#211918] hover:text-[#EEECEC] disabled:opacity-40"
         >
           <MoreHorizontal size={16} strokeWidth={1.8} />
         </button>
@@ -139,7 +139,7 @@ export function ComputerMaintenanceActions({
             role="menu"
             aria-labelledby={menuId}
             data-testid="computer-more-menu"
-            className="absolute end-0 top-full z-20 mt-1.5 min-w-[180px] rounded-[12px] border border-[#2A2A2E] bg-[#16161A] py-1.5 shadow-[0_12px_40px_rgba(0,0,0,.55)]"
+            className="absolute end-0 top-full z-20 mt-1.5 min-w-[180px] rounded-[12px] border border-[#332725] bg-[#1C1514] py-1.5 shadow-[0_12px_40px_rgba(0,0,0,.55)]"
           >
             {showRecover ? (
               <button
@@ -147,7 +147,7 @@ export function ComputerMaintenanceActions({
                 role="menuitem"
                 disabled={busy || pending !== null}
                 onClick={() => void run("recover")}
-                className="flex w-full px-3.5 py-2.5 text-start text-[14px] text-[#ECECEE] hover:bg-[#1E1E22] disabled:opacity-40"
+                className="flex w-full px-3.5 py-2.5 text-start text-[14px] text-[#EEECEC] hover:bg-[#251C1B] disabled:opacity-40"
               >
                 {pending === "recover" ? (
                   <Trans>Recovering…</Trans>
@@ -166,7 +166,7 @@ export function ComputerMaintenanceActions({
                   setMenuOpen(false);
                   setConfirmReset(true);
                 }}
-                className="flex w-full px-3.5 py-2.5 text-start text-[14px] text-[#ECECEE] hover:bg-[#1E1E22] disabled:opacity-40"
+                className="flex w-full px-3.5 py-2.5 text-start text-[14px] text-[#EEECEC] hover:bg-[#251C1B] disabled:opacity-40"
               >
                 {pending === "reset" ? <Trans>Resetting…</Trans> : <Trans>Reset computer</Trans>}
               </button>
@@ -177,7 +177,7 @@ export function ComputerMaintenanceActions({
                 role="menuitem"
                 disabled={busy || pending !== null}
                 onClick={() => void run("update")}
-                className="flex w-full px-3.5 py-2.5 text-start text-[14px] text-[#ECECEE] hover:bg-[#1E1E22] disabled:opacity-40"
+                className="flex w-full px-3.5 py-2.5 text-start text-[14px] text-[#EEECEC] hover:bg-[#251C1B] disabled:opacity-40"
               >
                 {pending === "update" ? <Trans>Updating…</Trans> : <Trans>Update computer</Trans>}
               </button>
@@ -216,7 +216,7 @@ export function ComputerMaintenanceActions({
         ) : null}
       </div>
       {!compact ? (
-        <p className="text-[13px] leading-[1.45] text-[#6C6C70]">
+        <p className="text-[13px] leading-[1.45] text-[#7B6561]">
           <Trans>
             Recover replaces an unreachable computer and keeps files in the saved workspace. Reset
             restores the last saved workspace and loses unsaved work. Update rebuilds with the

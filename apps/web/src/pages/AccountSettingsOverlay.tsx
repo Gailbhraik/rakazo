@@ -107,11 +107,11 @@ export function AccountSettingsOverlay({
         aria-modal="true"
         aria-labelledby="account-settings-title"
         tabIndex={-1}
-        className="rk-scroll max-h-full w-[640px] max-w-full overflow-y-auto rounded-[26px] border border-[#232326] bg-[#141416] p-6 shadow-[0_40px_90px_rgba(0,0,0,.55)] sm:p-8"
+        className="rk-scroll max-h-full w-[640px] max-w-full overflow-y-auto rounded-[26px] border border-[#2B201E] bg-[#191311] p-6 shadow-[0_40px_90px_rgba(0,0,0,.55)] sm:p-8"
       >
         <div className="flex items-start justify-between gap-6">
           <div>
-            <h2 id="account-settings-title" className="text-2xl font-medium text-[#F1F1F2]">
+            <h2 id="account-settings-title" className="text-2xl font-medium text-[#F2F1F1]">
               <Trans>Settings</Trans>
             </h2>
           </div>
@@ -119,49 +119,49 @@ export function AccountSettingsOverlay({
             type="button"
             aria-label={t`Close user settings`}
             onClick={onClose}
-            className="text-[#85858A]"
+            className="text-[#967E79]"
           >
             ✕
           </button>
         </div>
 
-        <section className="mt-8 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#ECECEE]">
+        <section className="mt-8 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[#EEECEC]">
             <Trans>Account</Trans>
           </h3>
-          <p className="mt-3 text-[14px] text-[#C9C9CE]">{name}</p>
-          {email ? <p className="mt-1 text-[13px] text-[#7A7A80]">{email}</p> : null}
+          <p className="mt-3 text-[14px] text-[#D0C8C7]">{name}</p>
+          {email ? <p className="mt-1 text-[13px] text-[#8C736E]">{email}</p> : null}
         </section>
 
         <ChangePasswordSection />
 
         {messagingEnabled && onOpenMessaging ? (
-          <section className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-            <h3 className="text-[15px] font-medium text-[#ECECEE]">
+          <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+            <h3 className="text-[15px] font-medium text-[#EEECEC]">
               <Trans>Messaging</Trans>
             </h3>
-            <p className="mt-3 text-[13px] text-[#7A7A80]">
+            <p className="mt-3 text-[13px] text-[#8C736E]">
               <Trans>Chat apps, group channels, and agent connections.</Trans>
             </p>
             <button
               type="button"
               onClick={onOpenMessaging}
-              className="mt-3 rounded-full bg-[#26262A] px-4 py-2 text-[13.5px] font-medium text-[#ECECEE]"
+              className="mt-3 rounded-full bg-[#2F2321] px-4 py-2 text-[13.5px] font-medium text-[#EEECEC]"
             >
               <Trans>Manage messaging settings</Trans>
             </button>
           </section>
         ) : null}
 
-        <section className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#ECECEE]">
+        <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[#EEECEC]">
             <Trans>Language</Trans>
           </h3>
           <UiLocalePicker value={locale} onChange={chooseLocale} />
         </section>
 
-        <section className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#ECECEE]">
+        <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[#EEECEC]">
             <Trans>Avatars</Trans>
           </h3>
           <div className="mt-3 grid grid-cols-2 gap-3">
@@ -174,10 +174,10 @@ export function AccountSettingsOverlay({
                   aria-pressed={selected}
                   disabled={avatarPending}
                   onClick={() => void chooseAvatarStyle(style)}
-                  className={`flex items-center gap-3 rounded-[12px] border px-3.5 py-3 text-start text-[14px] text-[#ECECEE] transition-colors disabled:opacity-50 ${
+                  className={`flex items-center gap-3 rounded-[12px] border px-3.5 py-3 text-start text-[14px] text-[#EEECEC] transition-colors disabled:opacity-50 ${
                     selected
-                      ? "border-[#5A5A62] bg-[#1A1A1D]"
-                      : "border-[#26262A] hover:border-[#3A3A40]"
+                      ? "border-[#695653] bg-[#201817]"
+                      : "border-[#2F2321] hover:border-[#473633]"
                   }`}
                 >
                   <BotAvatar
@@ -202,19 +202,19 @@ export function AccountSettingsOverlay({
           ref={usageRef}
           tabIndex={-1}
           data-testid="usage-settings"
-          className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4 outline-none"
+          className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4 outline-none"
         >
-          <h3 className="text-[15px] font-medium text-[#ECECEE]">
+          <h3 className="text-[15px] font-medium text-[#EEECEC]">
             <Trans>Usage</Trans>
           </h3>
           {usage ? (
-            <p className="mt-3 text-[14px] text-[#C9C9CE]">
+            <p className="mt-3 text-[14px] text-[#D0C8C7]">
               <Trans>
                 {usage.runs} runs · {usage.inputTokens + usage.outputTokens} tokens
               </Trans>
             </p>
           ) : null}
-          <p className={`text-[12.5px] text-[#6C6C70] ${usage ? "mt-2" : "mt-3"}`}>
+          <p className={`text-[12.5px] text-[#7B6561] ${usage ? "mt-2" : "mt-3"}`}>
             <Trans>Model spend uses your provider keys.</Trans>
           </p>
         </div>
@@ -224,25 +224,25 @@ export function AccountSettingsOverlay({
         {isDeploymentOwner && computersAreUnavailable(sandboxProvider) ? (
           <div
             data-testid="computers-setup-settings"
-            className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4"
+            className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4"
           >
-            <h3 className="text-[15px] font-medium text-[#ECECEE]">
+            <h3 className="text-[15px] font-medium text-[#EEECEC]">
               <Trans>Computers</Trans>
             </h3>
-            <ComputersUnavailableHint className="mt-3 text-[13px] leading-relaxed text-[#85858A]" />
+            <ComputersUnavailableHint className="mt-3 text-[13px] leading-relaxed text-[#967E79]" />
           </div>
         ) : null}
 
         <details
           data-testid="advanced-settings"
-          className="group mt-5 rounded-[14px] border border-[#26262A] bg-[#101012]"
+          className="group mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E]"
         >
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-[14px] text-[#A8A8AD]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-[14px] text-[#B2A5A3]">
             <span>
-              <span className="block text-[15px] text-[#ECECEE]">
+              <span className="block text-[15px] text-[#EEECEC]">
                 <Trans>Advanced</Trans>
               </span>
-              <span className="mt-1 block text-[12.5px] text-[#6C6C70]">
+              <span className="mt-1 block text-[12.5px] text-[#7B6561]">
                 <Trans>Optional controls most people never need</Trans>
               </span>
             </span>
@@ -250,7 +250,7 @@ export function AccountSettingsOverlay({
               ›
             </span>
           </summary>
-          <div className="border-t border-[#232326] px-4 pb-5">
+          <div className="border-t border-[#2B201E] px-4 pb-5">
             <ApprovalRulesSettings />
           </div>
         </details>
@@ -299,8 +299,8 @@ function ChangePasswordSection() {
   }
 
   return (
-    <section className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-      <h3 className="text-[15px] font-medium text-[#ECECEE]">
+    <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+      <h3 className="text-[15px] font-medium text-[#EEECEC]">
         <Trans>Password</Trans>
       </h3>
       <div className="mt-3 grid gap-3">
@@ -354,7 +354,7 @@ function SettingsPasswordInput({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="text-[12.5px] text-[#85858A]">
+    <label className="text-[12.5px] text-[#967E79]">
       {label}
       <input
         aria-label={label}
@@ -363,7 +363,7 @@ function SettingsPasswordInput({
         minLength={8}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 w-full rounded-[11px] border border-[#2A2A2E] bg-[#171719] px-3.5 py-2.5 text-[14px] text-[#ECECEE] outline-none focus:border-[#4A4A52]"
+        className="mt-1.5 w-full rounded-[11px] border border-[#332725] bg-[#1C1514] px-3.5 py-2.5 text-[14px] text-[#EEECEC] outline-none focus:border-[#574845]"
       />
     </label>
   );
@@ -470,12 +470,12 @@ function UiLocalePicker({
         aria-controls={listboxId}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex w-full items-center justify-between rounded-[11px] border border-[#26262A] bg-[#101012] px-3.5 py-3 text-start text-[#ECECEE] outline-none focus-visible:border-[#4A4A50]"
+        className="flex w-full items-center justify-between rounded-[11px] border border-[#2F2321] bg-[#140F0E] px-3.5 py-3 text-start text-[#EEECEC] outline-none focus-visible:border-[#564744]"
         onClick={() => setOpen((current) => !current)}
         onKeyDown={onTriggerKeyDown}
       >
         <span className="min-w-0 truncate">{UI_LOCALE_LABELS[value]}</span>
-        <span className="ml-3 shrink-0 text-[#85858A]" aria-hidden="true">
+        <span className="ml-3 shrink-0 text-[#967E79]" aria-hidden="true">
           <ChevronDown size={16} strokeWidth={1.8} />
         </span>
       </button>
@@ -484,7 +484,7 @@ function UiLocalePicker({
           id={listboxId}
           role="listbox"
           aria-label={t`Language`}
-          className="rk-scroll absolute left-0 right-0 top-full z-20 mt-2 overflow-y-auto rounded-[11px] border border-[#26262A] bg-[#101012] p-1 shadow-[0_20px_45px_rgba(0,0,0,.55)]"
+          className="rk-scroll absolute left-0 right-0 top-full z-20 mt-2 overflow-y-auto rounded-[11px] border border-[#2F2321] bg-[#140F0E] p-1 shadow-[0_20px_45px_rgba(0,0,0,.55)]"
         >
           {UI_LOCALES.map((code, index) => (
             <button
@@ -496,8 +496,8 @@ function UiLocalePicker({
               role="option"
               aria-selected={code === value}
               tabIndex={index === highlightedIndex ? 0 : -1}
-              className={`w-full rounded-[8px] px-3 py-2 text-start text-[13.5px] text-[#ECECEE] outline-none hover:bg-[#1A1A1D] focus-visible:bg-[#1A1A1D] ${
-                code === value ? "bg-[#1A1A1D]" : ""
+              className={`w-full rounded-[8px] px-3 py-2 text-start text-[13.5px] text-[#EEECEC] outline-none hover:bg-[#201817] focus-visible:bg-[#201817] ${
+                code === value ? "bg-[#201817]" : ""
               }`}
               onClick={() => choose(index)}
               onKeyDown={(event) => onOptionKeyDown(event, index)}

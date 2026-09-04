@@ -86,17 +86,17 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
         aria-modal="true"
         aria-labelledby="messaging-settings-title"
         tabIndex={-1}
-        className="rk-scroll max-h-full w-[640px] max-w-full overflow-y-auto rounded-[26px] border border-[#232326] bg-[#141416] p-6 shadow-[0_40px_90px_rgba(0,0,0,.55)] sm:p-8"
+        className="rk-scroll max-h-full w-[640px] max-w-full overflow-y-auto rounded-[26px] border border-[#2B201E] bg-[#191311] p-6 shadow-[0_40px_90px_rgba(0,0,0,.55)] sm:p-8"
       >
         <div className="flex items-start justify-between gap-6">
-          <h2 id="messaging-settings-title" className="text-2xl font-medium text-[#F1F1F2]">
+          <h2 id="messaging-settings-title" className="text-2xl font-medium text-[#F2F1F1]">
             <Trans>Messaging</Trans>
           </h2>
           <button
             type="button"
             aria-label={t`Close messaging settings`}
             onClick={onClose}
-            className="text-[#85858A]"
+            className="text-[#967E79]"
           >
             ✕
           </button>
@@ -104,12 +104,12 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
 
         {error ? <p className="mt-4 text-[13px] text-[#E88B8B]">{error}</p> : null}
 
-        <section className="mt-8 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#ECECEE]">
+        <section className="mt-8 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[#EEECEC]">
             <Trans>Chat apps</Trans>
           </h3>
           {status ? (
-            <p className="mt-3 text-[13px] text-[#7A7A80]">
+            <p className="mt-3 text-[13px] text-[#8C736E]">
               {status.providers.map(providerLabel).join(" · ")}
             </p>
           ) : null}
@@ -118,11 +118,11 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
               {status.identities.map((identity) => (
                 <li
                   key={identity.id}
-                  className="flex items-center justify-between gap-3 text-[14px] text-[#C9C9CE]"
+                  className="flex items-center justify-between gap-3 text-[14px] text-[#D0C8C7]"
                 >
                   <span>
                     {providerLabel(identity.provider)} · {identity.address}{" "}
-                    <span className="text-[12px] text-[#7A7A80]">→ {identity.botName}</span>
+                    <span className="text-[12px] text-[#8C736E]">→ {identity.botName}</span>
                   </span>
                   <BuiButton
                     onClick={() =>
@@ -135,7 +135,7 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-[14px] text-[#C9C9CE]">
+            <p className="mt-3 text-[14px] text-[#D0C8C7]">
               <Trans>No chat apps linked yet.</Trans>
             </p>
           )}
@@ -147,7 +147,7 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
                 setLinkBotId(event.target.value);
                 setLinkCode(null);
               }}
-              className="rounded-[10px] border border-[#2A2A2F] bg-[#141416] px-3 py-2 text-[13.5px] text-[#ECECEE]"
+              className="rounded-[10px] border border-[#342725] bg-[#191311] px-3 py-2 text-[13.5px] text-[#EEECEC]"
             >
               <option value="">{t`Choose a bot…`}</option>
               {bots.map((bot) => (
@@ -170,21 +170,21 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
             </BuiButton>
           </div>
           {linkCode ? (
-            <p className="mt-3 text-[14px] text-[#C9C9CE]" data-testid="messaging-link-code">
+            <p className="mt-3 text-[14px] text-[#D0C8C7]" data-testid="messaging-link-code">
               <Trans>
-                Send <span className="font-mono text-[#F1F1F2]">{linkCode}</span> to the line from
+                Send <span className="font-mono text-[#F2F1F1]">{linkCode}</span> to the line from
                 your chat app within 10 minutes. You'll get a confirmation reply once linked.
               </Trans>
             </p>
           ) : null}
         </section>
 
-        <section className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#ECECEE]">
+        <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[#EEECEC]">
             <Trans>Channels</Trans>
           </h3>
           {channels.length === 0 ? (
-            <p className="mt-3 text-[13px] text-[#7A7A80]">
+            <p className="mt-3 text-[13px] text-[#8C736E]">
               <Trans>No group chats yet.</Trans>
             </p>
           ) : (
@@ -192,11 +192,11 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
               {channels.map((channel) => (
                 <li
                   key={channel.id}
-                  className="flex items-center justify-between gap-3 text-[14px] text-[#C9C9CE]"
+                  className="flex items-center justify-between gap-3 text-[14px] text-[#D0C8C7]"
                 >
                   <span>
                     {channel.name ?? t`Group`}{" "}
-                    <span className="text-[12px] text-[#7A7A80]">{channelMeta(channel)}</span>
+                    <span className="text-[12px] text-[#8C736E]">{channelMeta(channel)}</span>
                   </span>
                   <span className="flex gap-2">
                     {channel.status === "invited" ? (
@@ -244,12 +244,12 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
           )}
         </section>
 
-        <section className="mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#ECECEE]">
+        <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[#EEECEC]">
             <Trans>Agent connections</Trans>
           </h3>
           {connections.length === 0 ? (
-            <p className="mt-3 text-[13px] text-[#7A7A80]">
+            <p className="mt-3 text-[13px] text-[#8C736E]">
               <Trans>No agent connections yet.</Trans>
             </p>
           ) : (
@@ -257,13 +257,13 @@ export function MessagingSettingsOverlay({ onClose }: { onClose: () => void }) {
               {connections.map((connection) => (
                 <li
                   key={connection.id}
-                  className="flex items-center justify-between gap-3 text-[14px] text-[#C9C9CE]"
+                  className="flex items-center justify-between gap-3 text-[14px] text-[#D0C8C7]"
                 >
                   <span>
                     {connection.peerOwnerLabel}
                     {"'s "}
                     {connection.peerBotName}{" "}
-                    <span className="text-[12px] text-[#7A7A80]">{connection.status}</span>
+                    <span className="text-[12px] text-[#8C736E]">{connection.status}</span>
                   </span>
                   <span className="flex gap-2">
                     {connection.status === "pending" && connection.incoming ? (

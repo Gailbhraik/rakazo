@@ -116,14 +116,14 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
     <div className="absolute inset-0 z-30 flex items-center justify-center bg-[rgba(4,4,5,.62)] p-4 sm:p-10">
       <div
         data-testid="voice-settings"
-        className="flex h-[min(680px,100%)] w-[920px] max-w-full flex-col overflow-hidden rounded-[26px] border border-[#232326] bg-[#141416] shadow-[0_40px_90px_rgba(0,0,0,.55)]"
+        className="flex h-[min(680px,100%)] w-[920px] max-w-full flex-col overflow-hidden rounded-[26px] border border-[#2B201E] bg-[#191311] shadow-[0_40px_90px_rgba(0,0,0,.55)]"
       >
         <div className="flex items-start justify-between px-6 pt-6 sm:px-8 sm:pt-7">
           <div>
-            <div className="text-2xl font-medium text-[#F1F1F2]">
+            <div className="text-2xl font-medium text-[#F2F1F1]">
               <Trans>Voice</Trans>
             </div>
-            <p className="mt-1 text-[13.5px] text-[#7A7A80]">
+            <p className="mt-1 text-[13.5px] text-[#8C736E]">
               {loading ? (
                 <Trans>Loading voice providers…</Trans>
               ) : (
@@ -138,24 +138,24 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
             type="button"
             aria-label={t`Close voice settings`}
             onClick={onClose}
-            className="text-[#85858A]"
+            className="text-[#967E79]"
           >
             ✕
           </button>
         </div>
 
-        <div className="mx-6 mt-5 rounded-[14px] border border-[#26262A] bg-[#101012] px-4 py-3 sm:mx-8">
-          <div className="text-[12.5px] uppercase tracking-[0.08em] text-[#6C6C70]">
+        <div className="mx-6 mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-3 sm:mx-8">
+          <div className="text-[12.5px] uppercase tracking-[0.08em] text-[#7B6561]">
             <Trans>Active voice</Trans>
           </div>
-          <div className="mt-1 text-[16px] text-[#F1F1F2]">
+          <div className="mt-1 text-[16px] text-[#F2F1F1]">
             {status?.ready
               ? voiceOptions.find((voice) => voice.id === status.voiceId)?.label || status.voiceId
               : status?.configured
                 ? t`Pick a voice`
                 : t`Not configured`}
           </div>
-          <div className="mt-1 text-[13px] text-[#85858A]">
+          <div className="mt-1 text-[13px] text-[#967E79]">
             {selected?.name ?? status?.provider ?? (
               <Trans>Connect ElevenLabs, OpenAI, or Cartesia</Trans>
             )}
@@ -164,10 +164,10 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
 
         <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-6 py-6 sm:px-8 md:flex-row">
           <div className="flex min-h-0 shrink-0 flex-col md:w-[280px]">
-            <div className="mb-3 text-[13.5px] text-[#85858A]">
+            <div className="mb-3 text-[13.5px] text-[#967E79]">
               <Trans>Providers</Trans>
             </div>
-            <div className="rk-scroll overflow-y-auto rounded-[13px] border border-[#26262A]">
+            <div className="rk-scroll overflow-y-auto rounded-[13px] border border-[#2F2321]">
               {catalog.map((entry) => {
                 const connected = credentials.some((cred) => cred.provider === entry.id);
                 return (
@@ -181,15 +181,15 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
                       setNotice(null);
                       void refresh(entry.id);
                     }}
-                    className={`flex w-full items-center gap-3 border-b border-[#202023] px-3.5 py-3 text-start last:border-0 ${
-                      entry.id === provider ? "bg-[#1A1A1D]" : "hover:bg-[#161618]"
+                    className={`flex w-full items-center gap-3 border-b border-[#271E1C] px-3.5 py-3 text-start last:border-0 ${
+                      entry.id === provider ? "bg-[#201817]" : "hover:bg-[#1B1413]"
                     }`}
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[15px] text-[#ECECEE]">
+                      <span className="block truncate text-[15px] text-[#EEECEC]">
                         {entry.name}
                       </span>
-                      <span className="mt-0.5 block text-[12px] text-[#6C6C70]">
+                      <span className="mt-0.5 block text-[12px] text-[#7B6561]">
                         {entry.transcribe ? (
                           <Trans>Speak + transcribe</Trans>
                         ) : (
@@ -213,26 +213,26 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
             {notice ? <p className="mb-4 text-sm text-[#4ECB71]">{notice}</p> : null}
             {selected ? (
               <>
-                <p className="text-[13.5px] leading-[1.5] text-[#85858A]">{selected.description}</p>
-                <div className="mt-5 rounded-[13px] border border-[#26262A] px-4 py-3">
-                  <div className="text-[12.5px] uppercase tracking-[0.08em] text-[#6C6C70]">
+                <p className="text-[13.5px] leading-[1.5] text-[#967E79]">{selected.description}</p>
+                <div className="mt-5 rounded-[13px] border border-[#2F2321] px-4 py-3">
+                  <div className="text-[12.5px] uppercase tracking-[0.08em] text-[#7B6561]">
                     <Trans>Personal credential</Trans>
                   </div>
-                  <div className="mt-1 text-[15px] text-[#ECECEE]">
+                  <div className="mt-1 text-[15px] text-[#EEECEC]">
                     {credential ? (
                       <Trans>Connected · {selected.name}</Trans>
                     ) : (
                       <Trans>Not connected</Trans>
                     )}
                   </div>
-                  <div className="mt-1 text-[13px] text-[#85858A]">
+                  <div className="mt-1 text-[13px] text-[#967E79]">
                     <Trans>
                       Keys stay on the server. The app only learns whether a provider is configured.
                     </Trans>
                   </div>
                 </div>
 
-                <label className="mt-5 block text-[13.5px] text-[#85858A]">
+                <label className="mt-5 block text-[13.5px] text-[#967E79]">
                   <Trans>API key</Trans>
                   <input
                     type="password"
@@ -240,7 +240,7 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
                     value={apiKey}
                     onChange={(event) => setApiKey(event.target.value)}
                     placeholder={credential ? t`Paste a replacement key` : t`Paste your API key`}
-                    className="mt-2 w-full rounded-[11px] border border-[#26262A] bg-[#101012] px-3.5 py-2.5 text-[14px] text-[#ECECEE] outline-none"
+                    className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-[#140F0E] px-3.5 py-2.5 text-[14px] text-[#EEECEC] outline-none"
                   />
                 </label>
                 <Button
@@ -260,12 +260,12 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
 
                 {credential ? (
                   <>
-                    <label className="mt-6 block text-[13.5px] text-[#85858A]">
+                    <label className="mt-6 block text-[13.5px] text-[#967E79]">
                       <Trans>Voice</Trans>
                       <select
                         value={voiceId}
                         onChange={(event) => void chooseVoice(event.target.value)}
-                        className="mt-2 w-full rounded-[11px] border border-[#26262A] bg-[#101012] px-3.5 py-2.5 text-[14px] text-[#ECECEE] outline-none"
+                        className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-[#140F0E] px-3.5 py-2.5 text-[14px] text-[#EEECEC] outline-none"
                       >
                         {voiceOptions.map((voice) => (
                           <option key={voice.id} value={voice.id}>
@@ -279,7 +279,7 @@ export function VoiceSettingsOverlay({ onClose }: { onClose: () => void }) {
                       type="button"
                       disabled={busy || !status?.ready}
                       onClick={() => void testVoice()}
-                      className="mt-4 text-[14px] text-[#C9C9CE] disabled:opacity-40"
+                      className="mt-4 text-[14px] text-[#D0C8C7] disabled:opacity-40"
                     >
                       {pending === "test" ? <Trans>Playing…</Trans> : <Trans>Hear a sample</Trans>}
                     </button>
