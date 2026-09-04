@@ -11,6 +11,8 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  /* Supprime le zoom au double-tap et les 300 ms d'attente qui l'accompagnent. */
+  touch-action: manipulation;
   background: #060505;
   color: #e2dfde;
   font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;

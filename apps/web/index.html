@@ -2,9 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- `user-scalable=no` suffit à Chrome sous Android ; Safari l'ignore
+         depuis iOS 10, où le zoom est bloqué par les gestes, dans main.tsx. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <meta name="description" content="Your team of always-on agents." />
-    <meta name="theme-color" content="#050506" />
+    <meta name="theme-color" content="#060505" />
     <meta name="apple-mobile-web-app-title" content="Ashitaka" />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
