@@ -4,6 +4,21 @@ name: iOS unsigned IPA
 # artefact. Une app non signée ne s'installe pas seule : elle est destinée à
 # être resignée localement (Sideloadly, AltStore) avec un identifiant Apple
 # gratuit. Compiler pour iOS exige macOS, d'où l'exécuteur GitHub.
+#
+# ÉTAT : ne passe pas en l'état avec Expo SDK 57 / React Native 0.86.
+# `expo-modules-jsi@57.0.7` n'accepte aucun Xcode de l'image macos-15, essayés
+# le 2026-09-04 :
+#
+#   Xcode 26.0    Swift 6.2    `weak let` refusé
+#   Xcode 26.1.1  Swift 6.2.1  `weak let` refusé ET interop C++ refusée
+#   Xcode 26.2    Swift 6.2.3  interop C++ refusée
+#   Xcode 26.3    Swift 6.2.4  interop C++ refusée
+#
+# Sous 6.2, le paquet Swift du module ne se résout même pas (il déclare
+# swift-tools-version 6.2). La fenêtre acceptable est donc vide sur cette
+# image ; l'amont ne compile que via EAS, dont les images embarquent le Xcode
+# assorti au SDK. Ce workflow redeviendra utile quand l'image macOS ou Expo
+# aura bougé — relancer avec l'entrée `xcode` pour retester.
 
 on:
   workflow_dispatch:
@@ -12,6 +27,10 @@ on:
         description: "Serveur Ashitaka par défaut dans l'app"
         required: false
         default: "https://utilisa-ten39ih.tail05b9b5.ts.net"
+      xcode:
+        description: "Version d'Xcode (l'app se compile dans une fenêtre étroite)"
+        required: false
+        default: "26.2"
 
 jobs:
   build:
@@ -20,6 +39,34 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      # Le Xcode se choisit entre deux bornes : un paquet Swift du projet exige
+      # les outils 6.2, tandis qu'expo-modules-jsi ne compile pas avec 6.2.4,
+      # dont l'interopérabilité C++ refuse ses annotations. On prend donc le
+      # plus ancien Xcode qui atteigne 6.2, et l'inventaire est journalisé pour
+      # que le prochain écart se diagnostique sans tâtonner.
+      - name: Choisir un Xcode compatible
+        run: |
+          echo "Xcode disponibles :"
+          for app in $(ls -d /Applications/Xcode_*.app | sort -V); do
+            # `swift` d'un Xcode non sélectionné ne répond qu'avec DEVELOPER_DIR.
+            version=$(DEVELOPER_DIR="$app/Contents/Developer" swift --version 2>&1 \
+              | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
+            echo "  $app -> Swift ${version:-inconnu}"
+          done
+          # La fenêtre de compilation est étroite et se déplace avec les
+          # versions d'Expo : sous Swift 6.2 un paquet refuse de se résoudre,
+          # à 6.2 `weak let` d'expo-modules-jsi n'est pas reconnu, à 6.2.4 son
+          # interopérabilité C++ casse. La version se pilote donc à la main.
+          chosen="/Applications/Xcode_${{ inputs.xcode }}.app"
+          if [ ! -d "$chosen" ]; then
+            echo "Xcode ${{ inputs.xcode }} absent de cette image."
+            exit 1
+          fi
+          echo "Xcode retenu : $chosen"
+          sudo xcode-select -s "$chosen"
+          xcodebuild -version
+          swift --version
 
       - uses: actions/setup-node@v4
         with:
