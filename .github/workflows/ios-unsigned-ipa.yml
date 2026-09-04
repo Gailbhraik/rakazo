@@ -1,0 +1,94 @@
+name: iOS unsigned IPA
+
+# Compile l'app mobile pour iPhone sans la signer, et publie le .ipa comme
+# artefact. Une app non signée ne s'installe pas seule : elle est destinée à
+# être resignée localement (Sideloadly, AltStore) avec un identifiant Apple
+# gratuit. Compiler pour iOS exige macOS, d'où l'exécuteur GitHub.
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_url:
+        description: "Serveur Ashitaka par défaut dans l'app"
+        required: false
+        default: "https://utilisa-ten39ih.tail05b9b5.ts.net"
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.20.0
+
+      - name: Activer pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.15.0 --activate
+        env:
+          COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+
+      - name: Générer le projet iOS
+        working-directory: apps/mobile
+        env:
+          EXPO_PUBLIC_API_URL: ${{ inputs.api_url }}
+        run: pnpm exec expo prebuild --platform ios --no-install
+
+      - name: Installer les pods
+        working-directory: apps/mobile/ios
+        run: pod install --repo-update
+
+      - name: Repérer le projet et le schéma
+        id: xc
+        working-directory: apps/mobile/ios
+        run: |
+          workspace=$(ls -d *.xcworkspace | head -1)
+          scheme="${workspace%.xcworkspace}"
+          echo "workspace=$workspace" >> "$GITHUB_OUTPUT"
+          echo "scheme=$scheme" >> "$GITHUB_OUTPUT"
+          echo "workspace=$workspace scheme=$scheme"
+
+      # CODE_SIGNING_ALLOWED=NO produit un .app non signé : c'est tout l'objet
+      # de ce workflow, et la seule façon de compiler sans compte payant.
+      - name: Compiler sans signature
+        working-directory: apps/mobile/ios
+        env:
+          EXPO_PUBLIC_API_URL: ${{ inputs.api_url }}
+        run: |
+          xcodebuild \
+            -workspace "${{ steps.xc.outputs.workspace }}" \
+            -scheme "${{ steps.xc.outputs.scheme }}" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_ENTITLEMENTS="" \
+            EXPANDED_CODE_SIGN_IDENTITY="" \
+            build
+
+      # Un .ipa n'est qu'une archive zip contenant un dossier Payload.
+      - name: Empaqueter en .ipa
+        working-directory: apps/mobile/ios
+        run: |
+          app=$(ls -d build/Build/Products/Release-iphoneos/*.app | head -1)
+          echo "app: $app"
+          mkdir -p Payload
+          cp -R "$app" Payload/
+          zip -qry Ashitaka-unsigned.ipa Payload
+          ls -lh Ashitaka-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Ashitaka-unsigned-ipa
+          path: apps/mobile/ios/Ashitaka-unsigned.ipa
+          if-no-files-found: error
