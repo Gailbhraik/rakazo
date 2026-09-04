@@ -4,6 +4,21 @@ name: iOS unsigned IPA
 # artefact. Une app non signée ne s'installe pas seule : elle est destinée à
 # être resignée localement (Sideloadly, AltStore) avec un identifiant Apple
 # gratuit. Compiler pour iOS exige macOS, d'où l'exécuteur GitHub.
+#
+# ÉTAT : ne passe pas en l'état avec Expo SDK 57 / React Native 0.86.
+# `expo-modules-jsi@57.0.7` n'accepte aucun Xcode de l'image macos-15, essayés
+# le 2026-09-04 :
+#
+#   Xcode 26.0    Swift 6.2    `weak let` refusé
+#   Xcode 26.1.1  Swift 6.2.1  `weak let` refusé ET interop C++ refusée
+#   Xcode 26.2    Swift 6.2.3  interop C++ refusée
+#   Xcode 26.3    Swift 6.2.4  interop C++ refusée
+#
+# Sous 6.2, le paquet Swift du module ne se résout même pas (il déclare
+# swift-tools-version 6.2). La fenêtre acceptable est donc vide sur cette
+# image ; l'amont ne compile que via EAS, dont les images embarquent le Xcode
+# assorti au SDK. Ce workflow redeviendra utile quand l'image macOS ou Expo
+# aura bougé — relancer avec l'entrée `xcode` pour retester.
 
 on:
   workflow_dispatch:
