@@ -126,6 +126,7 @@ import {
   computersAreUnavailable,
 } from "../components/ComputersUnavailableHint";
 import { MessageHoverMetadata } from "../components/MessageHoverMetadata";
+import { PanelStatus } from "../components/PanelStatus";
 import { ToolActivityDisclosure, ToolSteps } from "../components/ToolActivityDisclosure";
 import { SkillDraftCard } from "../components/teach/SkillDraftCard";
 import { TeachCaptureOverlay } from "../components/teach/TeachCaptureOverlay";
@@ -2605,9 +2606,9 @@ export function ShellPage() {
                                 ) : null}
                               </span>
                               <span className="flex shrink-0 items-center gap-1.5 text-[12.5px] text-[#7B6561]">
-                                {item.kind === "bot" && item.chat.status !== "idle"
-                                  ? item.chat.status
-                                  : ""}
+                                {item.kind === "bot" && item.chat.status !== "idle" ? (
+                                  <PanelStatus state={item.chat.status} compact />
+                                ) : null}
                                 {item.chat.unread ? (
                                   <span
                                     aria-hidden="true"
@@ -3049,7 +3050,7 @@ export function ShellPage() {
                   {panel === "settings" ? (
                     <Trans>Settings</Trans>
                   ) : active ? (
-                    (computer?.state ?? active.status)
+                    <PanelStatus state={computer?.state ?? active.status} />
                   ) : (
                     <Trans>Group</Trans>
                   )}
