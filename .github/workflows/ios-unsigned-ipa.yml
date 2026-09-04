@@ -21,6 +21,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # L'image macOS embarque plusieurs Xcode et pointe par défaut sur un
+      # ancien : certains paquets Swift exigent des outils plus récents.
+      - name: Choisir le Xcode le plus récent
+        run: |
+          latest=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
+          echo "Xcode retenu : $latest"
+          sudo xcode-select -s "$latest"
+          xcodebuild -version
+          swift --version
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24.20.0
