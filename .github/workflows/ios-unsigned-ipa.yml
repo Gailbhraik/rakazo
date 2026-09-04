@@ -28,25 +28,27 @@ jobs:
       # que le prochain écart se diagnostique sans tâtonner.
       - name: Choisir un Xcode compatible
         run: |
-          chosen=""
+          echo "Xcode disponibles :"
           for app in $(ls -d /Applications/Xcode_*.app | sort -V); do
-            swiftc="$app/Contents/Developer/usr/bin/swift"
-            [ -x "$swiftc" ] || continue
-            version=$("$swiftc" --version 2>/dev/null | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
-            [ -n "$version" ] || continue
-            echo "  $app -> Swift $version"
-            if [ -z "$chosen" ] && [ "$(printf '%s\n6.2\n' "$version" | sort -V | head -1)" = "6.2" ]; then
-              chosen="$app"
-              chosen_version="$version"
-            fi
+            # `swift` d'un Xcode non sélectionné ne répond qu'avec DEVELOPER_DIR.
+            version=$(DEVELOPER_DIR="$app/Contents/Developer" swift --version 2>&1 \
+              | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
+            echo "  $app -> Swift ${version:-inconnu}"
           done
-          if [ -z "$chosen" ]; then
-            echo "Aucun Xcode avec Swift >= 6.2 sur cette image."
-            exit 1
+          apps=$(ls -d /Applications/Xcode_*.app | sort -V)
+          count=$(echo "$apps" | wc -l | tr -d ' ')
+          # L'avant-dernier tombe entre les deux bornes : le défaut de l'image
+          # reste sous 6.2, et le plus récent dépasse ce qu'expo-modules-jsi
+          # accepte. À défaut d'un second Xcode, on garde le seul disponible.
+          if [ "$count" -ge 2 ]; then
+            chosen=$(echo "$apps" | tail -2 | head -1)
+          else
+            chosen=$(echo "$apps" | tail -1)
           fi
-          echo "Xcode retenu : $chosen (Swift $chosen_version)"
+          echo "Xcode retenu : $chosen"
           sudo xcode-select -s "$chosen"
           xcodebuild -version
+          swift --version
 
       - uses: actions/setup-node@v4
         with:
