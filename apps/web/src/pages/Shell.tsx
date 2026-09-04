@@ -2752,7 +2752,7 @@ export function ShellPage() {
         </button>
         <div className="relative">
           {menuOpen ? (
-            <div className="absolute bottom-14 inset-x-3 rounded-2xl border border-[#342725] bg-[#201817] p-2 shadow-[0_22px_50px_rgba(0,0,0,.55)]">
+            <div className="absolute bottom-14 inset-x-3 z-20 rounded-2xl border border-[#342725] bg-[#201817] p-2 shadow-[0_22px_50px_rgba(0,0,0,.55)]">
               <button
                 type="button"
                 aria-label={t`Settings`}

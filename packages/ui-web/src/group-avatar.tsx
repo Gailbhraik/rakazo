@@ -78,7 +78,12 @@ export const GroupAvatar = memo(function GroupAvatar({
 
   return (
     <div
-      className={cn("rakazo-group-avatar relative rounded-full select-none", className)}
+      className={cn(
+        // `isolate` confine les z-index des avatars empilés : sans lui, ils
+        // remontent au contexte racine et passent au-dessus des menus.
+        "rakazo-group-avatar relative isolate rounded-full select-none",
+        className,
+      )}
       style={{ width: size, height: size, flex: "none" }}
     >
       {visibleMembers.map((member, index) => (
