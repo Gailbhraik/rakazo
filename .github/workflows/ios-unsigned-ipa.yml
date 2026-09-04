@@ -12,6 +12,10 @@ on:
         description: "Serveur Ashitaka par défaut dans l'app"
         required: false
         default: "https://utilisa-ten39ih.tail05b9b5.ts.net"
+      xcode:
+        description: "Version d'Xcode (l'app se compile dans une fenêtre étroite)"
+        required: false
+        default: "26.2"
 
 jobs:
   build:
@@ -35,22 +39,13 @@ jobs:
               | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
             echo "  $app -> Swift ${version:-inconnu}"
           done
-          # Le plus ancien Xcode qui franchisse la borne basse : l'image en
-          # propose de Swift 6.0 à 6.2.4, et seul l'intervalle [6.2, 6.2.4[
-          # convient. Prendre le plus bas laisse la marge maximale avant la
-          # borne haute quand l'image gagnera de nouvelles versions.
-          chosen=""
-          for app in $(ls -d /Applications/Xcode_*.app | sort -V); do
-            version=$(DEVELOPER_DIR="$app/Contents/Developer" swift --version 2>&1 \
-              | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
-            [ -n "$version" ] || continue
-            if [ "$(printf '%s\n6.2\n' "$version" | sort -V | head -1)" = "6.2" ]; then
-              chosen="$app"
-              break
-            fi
-          done
-          if [ -z "$chosen" ]; then
-            echo "Aucun Xcode avec Swift >= 6.2 sur cette image."
+          # La fenêtre de compilation est étroite et se déplace avec les
+          # versions d'Expo : sous Swift 6.2 un paquet refuse de se résoudre,
+          # à 6.2 `weak let` d'expo-modules-jsi n'est pas reconnu, à 6.2.4 son
+          # interopérabilité C++ casse. La version se pilote donc à la main.
+          chosen="/Applications/Xcode_${{ inputs.xcode }}.app"
+          if [ ! -d "$chosen" ]; then
+            echo "Xcode ${{ inputs.xcode }} absent de cette image."
             exit 1
           fi
           echo "Xcode retenu : $chosen"
