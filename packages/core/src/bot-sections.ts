@@ -10,6 +10,15 @@ type SectionedBot = { pinned: boolean; sectionId: string | null };
 export function groupBotsForSidebar<T extends SectionedBot>(
   bots: readonly T[],
   sections: readonly Section[],
+  /**
+   * Garder les sections sans bot.
+   *
+   * Une section vide doit rester visible pour qu'on puisse y déposer un bot,
+   * et pour qu'elle ne disparaisse pas en sortant son dernier occupant. Une
+   * recherche, elle, ne montre que ce qui correspond : y afficher toutes les
+   * sections serait du bruit.
+   */
+  options?: { keepEmptySections?: boolean },
 ): BotListSection<T>[] {
   const knownSectionIds = new Set(sections.map((section) => section.id));
   const pinned: T[] = [];
@@ -34,7 +43,7 @@ export function groupBotsForSidebar<T extends SectionedBot>(
   }
   for (const section of sections) {
     const members = sectionMembers.get(section.id) ?? [];
-    if (members.length > 0) {
+    if (members.length > 0 || options?.keepEmptySections) {
       grouped.push({ key: `section:${section.id}`, title: section.name, bots: members });
     }
   }

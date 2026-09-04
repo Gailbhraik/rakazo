@@ -40,6 +40,21 @@ describe("groupBotsForSidebar", () => {
     ]);
   });
 
+  it("keeps empty sections only when asked, so a drop target survives its last bot", () => {
+    const bots = [{ id: "work", pinned: false, sectionId: "work" }];
+
+    expect(groupBotsForSidebar(bots, sections).map((group) => group.title)).toEqual(["Work"]);
+    expect(
+      groupBotsForSidebar(bots, sections, { keepEmptySections: true }).map((group) => [
+        group.title,
+        group.bots.length,
+      ]),
+    ).toEqual([
+      ["Work", 1],
+      ["Home", 0],
+    ]);
+  });
+
   it("does not add a heading before sections or pins exist", () => {
     const groups = groupBotsForSidebar([{ id: "first", pinned: false, sectionId: null }], []);
     expect(groups[0]?.title).toBeNull();

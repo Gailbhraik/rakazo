@@ -335,6 +335,7 @@ export function ShellPage() {
   } | null>(null);
   const [favoriteModelsOpen, setFavoriteModelsOpen] = useState(false);
   const [renamingSection, setRenamingSection] = useState<{ id: string; name: string } | null>(null);
+  const [dropSectionKey, setDropSectionKey] = useState<string | null>(null);
   // Ctrl/⌘+M ouvre les favoris : l'intérêt d'un raccourci de modèle est de ne
   // pas quitter le clavier ni la conversation en cours.
   const onMac =
@@ -1388,6 +1389,7 @@ export function ShellPage() {
           ...visibleGroups.map((chat) => ({ kind: "group" as const, chat })),
         ].map((item) => ({ ...item, pinned: item.chat.pinned, sectionId: item.chat.sectionId })),
         space.botSections,
+        { keepEmptySections: !needle },
       ).map((group) => ({
         ...group,
         key: showSpaceNames ? `space:${space.id}:${group.key}` : group.key,
@@ -1459,6 +1461,29 @@ export function ShellPage() {
       }
     }
   }, [refreshBots]);
+  /**
+   * Déplacer un bot vers la section sur laquelle on l'a lâché.
+   *
+   * Un bot épinglé reste dans le groupe « Pinned » quelle que soit sa section :
+   * le déposer ailleurs le désépingle, sans quoi le geste n'aurait aucun effet
+   * visible. Inversement, un dépôt sur « Pinned » épingle.
+   */
+  const moveBotToSectionKey = useCallback(
+    async (botId: string, groupKey: string) => {
+      const bare = groupKey.replace(/^space:[^:]+:/, "");
+      const patch =
+        bare === "pinned"
+          ? { pinned: true }
+          : {
+              pinned: false,
+              sectionId: bare.startsWith("section:") ? bare.slice("section:".length) : null,
+            };
+      await rpc.bots.update({ botId, ...patch });
+      await refreshBots(true);
+    },
+    [refreshBots],
+  );
+
   const reorderRosterBot = useCallback(
     (sourceId: string, targetId: string, groupBotIds: string[]) => {
       if (!groupBotIds.includes(sourceId) || !groupBotIds.includes(targetId)) return;
@@ -2483,7 +2508,36 @@ export function ShellPage() {
                   item.kind === "bot" ? [item.chat.id] : [],
                 );
                 return (
-                  <div key={group.key} data-sidebar-group={group.key}>
+                  // biome-ignore lint/a11y/noStaticElementInteractions: zone de dépôt d'un glisser-déposer ; le même déplacement reste accessible au clavier par le menu contextuel « Move to section »
+                  <div
+                    key={group.key}
+                    data-sidebar-group={group.key}
+                    className={
+                      dropSectionKey === group.key
+                        ? "rounded-lg outline-2 outline-dashed outline-offset-[-2px] outline-[#E0393E]"
+                        : undefined
+                    }
+                    onDragOver={(event) => {
+                      if (!draggedBotId || group.emptySpaceId) return;
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                      setDropSectionKey(group.key);
+                    }}
+                    onDragLeave={(event) => {
+                      // Le survol des enfants déclenche un dragleave sur le parent :
+                      // on n'éteint le repère que si le curseur quitte vraiment la zone.
+                      if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+                      setDropSectionKey((current) => (current === group.key ? null : current));
+                    }}
+                    onDrop={(event) => {
+                      setDropSectionKey(null);
+                      if (!draggedBotId || group.emptySpaceId) return;
+                      event.preventDefault();
+                      const botId = draggedBotId;
+                      setDraggedBotId(null);
+                      void moveBotToSectionKey(botId, group.key);
+                    }}
+                  >
                     {group.title ? (
                       <div className="group/section flex items-center gap-1 pt-2">
                         {renamingSection && group.key === `section:${renamingSection.id}` ? (
@@ -2623,11 +2677,17 @@ export function ShellPage() {
                           }}
                           onDrop={(event) => {
                             if (item.kind !== "bot" || !draggedBotId) return;
+                            if (!groupBotIds.includes(draggedBotId)) return;
                             event.preventDefault();
+                            event.stopPropagation();
+                            setDropSectionKey(null);
                             reorderRosterBot(draggedBotId, item.chat.id, groupBotIds);
                             setDraggedBotId(null);
                           }}
-                          onDragEnd={() => setDraggedBotId(null)}
+                          onDragEnd={() => {
+                            setDraggedBotId(null);
+                            setDropSectionKey(null);
+                          }}
                           onKeyDown={(event) => {
                             if (
                               item.kind !== "bot" ||
