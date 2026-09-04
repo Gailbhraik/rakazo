@@ -62,7 +62,7 @@ export function McpOAuthCallbackPage() {
             onClick={() => navigate("/app")}
             className="mt-5 rounded-xl bg-[#FF777C] px-4 py-2 text-sm font-semibold text-[#120909]"
           >
-            <Trans>Return to Rakazo</Trans>
+            <Trans>Return to Ashitaka</Trans>
           </button>
         ) : (
           <p className="mt-2 text-sm text-[#967E7A]">

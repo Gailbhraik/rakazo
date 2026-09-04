@@ -23,6 +23,16 @@ export const ThinkingLevelSchema = z.enum([
 ]);
 export type ThinkingLevel = z.infer<typeof ThinkingLevelSchema>;
 
+/**
+ * Numéros de Pokémon acceptés comme avatar.
+ *
+ * Le dépôt PokeAPI ne fournit d'animation que pour les générations I à V :
+ * au-delà de 649, il n'y a que des images fixes, qui trahiraient la promesse
+ * d'une icône animée.
+ */
+export const POKEMON_ANIMATED_MAX = 649;
+const POKEMON_NUMBER = z.number().int().min(1).max(POKEMON_ANIMATED_MAX);
+
 export const BotSchema = z.object({
   id: Id,
   spaceId: Id,
@@ -31,6 +41,8 @@ export const BotSchema = z.object({
   description: z.string(),
   instructions: z.string(),
   color: z.string(),
+  /** Numéro national du Pokémon servant d'avatar ; nul = avatar généré. */
+  pokemon: z.number().int().nullable(),
   notifyOnFinish: z.boolean(),
   pinned: z.boolean(),
   sectionId: Id.nullable(),
@@ -134,6 +146,7 @@ export const SpaceBotSchema = BotSchema.pick({
   name: true,
   title: true,
   color: true,
+  pokemon: true,
   notifyOnFinish: true,
   pinned: true,
   sectionId: true,
@@ -216,6 +229,7 @@ export const UpdateBotInput = z
     instructions: z.string().max(BOT_INSTRUCTIONS_MAX_LENGTH).optional(),
     notifyOnFinish: z.boolean().optional(),
     color: z.string().optional(),
+    pokemon: POKEMON_NUMBER.nullable().optional(),
     pinned: z.boolean().optional(),
     memoryScope: MemoryScopeSchema.nullable().optional(),
     sectionId: Id.nullable().optional(),

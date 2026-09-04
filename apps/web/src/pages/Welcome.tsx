@@ -15,7 +15,7 @@ export function WelcomePage() {
             <span className="h-6 w-[11px] rounded-full bg-[#140F0E]" />
             <span className="h-6 w-[11px] rounded-full bg-[#140F0E]" />
           </div>
-          <div className="text-[76px] leading-none tracking-[-0.03em] text-white">Rakazo</div>
+          <div className="text-[76px] leading-none tracking-[-0.03em] text-white">Ashitaka</div>
         </div>
         <p className="max-w-[600px] text-center text-[27px] leading-[1.4] text-[#E7E4E3]">
           <Trans>

@@ -214,6 +214,11 @@ const PluginsOverlay = lazy(() =>
 const McpServersOverlay = lazy(() =>
   import("./McpServersOverlay").then((module) => ({ default: module.McpServersOverlay })),
 );
+const PokemonPickerOverlay = lazy(() =>
+  import("./PokemonPickerOverlay").then((module) => ({
+    default: module.PokemonPickerOverlay,
+  })),
+);
 const FavoriteModelsOverlay = lazy(() =>
   import("./FavoriteModelsOverlay").then((module) => ({
     default: module.FavoriteModelsOverlay,
@@ -2597,6 +2602,7 @@ export function ShellPage() {
                           {item.kind === "bot" ? (
                             <BotAvatar
                               color={item.chat.color}
+                              pokemon={item.chat.pokemon}
                               identity={item.chat.id}
                               size={38}
                               status={item.chat.status}
@@ -2697,6 +2703,7 @@ export function ShellPage() {
                     <div key={bot.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2">
                       <BotAvatar
                         color={bot.color}
+                        pokemon={bot.pokemon}
                         identity={bot.id}
                         size={28}
                         status={bot.status}
@@ -2925,6 +2932,7 @@ export function ShellPage() {
               ) : active ? (
                 <BotAvatar
                   color={active.color}
+                  pokemon={active.pokemon}
                   identity={active.id}
                   size={26}
                   status={active.status}
@@ -3741,6 +3749,7 @@ export function ShellPage() {
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <BotAvatar
                 color={active.color}
+                pokemon={active.pokemon}
                 identity={active.id}
                 size={28}
                 status={active.status}
@@ -5558,6 +5567,7 @@ function BotSettings({
     modelProvider?: string | null;
     modelId?: string | null;
     thinkingLevel?: ThinkingLevel | null;
+    pokemon?: number | null;
   }) => Promise<void>;
   onExport: () => Promise<void>;
   onClear: () => void;
@@ -5568,6 +5578,7 @@ function BotSettings({
   const [title, setTitle] = useState(bot.title);
   const [description, setDescription] = useState(bot.description);
   const [computerMode, setComputerMode] = useState(bot.computerMode);
+  const [pokemonPickerOpen, setPokemonPickerOpen] = useState(false);
   const [memoryScope, setMemoryScope] = useState(bot.memoryScope);
   const [autoSpeak, setAutoSpeak] = useState(bot.autoSpeak);
   const [voiceId, setVoiceId] = useState(bot.voiceId ?? "");
@@ -5655,8 +5666,34 @@ function BotSettings({
   return (
     <div data-testid="bot-settings">
       <div className="flex justify-center">
-        <BotAvatar color={bot.color} identity={bot.id} size={64} status={bot.status} />
+        <button
+          type="button"
+          onClick={() => setPokemonPickerOpen(true)}
+          title={t`Choose an avatar`}
+          className="rounded-full transition hover:scale-[1.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E0393E]"
+        >
+          <BotAvatar
+            color={bot.color}
+            pokemon={bot.pokemon}
+            identity={bot.id}
+            size={64}
+            status={bot.status}
+          />
+        </button>
       </div>
+      {pokemonPickerOpen ? (
+        <Suspense fallback={null}>
+          <PokemonPickerOverlay
+            botName={bot.name}
+            current={bot.pokemon}
+            onClose={() => setPokemonPickerOpen(false)}
+            onPick={(pokemon) => {
+              setPokemonPickerOpen(false);
+              void onSave({ computerMode, pokemon });
+            }}
+          />
+        </Suspense>
+      ) : null}
       <label className="mt-6 block text-[14px] text-[#967E79]">
         <Trans>Name</Trans>
         <input

@@ -21,9 +21,9 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   const passwordFieldId = mode === "in" ? "current-password" : "new-password";
   const title =
     mode === "in" ? (
-      <Trans>Sign in to Rakazo</Trans>
+      <Trans>Sign in to Ashitaka</Trans>
     ) : mode === "up" ? (
-      <Trans>Create your Rakazo</Trans>
+      <Trans>Create your Ashitaka</Trans>
     ) : (
       <Trans>Reset your password</Trans>
     );

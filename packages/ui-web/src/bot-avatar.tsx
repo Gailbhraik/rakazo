@@ -10,6 +10,8 @@ export interface BotAvatarProps {
   status?: string;
   variant?: AvatarStyle;
   identity?: string;
+  /** Numéro national d'un Pokémon ; remplace l'avatar généré quand il est défini. */
+  pokemon?: number | null;
   className?: string;
 }
 
@@ -19,9 +21,15 @@ export const BotAvatar = memo(function BotAvatar({
   status,
   variant,
   identity,
+  pokemon,
   className,
 }: BotAvatarProps) {
   const isWorking = ACTIVE_RUN_STATUSES.some((activeStatus) => activeStatus === status);
+  if (pokemon) {
+    return (
+      <PokemonAvatar pokemon={pokemon} size={size} isWorking={isWorking} className={className} />
+    );
+  }
   const gradId = `spin-grad-${useId().replace(/[^a-zA-Z0-9-_]/g, "")}`;
   const preferredVariant = useAvatarStyle();
   if ((variant ?? preferredVariant) === "organic") {
@@ -283,6 +291,64 @@ function adjustColor(hex: string, percent: number): string {
   g = Math.min(255, Math.max(0, g));
   b = Math.min(255, Math.max(0, b));
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+/**
+ * Sprite animé d'un Pokémon, en lieu et place de l'avatar généré.
+ *
+ * Les sprites viennent du dépôt PokeAPI, qui n'anime que les générations I à V.
+ * Le rendu est pixelisé à dessein : un sprite de 96 px agrandi puis lissé
+ * deviendrait flou. La bordure lumineuse reprend celle de l'avatar généré, pour
+ * qu'un bot au travail se repère de la même façon quel que soit son avatar.
+ */
+const POKEMON_SPRITE_BASE =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated";
+
+export function pokemonSpriteUrl(pokemon: number): string {
+  return POKEMON_SPRITE_BASE + "/" + pokemon + ".gif";
+}
+
+function PokemonAvatar({
+  pokemon,
+  size,
+  isWorking,
+  className,
+}: {
+  pokemon: number;
+  size: number;
+  isWorking: boolean;
+  className?: string;
+}) {
+  const glow = Math.round(size * 0.4);
+  const drop = Math.max(4, Math.round(size * 0.15));
+  return (
+    <div
+      className={cn(
+        "rakazo-bot-avatar relative flex items-center justify-center overflow-hidden rounded-full select-none",
+        className,
+      )}
+      data-working={isWorking}
+      style={{
+        width: size,
+        height: size,
+        flex: "none",
+        background: "radial-gradient(circle at 50% 60%, #2A201E, #171110 70%)",
+        boxShadow: isWorking
+          ? "0 0 0 2px rgba(224,57,62,0.55), 0 0 " + glow + "px rgba(224,57,62,0.5)"
+          : "0 2px " + drop + "px rgba(0,0,0,0.4)",
+      }}
+    >
+      <img
+        src={pokemonSpriteUrl(pokemon)}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        width={Math.round(size * 0.86)}
+        height={Math.round(size * 0.86)}
+        style={{ imageRendering: "pixelated", objectFit: "contain" }}
+      />
+    </div>
+  );
 }
 
 export function Wordmark({ className }: { className?: string }) {

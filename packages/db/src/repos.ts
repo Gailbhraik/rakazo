@@ -25,6 +25,7 @@ function mapBot(
     description: string;
     instructions: string;
     color: string;
+    pokemon: number | null;
     notifyOnFinish: boolean;
     pinned: boolean;
     sectionId: string | null;
@@ -56,6 +57,7 @@ function mapBot(
     description: bot.description,
     instructions: bot.instructions,
     color: bot.color,
+    pokemon: bot.pokemon,
     notifyOnFinish: bot.notifyOnFinish,
     pinned: bot.pinned,
     sectionId: bot.sectionId,
@@ -112,6 +114,7 @@ export function createRepos(prisma: PrismaClient) {
         name: true,
         title: true,
         color: true,
+        pokemon: true,
         notifyOnFinish: true,
         pinned: true,
         sectionId: true,
@@ -138,6 +141,7 @@ export function createRepos(prisma: PrismaClient) {
         name: bot.name,
         title: bot.title,
         color: bot.color,
+        pokemon: bot.pokemon,
         notifyOnFinish: bot.notifyOnFinish,
         pinned: bot.pinned,
         sectionId: bot.sectionId,

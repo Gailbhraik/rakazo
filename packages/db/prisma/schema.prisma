@@ -336,6 +336,8 @@ model Bot {
   description       String            @default("")
   instructions      String            @default("")
   color             String
+  /// Numéro national du Pokémon servant d'avatar ; nul = avatar généré.
+  pokemon           Int?
   notifyOnFinish    Boolean           @default(true)
   pinned            Boolean           @default(false)
   position          Int               @default(0)

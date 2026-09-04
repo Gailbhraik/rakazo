@@ -509,8 +509,8 @@ export function PluginsOverlay({
                   ) : null}
                   <p className="text-xs leading-5 text-[#816A66]">
                     <Trans>
-                      Rakazo verifies the source before saving it. Credentials are encrypted and are
-                      never returned to clients or exposed to the model.
+                      Ashitaka verifies the source before saving it. Credentials are encrypted and
+                      are never returned to clients or exposed to the model.
                     </Trans>
                   </p>
                   <div className="flex gap-2">
