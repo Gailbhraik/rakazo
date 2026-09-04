@@ -21,15 +21,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # L'image macOS embarque plusieurs Xcode et pointe par défaut sur un
-      # ancien : certains paquets Swift exigent des outils plus récents.
-      - name: Choisir le Xcode le plus récent
+      # Le Xcode se choisit entre deux bornes : un paquet Swift du projet exige
+      # les outils 6.2, tandis qu'expo-modules-jsi ne compile pas avec 6.2.4,
+      # dont l'interopérabilité C++ refuse ses annotations. On prend donc le
+      # plus ancien Xcode qui atteigne 6.2, et l'inventaire est journalisé pour
+      # que le prochain écart se diagnostique sans tâtonner.
+      - name: Choisir un Xcode compatible
         run: |
-          latest=$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)
-          echo "Xcode retenu : $latest"
-          sudo xcode-select -s "$latest"
+          chosen=""
+          for app in $(ls -d /Applications/Xcode_*.app | sort -V); do
+            swiftc="$app/Contents/Developer/usr/bin/swift"
+            [ -x "$swiftc" ] || continue
+            version=$("$swiftc" --version 2>/dev/null | sed -n 's/.*Swift version \([0-9.]*\).*/\1/p' | head -1)
+            [ -n "$version" ] || continue
+            echo "  $app -> Swift $version"
+            if [ -z "$chosen" ] && [ "$(printf '%s\n6.2\n' "$version" | sort -V | head -1)" = "6.2" ]; then
+              chosen="$app"
+              chosen_version="$version"
+            fi
+          done
+          if [ -z "$chosen" ]; then
+            echo "Aucun Xcode avec Swift >= 6.2 sur cette image."
+            exit 1
+          fi
+          echo "Xcode retenu : $chosen (Swift $chosen_version)"
+          sudo xcode-select -s "$chosen"
           xcodebuild -version
-          swift --version
 
       - uses: actions/setup-node@v4
         with:
