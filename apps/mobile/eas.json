@@ -13,6 +13,16 @@
       "autoIncrement": true,
       "environment": "production",
       "channel": "production"
+    },
+    "device": {
+      "distribution": "internal",
+      "channel": "device",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://utilisa-ten39ih.tail05b9b5.ts.net"
+      }
     }
   },
   "submit": {

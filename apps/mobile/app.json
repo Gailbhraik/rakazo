@@ -1,9 +1,8 @@
 {
   "expo": {
-    "name": "Rakazo",
-    "slug": "rakazo",
-    "owner": "inbox-zero",
-    "scheme": "rakazo",
+    "name": "Ashitaka",
+    "slug": "ashitaka",
+    "scheme": "ashitaka",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -14,7 +13,7 @@
         {
           "image": "./assets/splash-icon.png",
           "resizeMode": "contain",
-          "backgroundColor": "#050506"
+          "backgroundColor": "#17110F"
         }
       ],
       "expo-router",
@@ -27,14 +26,14 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#2965EC"
+          "color": "#E0393E"
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Rakazo uses your photo library so you can attach images to a bot message.",
-          "cameraPermission": "Rakazo uses the camera so you can attach photos to a bot message.",
+          "photosPermission": "Ashitaka uses your photo library so you can attach images to a bot message.",
+          "cameraPermission": "Ashitaka uses the camera so you can attach photos to a bot message.",
           "microphonePermission": false
         }
       ],
@@ -42,7 +41,7 @@
       "./plugins/with-worklets-headers"
     ],
     "ios": {
-      "bundleIdentifier": "com.rakazo.app",
+      "bundleIdentifier": "com.gailbhraik.ashitaka",
       "buildNumber": "1",
       "supportsTablet": false,
       "icon": "./assets/icon.png",
@@ -50,23 +49,23 @@
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "Rakazo uses the camera so you can attach photos to a bot message.",
-        "NSPhotoLibraryUsageDescription": "Rakazo uses your photo library so you can attach images to a bot message.",
-        "NSLocalNetworkUsageDescription": "Rakazo connects to a self-hosted Rakazo server on your local network.",
+        "NSCameraUsageDescription": "Ashitaka uses the camera so you can attach photos to a bot message.",
+        "NSPhotoLibraryUsageDescription": "Ashitaka uses your photo library so you can attach images to a bot message.",
+        "NSLocalNetworkUsageDescription": "Ashitaka connects to a self-hosted Ashitaka server on your local network.",
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
         }
       }
     },
     "android": {
-      "package": "com.rakazo.app",
+      "package": "com.gailbhraik.ashitaka",
       "versionCode": 10,
       "softwareKeyboardLayoutMode": "resize",
       "icon": "./assets/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "monochromeImage": "./assets/monochrome-icon.png",
-        "backgroundColor": "#2965EC"
+        "backgroundColor": "#17110F"
       }
     },
     "web": {
@@ -75,9 +74,7 @@
     "extra": {
       "router": {},
       "supportsRTL": true,
-      "eas": {
-        "projectId": "07f7eb04-45e3-47fe-9374-99a2f991131e"
-      }
+      "eas": {}
     },
     "runtimeVersion": {
       "policy": "appVersion"
