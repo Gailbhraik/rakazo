@@ -26,6 +26,7 @@ import {
   CreateScratchpadItemInput,
   DeploymentSettingsSchema,
   ExportManifestSchema,
+  FavoriteModelSchema,
   GroupDetailSchema,
   GroupSchema,
   McpServerConfigInput,
@@ -195,6 +196,10 @@ export const appContract = {
     setDefault: oc
       .input(z.object({ provider: z.string(), modelId: z.string() }))
       .output(z.object({ ok: z.literal(true) })),
+    favorites: oc.output(z.array(FavoriteModelSchema)),
+    toggleFavorite: oc
+      .input(z.object({ provider: z.string(), modelId: z.string() }))
+      .output(z.object({ favorited: z.boolean() })),
   },
   bots: {
     list: oc.output(z.array(BotSchema)),

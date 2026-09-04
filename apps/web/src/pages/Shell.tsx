@@ -93,6 +93,7 @@ import {
   Reply,
   Settings,
   Square,
+  Star,
   ThumbsUp,
   Volume2,
   X,
@@ -213,6 +214,11 @@ const PluginsOverlay = lazy(() =>
 const McpServersOverlay = lazy(() =>
   import("./McpServersOverlay").then((module) => ({ default: module.McpServersOverlay })),
 );
+const FavoriteModelsOverlay = lazy(() =>
+  import("./FavoriteModelsOverlay").then((module) => ({
+    default: module.FavoriteModelsOverlay,
+  })),
+);
 const MemorySettingsOverlay = lazy(() =>
   import("./MemorySettingsOverlay").then((module) => ({
     default: module.MemorySettingsOverlay,
@@ -320,6 +326,22 @@ export function ShellPage() {
     peerBotId: string;
     peerBotName: string;
   } | null>(null);
+  const [favoriteModelsOpen, setFavoriteModelsOpen] = useState(false);
+  // Ctrl/⌘+M ouvre les favoris : l'intérêt d'un raccourci de modèle est de ne
+  // pas quitter le clavier ni la conversation en cours.
+  const onMac =
+    typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || "");
+  const shortcutLabel = onMac ? "⌘M" : "Ctrl+M";
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key.toLowerCase() !== "m") return;
+      if (!(onMac ? event.metaKey : event.ctrlKey) || event.altKey || event.shiftKey) return;
+      event.preventDefault();
+      setFavoriteModelsOpen((open) => !open);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onMac]);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [routinesBotId, setRoutinesBotId] = useState<string | null>(null);
   const [taughtSkills, setTaughtSkills] = useState<TaughtSkill[]>([]);
@@ -2786,6 +2808,22 @@ export function ShellPage() {
                 type="button"
                 onClick={() => {
                   setMenuOpen(false);
+                  setFavoriteModelsOpen(true);
+                }}
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+              >
+                <Star size={16} strokeWidth={1.7} className="text-[#A69794]" />
+                <span className="flex-1 text-start text-[14.5px] text-[#EEECEC]">
+                  <Trans>Favorite models</Trans>
+                </span>
+                <kbd className="rounded-[6px] border border-[#3A2C29] px-1.5 py-0.5 text-[11px] text-[#7B6561]">
+                  {shortcutLabel}
+                </kbd>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
                   setMemorySettingsOpen(true);
                 }}
                 className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
@@ -3659,6 +3697,15 @@ export function ShellPage() {
             onFollowUp={followUpMessage}
             onAnswer={answerMessage}
             onClose={() => setCallOpen(false)}
+          />
+        ) : null}
+      </Suspense>
+
+      <Suspense fallback={null}>
+        {favoriteModelsOpen ? (
+          <FavoriteModelsOverlay
+            onClose={() => setFavoriteModelsOpen(false)}
+            onModelChanged={() => void refreshBots(true)}
           />
         ) : null}
       </Suspense>

@@ -610,6 +610,64 @@ export function createRouter(deps: RouterDeps) {
         await deps.oauthLogins.cancel(input.loginId, context.actor);
         return { ok: true as const };
       }),
+      favorites: authed.models.favorites.handler(async ({ context }) => {
+        const [rows, credentials] = await Promise.all([
+          deps.prisma.spaceFavoriteModel.findMany({
+            where: { spaceId: context.actor.spaceId, userId: context.actor.userId },
+            orderBy: { createdAt: "asc" },
+          }),
+          deps.prisma.userModelCredential.findMany({
+            where: { userId: context.actor.userId },
+            select: { provider: true },
+          }),
+        ]);
+        const active = await deps.prisma.spaceModelPreference.findFirst({
+          where: { spaceId: context.actor.spaceId, userId: context.actor.userId, isDefault: true },
+          select: { modelId: true, credential: { select: { provider: true } } },
+        });
+        const catalog = [...listPiCatalog(), scriptedCatalogEntry];
+        const connected = new Set(credentials.map((credential) => credential.provider));
+        return rows.map((row) => {
+          const entry = catalog.find(
+            (candidate) => candidate.provider === row.provider && candidate.id === row.modelId,
+          );
+          return {
+            provider: row.provider,
+            providerName: entry?.providerName,
+            modelId: row.modelId,
+            // Un favori dont le modèle a quitté le catalogue reste listé sous son
+            // identifiant : le faire disparaître sans un mot serait pire.
+            label: entry?.label ?? row.modelId,
+            available: Boolean(entry) && connected.has(row.provider),
+            active: active?.modelId === row.modelId && active?.credential.provider === row.provider,
+            reasoning: entry?.reasoning,
+          };
+        });
+      }),
+      toggleFavorite: authed.models.toggleFavorite.handler(async ({ context, input }) => {
+        const where = {
+          spaceId_userId_provider_modelId: {
+            spaceId: context.actor.spaceId,
+            userId: context.actor.userId,
+            provider: input.provider,
+            modelId: input.modelId,
+          },
+        };
+        const existing = await deps.prisma.spaceFavoriteModel.findUnique({ where });
+        if (existing) {
+          await deps.prisma.spaceFavoriteModel.delete({ where });
+          return { favorited: false as const };
+        }
+        await deps.prisma.spaceFavoriteModel.create({
+          data: {
+            spaceId: context.actor.spaceId,
+            userId: context.actor.userId,
+            provider: input.provider,
+            modelId: input.modelId,
+          },
+        });
+        return { favorited: true as const };
+      }),
       setDefault: authed.models.setDefault.handler(async ({ context, input }) => {
         await withSerializableRetry(() =>
           deps.prisma.$transaction(

@@ -201,6 +201,7 @@ model SpaceMember {
   createdAt        DateTime
   modelPreferences SpaceModelPreference[]
   voicePreferences SpaceVoicePreference[]
+  favoriteModels   SpaceFavoriteModel[]
 
   @@unique([spaceId, userId])
   @@index([organizationId, userId])
@@ -288,6 +289,22 @@ model SpaceModelPreference {
   @@index([credentialId])
   // Partial unique index space_model_preferences_default_key is created in SQL.
   @@map("space_model_preferences")
+}
+
+/// Modèles épinglés par un membre pour basculer vite, sans rapport avec le
+/// modèle actif : un favori est un raccourci, pas un réglage appliqué.
+model SpaceFavoriteModel {
+  id          String      @id @default(cuid())
+  spaceId     String
+  userId      String
+  spaceMember SpaceMember @relation(fields: [spaceId, userId], references: [spaceId, userId], onDelete: Cascade)
+  provider    String
+  modelId     String
+  createdAt   DateTime    @default(now())
+
+  @@unique([spaceId, userId, provider, modelId])
+  @@index([spaceId, userId, createdAt])
+  @@map("space_favorite_models")
 }
 
 model SpaceVoicePreference {

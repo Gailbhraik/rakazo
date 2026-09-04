@@ -800,6 +800,24 @@ export const ModelCatalogEntrySchema = z.object({
 });
 export type ModelCatalogEntry = z.infer<typeof ModelCatalogEntrySchema>;
 
+/**
+ * Un modèle épinglé pour basculer vite.
+ *
+ * Le libellé est résolu depuis le catalogue au moment de la lecture : un
+ * favori pointant vers un modèle disparu du catalogue reste listé, marqué
+ * indisponible, plutôt que de s'évaporer sans explication.
+ */
+export const FavoriteModelSchema = z.object({
+  provider: z.string(),
+  providerName: z.string().optional(),
+  modelId: z.string(),
+  label: z.string(),
+  available: z.boolean(),
+  active: z.boolean(),
+  reasoning: z.boolean().optional(),
+});
+export type FavoriteModel = z.infer<typeof FavoriteModelSchema>;
+
 export const VoiceCatalogEntrySchema = z.object({
   id: z.string(),
   name: z.string(),
