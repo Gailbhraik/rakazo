@@ -39,6 +39,7 @@ import {
   MessagingLinkedIdentitySchema,
   MessagingStatusSchema,
   ModelCatalogEntrySchema,
+  ModelUsageSchema,
   ModelConnectInputSchema,
   ModelCredentialSchema,
   ModelOAuthBeginSchema,
@@ -632,6 +633,7 @@ export const appContract = {
   },
   usage: {
     list: oc.output(z.array(UsageRecordSchema)),
+    byModel: oc.output(z.array(ModelUsageSchema)),
     summary: oc.output(
       z.object({
         inputTokens: z.number(),

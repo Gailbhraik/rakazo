@@ -593,6 +593,26 @@ export const ArtifactWithContentSchema = ArtifactSchema.extend({
 });
 export type ArtifactWithContent = z.infer<typeof ArtifactWithContentSchema>;
 
+/**
+ * Consommation cumulée d'un modèle.
+ *
+ * `estimatedCost` est nul quand le catalogue ignore le modèle — serveur
+ * OpenAI-compatible, modèle local, entrée retirée depuis. Afficher zéro se
+ * lirait « gratuit », ce qui serait faux.
+ */
+export const ModelUsageSchema = z.object({
+  provider: z.string(),
+  providerName: z.string().optional(),
+  model: z.string(),
+  label: z.string(),
+  runs: z.number().int(),
+  inputTokens: z.number().int(),
+  outputTokens: z.number().int(),
+  estimatedCost: z.number().nullable(),
+  lastUsedAt: z.string(),
+});
+export type ModelUsage = z.infer<typeof ModelUsageSchema>;
+
 export const UsageRecordSchema = z.object({
   id: Id,
   botId: Id.nullable(),

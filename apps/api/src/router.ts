@@ -39,6 +39,7 @@ import {
   isAutoReviewCheckerConfigured,
   isSandboxGoneError,
   isScratchpadStatus,
+  estimateCost,
   listPiCatalog,
   listScratchpadItems,
   McpOAuthBroker,
@@ -3435,6 +3436,38 @@ export function createRouter(deps: RouterDeps) {
           outputTokens: row.outputTokens,
           createdAt: row.createdAt.toISOString(),
         }));
+      }),
+      byModel: authed.usage.byModel.handler(async ({ context }) => {
+        const rows = await deps.prisma.usageRecord.groupBy({
+          by: ["provider", "model"],
+          where: { spaceId: context.actor.spaceId, userId: context.actor.userId },
+          _sum: { inputTokens: true, outputTokens: true },
+          _count: { _all: true },
+          _max: { createdAt: true },
+        });
+        const catalog = [...listPiCatalog(), scriptedCatalogEntry];
+        return rows
+          .map((row) => {
+            const inputTokens = row._sum.inputTokens ?? 0;
+            const outputTokens = row._sum.outputTokens ?? 0;
+            const entry = catalog.find(
+              (candidate) => candidate.provider === row.provider && candidate.id === row.model,
+            );
+            return {
+              provider: row.provider,
+              providerName: entry?.providerName,
+              model: row.model,
+              label: entry?.label ?? row.model,
+              runs: row._count._all,
+              inputTokens,
+              outputTokens,
+              estimatedCost:
+                estimateCost(row.provider, row.model, inputTokens, outputTokens) ?? null,
+              lastUsedAt: (row._max.createdAt ?? new Date(0)).toISOString(),
+            };
+          })
+          // Le plus consommateur en tête : c'est la ligne qu'on vient chercher.
+          .sort((a, b) => b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens));
       }),
       summary: authed.usage.summary.handler(async ({ context }) => {
         const result = await deps.prisma.usageRecord.aggregate({

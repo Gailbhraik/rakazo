@@ -15,6 +15,7 @@ import {
   ComputersUnavailableHint,
   computersAreUnavailable,
 } from "../components/ComputersUnavailableHint";
+import { ModelUsageTable } from "../components/ModelUsageTable";
 import { SoftwareUpdateSection } from "../components/SoftwareUpdateSection";
 import { authClient } from "../lib/auth";
 import { getActiveUiLocale, setUiLocale } from "../lib/i18n";
@@ -217,6 +218,7 @@ export function AccountSettingsOverlay({
           <p className={`text-[12.5px] text-[#7B6561] ${usage ? "mt-2" : "mt-3"}`}>
             <Trans>Model spend uses your provider keys.</Trans>
           </p>
+          <ModelUsageTable />
         </div>
 
         <SoftwareUpdateSection isDeploymentOwner={isDeploymentOwner} />
