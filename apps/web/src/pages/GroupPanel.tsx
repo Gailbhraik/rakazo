@@ -48,7 +48,7 @@ function MemberPicker({
             type="button"
             onClick={() => toggle(bot.id)}
             className={`flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-start ${
-              checked ? "bg-[#201817]" : "hover:bg-[#191311]"
+              checked ? "bg-[var(--rk-n80)]" : "hover:bg-[var(--rk-n89)]"
             }`}
           >
             <BotAvatar
@@ -58,10 +58,10 @@ function MemberPicker({
               size={32}
               status={bot.status}
             />
-            <span className="flex-1 text-[15px] text-[#EEECEC]" dir="auto">
+            <span className="flex-1 text-[15px] text-[var(--rk-n08)]" dir="auto">
               {bot.name}
             </span>
-            <span className="text-[13px] text-[#7B6561]">{checked ? "✓" : ""}</span>
+            <span className="text-[13px] text-[var(--rk-n35)]">{checked ? "✓" : ""}</span>
           </button>
         );
       })}
@@ -100,7 +100,7 @@ export function CreateGroupForm({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-[13.5px] text-[#967E79]">
+        <span className="text-[13.5px] text-[var(--rk-n29)]">
           <Trans>New group</Trans>
         </span>
         <button type="button" aria-label={t`Cancel new group`} onClick={onCancel}>
@@ -108,20 +108,20 @@ export function CreateGroupForm({
         </button>
       </div>
       {error ? (
-        <p role="alert" className="mb-3 text-[13px] text-[#EF4444]">
+        <p role="alert" className="mb-3 text-[13px] text-[var(--rk-a14)]">
           {error}
         </p>
       ) : null}
-      <label className="block text-[14px] text-[#967E79]">
+      <label className="block text-[14px] text-[var(--rk-n29)]">
         <Trans>Name</Trans>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder={t`Name this group`}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
-      <div className="mt-5 text-[14px] text-[#967E79]">
+      <div className="mt-5 text-[14px] text-[var(--rk-n29)]">
         <Trans>
           Members (pick {GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX})
         </Trans>
@@ -194,24 +194,24 @@ export function GroupSettings({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-[13.5px] text-[#967E79]">
+        <span className="text-[13.5px] text-[var(--rk-n29)]">
           <Trans>Group settings</Trans>
         </span>
       </div>
       {error ? (
-        <p role="alert" className="mb-3 text-[13px] text-[#EF4444]">
+        <p role="alert" className="mb-3 text-[13px] text-[var(--rk-a14)]">
           {error}
         </p>
       ) : null}
-      <label className="block text-[14px] text-[#967E79]">
+      <label className="block text-[14px] text-[var(--rk-n29)]">
         <Trans>Name</Trans>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
-      <div className="mt-5 text-[14px] text-[#967E79]">
+      <div className="mt-5 text-[14px] text-[var(--rk-n29)]">
         <Trans>
           Members ({GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX})
         </Trans>
@@ -233,7 +233,7 @@ export function GroupSettings({
         type="button"
         disabled={pending !== null}
         onClick={() => void mutate("remove", onRemove)}
-        className="mt-4 w-full rounded-[11px] border border-[#3A2020] px-3.5 py-3 text-[14px] text-[#FF6B6B] disabled:opacity-40"
+        className="mt-4 w-full rounded-[11px] border border-[var(--rk-a26)] px-3.5 py-3 text-[14px] text-[var(--rk-a07)] disabled:opacity-40"
       >
         {pending === "remove" ? <Trans>Deleting…</Trans> : <Trans>Delete group</Trans>}
       </button>

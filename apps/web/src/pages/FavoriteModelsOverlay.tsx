@@ -122,17 +122,17 @@ export function FavoriteModelsOverlay({
         aria-modal="true"
         aria-labelledby="favorite-models-title"
         onPointerDown={(event) => event.stopPropagation()}
-        className="flex max-h-[80vh] w-full max-w-[520px] flex-col rounded-2xl border border-[#342725] bg-[#161110] shadow-[0_28px_70px_rgba(0,0,0,.6)]"
+        className="flex max-h-[80vh] w-full max-w-[520px] flex-col rounded-2xl border border-[var(--rk-n56)] bg-[var(--rk-n92)] shadow-[0_28px_70px_rgba(0,0,0,.6)]"
       >
-        <div className="flex items-center justify-between border-b border-[#271E1C] px-5 py-4">
-          <h2 id="favorite-models-title" className="text-[16px] text-[#EEECEC]">
+        <div className="flex items-center justify-between border-b border-[var(--rk-n70)] px-5 py-4">
+          <h2 id="favorite-models-title" className="text-[16px] text-[var(--rk-n08)]">
             <Trans>Favorite models</Trans>
           </h2>
           <button
             type="button"
             aria-label={t`Close`}
             onClick={onClose}
-            className="text-[#967E79] hover:text-[#EEECEC]"
+            className="text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
           >
             <X size={17} strokeWidth={1.8} />
           </button>
@@ -140,17 +140,17 @@ export function FavoriteModelsOverlay({
 
         <div className="rk-scroll min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {error ? (
-            <p role="alert" className="mb-3 text-[13.5px] text-[#F3A2AA]">
+            <p role="alert" className="mb-3 text-[13.5px] text-[var(--rk-a04)]">
               {error}
             </p>
           ) : null}
 
           {loading ? (
-            <p className="text-[13.5px] text-[#967E79]">
+            <p className="text-[13.5px] text-[var(--rk-n29)]">
               <Trans>Loading models…</Trans>
             </p>
           ) : favorites.length === 0 ? (
-            <p className="rounded-[12px] border border-dashed border-[#342725] px-4 py-6 text-center text-[13.5px] text-[#967E79]">
+            <p className="rounded-[12px] border border-dashed border-[var(--rk-n56)] px-4 py-6 text-center text-[13.5px] text-[var(--rk-n29)]">
               <Trans>No favorite yet. Search below to pin the models you switch between.</Trans>
             </p>
           ) : (
@@ -162,8 +162,8 @@ export function FavoriteModelsOverlay({
                     key={key}
                     className={`flex items-center gap-3 rounded-[12px] border px-3 py-2.5 ${
                       favorite.active
-                        ? "border-[#6B2226] bg-[#2A1517]"
-                        : "border-[#271E1C] hover:border-[#463532]"
+                        ? "border-[var(--rk-a23)] bg-[var(--rk-a30)]"
+                        : "border-[var(--rk-n70)] hover:border-[var(--rk-n45)]"
                     }`}
                   >
                     <button
@@ -173,17 +173,17 @@ export function FavoriteModelsOverlay({
                       className="flex min-w-0 flex-1 flex-col items-start text-start disabled:cursor-default"
                     >
                       <span className="flex w-full min-w-0 items-center gap-2">
-                        <span className="truncate text-[14.5px] text-[#EEECEC]">
+                        <span className="truncate text-[14.5px] text-[var(--rk-n08)]">
                           {favorite.label}
                         </span>
                         {favorite.active ? (
-                          <span className="flex shrink-0 items-center gap-1 text-[12px] text-[#F3A2AA]">
+                          <span className="flex shrink-0 items-center gap-1 text-[12px] text-[var(--rk-a04)]">
                             <Check size={13} strokeWidth={2} />
                             <Trans>Active</Trans>
                           </span>
                         ) : null}
                       </span>
-                      <span className="mt-0.5 truncate text-[12.5px] text-[#7B6561]">
+                      <span className="mt-0.5 truncate text-[12.5px] text-[var(--rk-n35)]">
                         {favorite.providerName ?? favorite.provider}
                         {favorite.reasoning ? " · " + t`Reasoning` : ""}
                         {favorite.available ? "" : " · " + t`Unavailable`}
@@ -194,7 +194,7 @@ export function FavoriteModelsOverlay({
                       aria-label={t`Remove from favorites`}
                       disabled={busy === key}
                       onClick={() => void toggle(favorite.provider, favorite.modelId)}
-                      className="shrink-0 rounded-[8px] p-1.5 text-[#E0393E] hover:bg-[#2A1517] disabled:opacity-40"
+                      className="shrink-0 rounded-[8px] p-1.5 text-[var(--rk-a17)] hover:bg-[var(--rk-a30)] disabled:opacity-40"
                     >
                       <Star size={15} strokeWidth={1.8} fill="currentColor" />
                     </button>
@@ -205,14 +205,14 @@ export function FavoriteModelsOverlay({
           )}
         </div>
 
-        <div className="border-t border-[#271E1C] px-5 py-4">
-          <label className="flex items-center gap-2 rounded-[11px] border border-[#2F2321] bg-[#100C0B] px-3 py-2">
-            <Search size={15} strokeWidth={1.8} className="shrink-0 text-[#7B6561]" />
+        <div className="border-t border-[var(--rk-n70)] px-5 py-4">
+          <label className="flex items-center gap-2 rounded-[11px] border border-[var(--rk-n62)] bg-[var(--rk-n96)] px-3 py-2">
+            <Search size={15} strokeWidth={1.8} className="shrink-0 text-[var(--rk-n35)]" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={t`Search a model to pin…`}
-              className="w-full bg-transparent text-[14px] text-[#EEECEC] outline-none placeholder:text-[#7B6561]"
+              className="w-full bg-transparent text-[14px] text-[var(--rk-n08)] outline-none placeholder:text-[var(--rk-n35)]"
             />
           </label>
 
@@ -226,14 +226,14 @@ export function FavoriteModelsOverlay({
                       type="button"
                       disabled={busy === key}
                       onClick={() => void toggle(entry.provider, entry.id)}
-                      className="flex w-full items-center gap-3 rounded-[10px] px-2.5 py-2 text-start hover:bg-[#1D1614] disabled:opacity-40"
+                      className="flex w-full items-center gap-3 rounded-[10px] px-2.5 py-2 text-start hover:bg-[var(--rk-n83)] disabled:opacity-40"
                     >
-                      <Star size={14} strokeWidth={1.8} className="shrink-0 text-[#7B6561]" />
+                      <Star size={14} strokeWidth={1.8} className="shrink-0 text-[var(--rk-n35)]" />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[14px] text-[#EEECEC]">
+                        <span className="block truncate text-[14px] text-[var(--rk-n08)]">
                           {entry.label}
                         </span>
-                        <span className="block truncate text-[12.5px] text-[#7B6561]">
+                        <span className="block truncate text-[12.5px] text-[var(--rk-n35)]">
                           {entry.providerName ?? entry.provider}
                         </span>
                       </span>
@@ -243,7 +243,7 @@ export function FavoriteModelsOverlay({
               })}
             </ul>
           ) : query.trim().length >= 2 ? (
-            <p className="mt-2 text-[13px] text-[#7B6561]">
+            <p className="mt-2 text-[13px] text-[var(--rk-n35)]">
               <Trans>No connected model matches.</Trans>
             </p>
           ) : null}

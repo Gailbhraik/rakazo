@@ -73,12 +73,12 @@ export function AskCard({
   }
 
   return (
-    <div className="max-w-[74%] rounded-[20px] border border-[#2C2220] bg-[#191312] px-5 py-[17px]">
-      <div className="text-[15.5px] leading-[1.5] text-[#EEECEC]">
+    <div className="max-w-[74%] rounded-[20px] border border-[var(--rk-n64)] bg-[var(--rk-n88)] px-5 py-[17px]">
+      <div className="text-[15.5px] leading-[1.5] text-[var(--rk-n08)]">
         <ChatMarkdown>{block.text}</ChatMarkdown>
       </div>
       {block.detail ? (
-        <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-[#120D0C] px-3.5 py-3 font-mono text-[12.5px] leading-[1.7] text-[#967E79]">
+        <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-[var(--rk-n94)] px-3.5 py-3 font-mono text-[12.5px] leading-[1.7] text-[var(--rk-n29)]">
           {block.detail}
         </pre>
       ) : null}
@@ -93,7 +93,7 @@ export function AskCard({
           )}
         </div>
       ) : !canAnswer ? (
-        <div className="mt-3.5 text-[13.5px] font-medium text-[#967E79]">
+        <div className="mt-3.5 text-[13.5px] font-medium text-[var(--rk-n29)]">
           <Trans>No longer active</Trans>
         </div>
       ) : askActions?.length ? (
@@ -106,8 +106,8 @@ export function AskCard({
               onClick={() => void submitAnswer(action.id)}
               className={
                 approvalActions && action.id === "allow"
-                  ? "rounded-[11px] bg-[#F1EFEF] px-[17px] py-2 text-[14.5px] font-medium text-[#1D1614] disabled:opacity-50"
-                  : "rounded-[11px] border border-[#2F2321] px-[17px] py-2 text-[14.5px] text-[#D0C8C7] disabled:opacity-50"
+                  ? "rounded-[11px] bg-[var(--rk-n06)] px-[17px] py-2 text-[14.5px] font-medium text-[var(--rk-n83)] disabled:opacity-50"
+                  : "rounded-[11px] border border-[var(--rk-n62)] px-[17px] py-2 text-[14.5px] text-[var(--rk-n18)] disabled:opacity-50"
               }
             >
               {pendingAction === action.id ? (
@@ -135,12 +135,12 @@ export function AskCard({
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
             placeholder={t`Code`}
-            className="rounded-[11px] border border-[#3B2D2A] bg-[#120D0C] px-3.5 py-2.5 text-[14.5px] text-[#EEECEC] outline-none focus:border-[#76615D]"
+            className="rounded-[11px] border border-[var(--rk-n51)] bg-[var(--rk-n94)] px-3.5 py-2.5 text-[14.5px] text-[var(--rk-n08)] outline-none focus:border-[var(--rk-n37)]"
           />
           <button
             type="submit"
             disabled={(secretInput ? answer.length === 0 : !answer.trim()) || submitting}
-            className="self-start rounded-[11px] bg-[#F1EFEF] px-[17px] py-2 text-[14.5px] font-medium text-[#1D1614] disabled:opacity-50"
+            className="self-start rounded-[11px] bg-[var(--rk-n06)] px-[17px] py-2 text-[14.5px] font-medium text-[var(--rk-n83)] disabled:opacity-50"
           >
             {submitting ? <Trans>Sending…</Trans> : <Trans>Submit</Trans>}
           </button>
@@ -158,13 +158,13 @@ export function AskCard({
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
             placeholder={t`Type your answer`}
-            className="rounded-[11px] border border-[#3B2D2A] bg-[#120D0C] px-3.5 py-2.5 text-[14.5px] text-[#EEECEC] outline-none focus:border-[#76615D]"
+            className="rounded-[11px] border border-[var(--rk-n51)] bg-[var(--rk-n94)] px-3.5 py-2.5 text-[14.5px] text-[var(--rk-n08)] outline-none focus:border-[var(--rk-n37)]"
           />
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={!answer.trim() || submitting}
-              className="rounded-[11px] bg-[#F1EFEF] px-[17px] py-2 text-[14.5px] font-medium text-[#1D1614] disabled:opacity-50"
+              className="rounded-[11px] bg-[var(--rk-n06)] px-[17px] py-2 text-[14.5px] font-medium text-[var(--rk-n83)] disabled:opacity-50"
             >
               {submitting ? <Trans>Sending…</Trans> : <Trans>Send answer</Trans>}
             </button>
@@ -175,7 +175,7 @@ export function AskCard({
                 setAnswer("");
                 setEditing(false);
               }}
-              className="rounded-[11px] border border-[#2F2321] px-[17px] py-2 text-[14.5px] text-[#D0C8C7] disabled:opacity-50"
+              className="rounded-[11px] border border-[var(--rk-n62)] px-[17px] py-2 text-[14.5px] text-[var(--rk-n18)] disabled:opacity-50"
             >
               <Trans>Cancel</Trans>
             </button>
@@ -187,7 +187,7 @@ export function AskCard({
             type="button"
             disabled={submitting}
             onClick={() => void submitAnswer("approved")}
-            className="rounded-[11px] bg-[#F1EFEF] px-[17px] py-2 text-[14.5px] font-medium text-[#1D1614] disabled:opacity-50"
+            className="rounded-[11px] bg-[var(--rk-n06)] px-[17px] py-2 text-[14.5px] font-medium text-[var(--rk-n83)] disabled:opacity-50"
           >
             {submitting ? <Trans>Sending…</Trans> : <Trans>Send it</Trans>}
           </button>
@@ -195,13 +195,13 @@ export function AskCard({
             type="button"
             disabled={submitting}
             onClick={() => setEditing(true)}
-            className="rounded-[11px] border border-[#2F2321] px-[17px] py-2 text-[14.5px] text-[#D0C8C7] disabled:opacity-50"
+            className="rounded-[11px] border border-[var(--rk-n62)] px-[17px] py-2 text-[14.5px] text-[var(--rk-n18)] disabled:opacity-50"
           >
             <Trans>Edit first</Trans>
           </button>
         </div>
       )}
-      {error ? <p className="mt-3 text-[13px] text-[#EF4444]">{error}</p> : null}
+      {error ? <p className="mt-3 text-[13px] text-[var(--rk-a14)]">{error}</p> : null}
     </div>
   );
 }

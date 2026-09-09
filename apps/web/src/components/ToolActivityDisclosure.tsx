@@ -55,8 +55,8 @@ export function ToolActivityDisclosure({
       className="group"
     >
       <summary
-        className={`flex min-h-6 w-fit cursor-pointer list-none items-center gap-1 rounded-md py-0.5 pe-1.5 text-[13px] font-medium outline-none hover:text-[#D0C8C7] focus-visible:ring-2 focus-visible:ring-[#967E79] focus-visible:ring-offset-2 focus-visible:ring-offset-[#201817] ${
-          live ? "text-[#D0C8C7]" : "text-[#967E79]"
+        className={`flex min-h-6 w-fit cursor-pointer list-none items-center gap-1 rounded-md py-0.5 pe-1.5 text-[13px] font-medium outline-none hover:text-[var(--rk-n18)] focus-visible:ring-2 focus-visible:ring-[var(--rk-n29)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--rk-n80)] ${
+          live ? "text-[var(--rk-n18)]" : "text-[var(--rk-n29)]"
         }`}
       >
         <ChevronRight

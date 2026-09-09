@@ -44,9 +44,9 @@ export function McpOAuthCallbackPage() {
   }, [navigate, params, t]);
   const showReturn = Boolean(error) && window.name !== POPUP_NAME;
   return (
-    <div className="grid min-h-screen place-items-center bg-[#060505] p-6 text-center">
+    <div className="grid min-h-screen place-items-center bg-[var(--rk-n101)] p-6 text-center">
       <div>
-        <div className="text-lg text-[#F2F1F1]">
+        <div className="text-lg text-[var(--rk-n04)]">
           {error ? (
             <Trans>OAuth connection failed</Trans>
           ) : done ? (
@@ -55,17 +55,17 @@ export function McpOAuthCallbackPage() {
             <Trans>Finishing MCP connection…</Trans>
           )}
         </div>
-        {error ? <p className="mt-2 max-w-md text-sm text-[#967E7A]">{error}</p> : null}
+        {error ? <p className="mt-2 max-w-md text-sm text-[var(--rk-n28)]">{error}</p> : null}
         {showReturn ? (
           <button
             type="button"
             onClick={() => navigate("/app")}
-            className="mt-5 rounded-xl bg-[#FF777C] px-4 py-2 text-sm font-semibold text-[#120909]"
+            className="mt-5 rounded-xl bg-[var(--rk-a05)] px-4 py-2 text-sm font-semibold text-[var(--rk-a32)]"
           >
             <Trans>Return to Ashitaka</Trans>
           </button>
         ) : (
-          <p className="mt-2 text-sm text-[#967E7A]">
+          <p className="mt-2 text-sm text-[var(--rk-n28)]">
             {error || done ? (
               <Trans>You can close this window.</Trans>
             ) : (

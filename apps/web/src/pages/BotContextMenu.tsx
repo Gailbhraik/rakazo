@@ -75,7 +75,7 @@ export function BotContextMenu({
       <div
         role="menu"
         aria-label={t`Actions for ${bot.name}`}
-        className="fixed w-[264px] rounded-[18px] border border-[#3F302D] bg-[#201817] p-2 shadow-[0_24px_60px_rgba(0,0,0,.62)]"
+        className="fixed w-[264px] rounded-[18px] border border-[var(--rk-n48)] bg-[var(--rk-n80)] p-2 shadow-[0_24px_60px_rgba(0,0,0,.62)]"
         style={{ left: safeLeft, top: safeTop }}
       >
         <MenuItem
@@ -96,10 +96,10 @@ export function BotContextMenu({
           label={bot.unread ? t`Mark as Read` : t`Mark as Unread`}
           onSelect={onToggleUnread}
         />
-        <div className="my-1 border-t border-[#3F302D]" />
+        <div className="my-1 border-t border-[var(--rk-n48)]" />
         <MenuItem icon={<EditIcon />} label={t`Edit Profile`} onSelect={onEdit} />
         <MenuItem icon={<DuplicateIcon />} label={t`Duplicate`} onSelect={onDuplicate} />
-        <div className="my-1 border-t border-[#3F302D]" />
+        <div className="my-1 border-t border-[var(--rk-n48)]" />
         <MenuItem icon={<ClearIcon />} label={t`Clear conversation`} onSelect={onClear} />
         <MenuItem icon={<ArchiveIcon />} label={t`Archive`} onSelect={onArchive} />
         <MenuItem icon={<TrashIcon />} label={t`Delete`} tone="danger" onSelect={onDelete} />
@@ -108,7 +108,7 @@ export function BotContextMenu({
         <div
           role="menu"
           aria-label={t`Move ${bot.name} to section`}
-          className="fixed max-h-[min(420px,calc(100vh-16px))] w-[264px] overflow-y-auto rounded-[18px] border border-[#3F302D] bg-[#201817] p-2 shadow-[0_24px_60px_rgba(0,0,0,.62)]"
+          className="fixed max-h-[min(420px,calc(100vh-16px))] w-[264px] overflow-y-auto rounded-[18px] border border-[var(--rk-n48)] bg-[var(--rk-n80)] p-2 shadow-[0_24px_60px_rgba(0,0,0,.62)]"
           style={{ left: Math.max(margin, sectionLeft), top: safeTop }}
         >
           {sections.map((section) => (
@@ -126,7 +126,7 @@ export function BotContextMenu({
             label={t`Unassigned`}
             onSelect={() => onMoveToSection(null)}
           />
-          <div className="my-1 border-t border-[#3F302D]" />
+          <div className="my-1 border-t border-[var(--rk-n48)]" />
           <MenuItem icon={<NewFolderIcon />} label={t`New section`} onSelect={onCreateSection} />
         </div>
       ) : null}
@@ -157,8 +157,8 @@ function MenuItem({
       type="button"
       role="menuitem"
       aria-expanded={expanded}
-      className={`flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 text-start text-[15px] outline-none hover:bg-[#322624] focus-visible:bg-[#322624] ${
-        tone === "danger" ? "text-[#EF4444]" : "text-[#EEECEC]"
+      className={`flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 text-start text-[15px] outline-none hover:bg-[var(--rk-n58)] focus-visible:bg-[var(--rk-n58)] ${
+        tone === "danger" ? "text-[var(--rk-a14)]" : "text-[var(--rk-n08)]"
       }`}
       onClick={onSelect}
     >

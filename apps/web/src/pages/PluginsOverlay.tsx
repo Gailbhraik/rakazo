@@ -231,16 +231,16 @@ export function PluginsOverlay({
 
   return (
     <div className="absolute inset-0 z-30 flex items-center justify-center bg-[rgba(4,4,5,.62)] p-10">
-      <div className="flex h-[760px] w-[1080px] max-w-full flex-col overflow-hidden rounded-[26px] border border-[#2B201E] bg-[#191311] shadow-[0_40px_90px_rgba(0,0,0,.55)]">
+      <div className="flex h-[760px] w-[1080px] max-w-full flex-col overflow-hidden rounded-[26px] border border-[var(--rk-n66)] bg-[var(--rk-n89)] shadow-[0_40px_90px_rgba(0,0,0,.55)]">
         <div className="flex items-start justify-between px-8 pt-7">
-          <div className="text-2xl font-medium text-[#F2F1F1]">
+          <div className="text-2xl font-medium text-[var(--rk-n04)]">
             <Trans>Integrations</Trans>
           </div>
           <button
             type="button"
             aria-label={t`Close integrations`}
             onClick={onClose}
-            className="text-[#967E79]"
+            className="text-[var(--rk-n29)]"
           >
             ✕
           </button>
@@ -252,14 +252,16 @@ export function PluginsOverlay({
             onChange={(event) => setQuery(event.target.value)}
             aria-label={t`Search apps`}
             placeholder={t`Search apps`}
-            className="w-full rounded-[13px] border border-[#2F2321] bg-[#140F0E] px-4 py-3 text-[15px] text-[#EEECEC] outline-none"
+            className="w-full rounded-[13px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-3 text-[15px] text-[var(--rk-n08)] outline-none"
           />
         </div>
 
         <div id="integration-list" className="rk-scroll flex-1 overflow-y-auto px-8 py-6">
-          {catalogError ? <p className="mb-4 text-sm text-[#EF4444]">{catalogError}</p> : null}
+          {catalogError ? (
+            <p className="mb-4 text-sm text-[var(--rk-a14)]">{catalogError}</p>
+          ) : null}
           {loading ? (
-            <p className="text-[#7B6561]">
+            <p className="text-[var(--rk-n35)]">
               <Trans>Loading integrations…</Trans>
             </p>
           ) : null}
@@ -267,7 +269,7 @@ export function PluginsOverlay({
           {showFeatured ? (
             <div className="mb-6" data-testid="featured-connectors">
               {!loading && catalog.length === 0 ? (
-                <p className="text-[13.5px] leading-6 text-[#7B6561]">
+                <p className="text-[13.5px] leading-6 text-[var(--rk-n35)]">
                   {EMPTY_PLUGIN_CATALOG_MESSAGE}
                 </p>
               ) : (
@@ -288,19 +290,19 @@ export function PluginsOverlay({
                           <img
                             src={item.logo}
                             alt=""
-                            className="h-9 w-9 shrink-0 rounded-xl bg-[#362926] object-contain"
+                            className="h-9 w-9 shrink-0 rounded-xl bg-[var(--rk-n53)] object-contain"
                           />
                         ) : (
-                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#362926] text-sm font-semibold text-[#EEECEC]">
+                          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--rk-n53)] text-sm font-semibold text-[var(--rk-n08)]">
                             {tile.label[0]}
                           </div>
                         )}
                         <div className="min-w-0 flex-1">
-                          <div className="truncate text-[15px] font-medium text-[#EEECEC]">
+                          <div className="truncate text-[15px] font-medium text-[var(--rk-n08)]">
                             {tile.label}
                           </div>
                           {disabled ? (
-                            <div className="truncate text-[12.5px] text-[#816A66]">
+                            <div className="truncate text-[12.5px] text-[var(--rk-n33)]">
                               <Trans>Not in the plugin catalog</Trans>
                             </div>
                           ) : null}
@@ -335,12 +337,12 @@ export function PluginsOverlay({
           ) : null}
 
           {!loading && catalog.length === 0 && !showFeatured ? (
-            <p className="text-[#7B6561]">
+            <p className="text-[var(--rk-n35)]">
               <Trans>No managed app catalog is configured on this deployment.</Trans>
             </p>
           ) : null}
           {!loading && catalog.length > 0 && visible.length === 0 && !showFeatured ? (
-            <p className="text-[#7B6561]">
+            <p className="text-[var(--rk-n35)]">
               <Trans>No apps match your search.</Trans>
             </p>
           ) : null}
@@ -357,15 +359,15 @@ export function PluginsOverlay({
                       <img
                         src={item.logo}
                         alt=""
-                        className="h-9 w-9 shrink-0 rounded-xl bg-[#362926] object-contain"
+                        className="h-9 w-9 shrink-0 rounded-xl bg-[var(--rk-n53)] object-contain"
                       />
                     ) : (
-                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#362926] text-sm font-semibold text-[#EEECEC]">
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--rk-n53)] text-sm font-semibold text-[var(--rk-n08)]">
                         {item.name[0]}
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[15px] font-medium text-[#EEECEC]">
+                      <div className="truncate text-[15px] font-medium text-[var(--rk-n08)]">
                         {item.name}
                       </div>
                     </div>
@@ -409,8 +411,8 @@ export function PluginsOverlay({
               }
             }}
           >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14px] text-[#967E79]">
-              <span className="text-[#967E79]">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14px] text-[var(--rk-n29)]">
+              <span className="text-[var(--rk-n29)]">
                 <Trans>Advanced</Trans>
               </span>
               <span aria-hidden="true" className="transition-transform group-open:rotate-90">
@@ -423,7 +425,7 @@ export function PluginsOverlay({
                 <button
                   type="button"
                   onClick={onOpenMcp}
-                  className="rounded-full border border-[#493733] px-3 py-1.5 text-xs text-[#D0C8C7] hover:bg-[#2B211F]"
+                  className="rounded-full border border-[var(--rk-n43)] px-3 py-1.5 text-xs text-[var(--rk-n18)] hover:bg-[var(--rk-n65)]"
                 >
                   <Trans>MCP servers</Trans>
                 </button>
@@ -441,11 +443,11 @@ export function PluginsOverlay({
                 </Button>
               </div>
 
-              {sourceError ? <p className="text-sm text-[#EF4444]">{sourceError}</p> : null}
+              {sourceError ? <p className="text-sm text-[var(--rk-a14)]">{sourceError}</p> : null}
 
               {sourceKind ? (
-                <div className="space-y-3 rounded-[16px] border border-[#362926] bg-[#140F0E] p-5">
-                  <div className="text-base font-medium text-[#EEECEC]">
+                <div className="space-y-3 rounded-[16px] border border-[var(--rk-n53)] bg-[var(--rk-n93)] p-5">
+                  <div className="text-base font-medium text-[var(--rk-n08)]">
                     {sourceKind === "treg" ? (
                       <Trans>Connect Treg</Trans>
                     ) : sourceKind === "mcp" ? (
@@ -458,7 +460,7 @@ export function PluginsOverlay({
                     value={sourceName}
                     onChange={(event) => setSourceName(event.target.value)}
                     placeholder={t`Display name`}
-                    className="w-full rounded-xl border border-[#362926] bg-[#1C1514] px-3 py-2.5 text-sm text-[#EEECEC] outline-none"
+                    className="w-full rounded-xl border border-[var(--rk-n53)] bg-[var(--rk-n84)] px-3 py-2.5 text-sm text-[var(--rk-n08)] outline-none"
                   />
                   {sourceKind !== "treg" ? (
                     <input
@@ -469,14 +471,14 @@ export function PluginsOverlay({
                           ? "https://example.com/mcp"
                           : "https://example.com/openapi.json"
                       }
-                      className="w-full rounded-xl border border-[#362926] bg-[#1C1514] px-3 py-2.5 text-sm text-[#EEECEC] outline-none"
+                      className="w-full rounded-xl border border-[var(--rk-n53)] bg-[var(--rk-n84)] px-3 py-2.5 text-sm text-[var(--rk-n08)] outline-none"
                     />
                   ) : null}
                   {sourceKind !== "treg" ? (
                     <select
                       value={authType}
                       onChange={(event) => setAuthType(event.target.value as typeof authType)}
-                      className="w-full rounded-xl border border-[#362926] bg-[#1C1514] px-3 py-2.5 text-sm text-[#EEECEC] outline-none"
+                      className="w-full rounded-xl border border-[var(--rk-n53)] bg-[var(--rk-n84)] px-3 py-2.5 text-sm text-[var(--rk-n08)] outline-none"
                     >
                       <option value="none">
                         <Trans>No authentication</Trans>
@@ -494,7 +496,7 @@ export function PluginsOverlay({
                       value={authName}
                       onChange={(event) => setAuthName(event.target.value)}
                       placeholder={t`Header name`}
-                      className="w-full rounded-xl border border-[#362926] bg-[#1C1514] px-3 py-2.5 text-sm text-[#EEECEC] outline-none"
+                      className="w-full rounded-xl border border-[var(--rk-n53)] bg-[var(--rk-n84)] px-3 py-2.5 text-sm text-[var(--rk-n08)] outline-none"
                     />
                   ) : null}
                   {sourceKind === "treg" || authType !== "none" ? (
@@ -504,10 +506,10 @@ export function PluginsOverlay({
                       value={credential}
                       onChange={(event) => setCredential(event.target.value)}
                       placeholder={sourceKind === "treg" ? t`Treg token` : t`Credential`}
-                      className="w-full rounded-xl border border-[#362926] bg-[#1C1514] px-3 py-2.5 text-sm text-[#EEECEC] outline-none"
+                      className="w-full rounded-xl border border-[var(--rk-n53)] bg-[var(--rk-n84)] px-3 py-2.5 text-sm text-[var(--rk-n08)] outline-none"
                     />
                   ) : null}
-                  <p className="text-xs leading-5 text-[#816A66]">
+                  <p className="text-xs leading-5 text-[var(--rk-n33)]">
                     <Trans>
                       Ashitaka verifies the source before saving it. Credentials are encrypted and
                       are never returned to clients or exposed to the model.
@@ -540,11 +542,11 @@ export function PluginsOverlay({
               ) : null}
 
               <div>
-                <div className="mb-3 text-sm font-medium text-[#B2A5A3]">
+                <div className="mb-3 text-sm font-medium text-[var(--rk-n22)]">
                   <Trans>Tool sources</Trans>
                 </div>
                 {sources.length === 0 && !sourceKind ? (
-                  <p className="text-[#7B6561]">
+                  <p className="text-[var(--rk-n35)]">
                     <Trans>No MCP or API tool sources installed yet.</Trans>
                   </p>
                 ) : null}
@@ -553,12 +555,14 @@ export function PluginsOverlay({
                     key={source.id}
                     className="flex items-center gap-4 rounded-[13px] px-3 py-2.5"
                   >
-                    <div className="grid h-[42px] w-[42px] place-items-center rounded-xl bg-[#362926] font-semibold uppercase text-[#EEECEC]">
+                    <div className="grid h-[42px] w-[42px] place-items-center rounded-xl bg-[var(--rk-n53)] font-semibold uppercase text-[var(--rk-n08)]">
                       {source.kind === "mcp" ? "M" : "A"}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-[15.5px] font-medium text-[#EEECEC]">{source.name}</div>
-                      <div className="truncate text-[13.5px] text-[#8C736E]">
+                      <div className="text-[15.5px] font-medium text-[var(--rk-n08)]">
+                        {source.name}
+                      </div>
+                      <div className="truncate text-[13.5px] text-[var(--rk-n30)]">
                         {source.kind.toUpperCase()} · {source.source} ·{" "}
                         {source.secretConfigured ? (
                           <Trans>credential saved</Trans>

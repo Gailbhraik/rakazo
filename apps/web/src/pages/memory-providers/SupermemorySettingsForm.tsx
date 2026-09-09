@@ -34,8 +34,8 @@ export function SupermemorySettingsForm({ busy, onConnect }: MemoryProviderSetti
             onClick={() => setMode(option)}
             className={`flex-1 rounded-[11px] border px-3.5 py-2.5 text-[14px] disabled:opacity-40 ${
               mode === option
-                ? "border-[#564744] bg-[#201817] text-[#EEECEC]"
-                : "border-[#2F2321] text-[#967E79]"
+                ? "border-[var(--rk-n42)] bg-[var(--rk-n80)] text-[var(--rk-n08)]"
+                : "border-[var(--rk-n62)] text-[var(--rk-n29)]"
             }`}
           >
             {option === "cloud" ? <Trans>Cloud</Trans> : <Trans>Local</Trans>}
@@ -44,19 +44,19 @@ export function SupermemorySettingsForm({ busy, onConnect }: MemoryProviderSetti
       </div>
 
       {mode === "local" ? (
-        <label className="mt-4 block text-[13.5px] text-[#967E79]">
+        <label className="mt-4 block text-[13.5px] text-[var(--rk-n29)]">
           <Trans>Base URL</Trans>
           <input
             value={baseUrl}
             disabled={busy}
             onChange={(event) => setBaseUrl(event.target.value)}
             placeholder={DEFAULT_LOCAL_BASE_URL}
-            className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-[#140F0E] px-3.5 py-3 text-[#EEECEC] outline-none disabled:opacity-40"
+            className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-3.5 py-3 text-[var(--rk-n08)] outline-none disabled:opacity-40"
           />
         </label>
       ) : null}
 
-      <label className="mt-4 block text-[13.5px] text-[#967E79]">
+      <label className="mt-4 block text-[13.5px] text-[var(--rk-n29)]">
         {mode === "cloud" ? <Trans>Organization API key</Trans> : <Trans>Instance API key</Trans>}
         <input
           value={apiKey}
@@ -65,7 +65,7 @@ export function SupermemorySettingsForm({ busy, onConnect }: MemoryProviderSetti
           placeholder="sm_…"
           type="password"
           autoComplete="new-password"
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-[#140F0E] px-3.5 py-3 text-[#EEECEC] outline-none disabled:opacity-40"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-3.5 py-3 text-[var(--rk-n08)] outline-none disabled:opacity-40"
         />
       </label>
 

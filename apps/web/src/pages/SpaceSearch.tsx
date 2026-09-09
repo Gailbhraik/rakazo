@@ -12,14 +12,14 @@ export function SpaceSearchResults({
 }) {
   if (loading) {
     return (
-      <div className="px-3 py-4 text-[14px] text-[#967E79]">
+      <div className="px-3 py-4 text-[14px] text-[var(--rk-n29)]">
         <Trans>Searching…</Trans>
       </div>
     );
   }
   if (!hits.length) {
     return (
-      <div className="px-3 py-4 text-[14px] text-[#967E79]">
+      <div className="px-3 py-4 text-[14px] text-[var(--rk-n29)]">
         <Trans>No results</Trans>
       </div>
     );
@@ -31,17 +31,17 @@ export function SpaceSearchResults({
           key={`${hit.kind}-${hit.botId ?? hit.groupId}-${hit.messageId ?? hit.artifactId ?? hit.routineId ?? hit.url}`}
           type="button"
           onClick={() => onSelect(hit)}
-          className="rounded-xl px-2.5 py-[11px] text-start hover:bg-[#171211]"
+          className="rounded-xl px-2.5 py-[11px] text-start hover:bg-[var(--rk-n90)]"
         >
           <div className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-[15px] font-medium text-[#EEECEC]" dir="auto">
+            <span className="truncate text-[15px] font-medium text-[var(--rk-n08)]" dir="auto">
               {hit.title}
             </span>
-            <span className="shrink-0 text-[12px] uppercase tracking-wide text-[#7B6561]">
+            <span className="shrink-0 text-[12px] uppercase tracking-wide text-[var(--rk-n35)]">
               {hit.kind}
             </span>
           </div>
-          <div className="mt-0.5 truncate text-[13px] text-[#967E79]" dir="auto">
+          <div className="mt-0.5 truncate text-[13px] text-[var(--rk-n29)]" dir="auto">
             {hit.groupName ?? hit.botName} · {hit.snippet}
           </div>
         </button>

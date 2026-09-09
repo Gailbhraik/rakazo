@@ -88,29 +88,29 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-[#F7F7F4] px-6 py-16 text-[#211918]">
+    <div className="flex min-h-full items-center justify-center bg-[var(--rk-n02)] px-6 py-16 text-[var(--rk-n77)]">
       <form onSubmit={submit} className="flex w-[460px] flex-col items-center">
-        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[#1C1514]">
-          <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
-          <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
+        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[var(--rk-n84)]">
+          <span className="h-5 w-[9px] rounded-full bg-[var(--rk-n02)]" />
+          <span className="h-5 w-[9px] rounded-full bg-[var(--rk-n02)]" />
         </div>
         <h1 className="mb-[38px] mt-[30px] text-[38px] tracking-[-0.02em]">{title}</h1>
         {sent ? (
           <div role="status" className="w-full text-center">
-            <p className="text-[17px] text-[#211918]">
+            <p className="text-[17px] text-[var(--rk-n77)]">
               <Trans>Check your email</Trans>
             </p>
-            <p className="mt-3 text-[15px] leading-relaxed text-[#78625E]">
+            <p className="mt-3 text-[15px] leading-relaxed text-[var(--rk-n36)]">
               <Trans>If an account exists for that address, we sent a password reset link.</Trans>
             </p>
-            <Link to="/sign-in" className="mt-6 inline-block font-medium text-[#211918]">
+            <Link to="/sign-in" className="mt-6 inline-block font-medium text-[var(--rk-n77)]">
               <Trans>Back to sign in</Trans>
             </Link>
           </div>
         ) : (
           <>
             {mode === "up" ? (
-              <label className="mb-4 w-full text-[16px] text-[#78625E]">
+              <label className="mb-4 w-full text-[16px] text-[var(--rk-n36)]">
                 <Trans>Name</Trans>
                 <input
                   id="name"
@@ -119,11 +119,11 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t`Your name`}
-                  className="mt-2 w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#211918] outline-none"
+                  className="mt-2 w-full rounded-[13px] border border-[var(--rk-n14)] bg-[var(--rk-n07)] px-[18px] py-[17px] text-[17px] text-[var(--rk-n77)] outline-none"
                 />
               </label>
             ) : null}
-            <label className="w-full text-[16px] text-[#78625E]">
+            <label className="w-full text-[16px] text-[var(--rk-n36)]">
               <Trans>Email</Trans>
               <input
                 id="email"
@@ -134,11 +134,11 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 placeholder={t`Your email address`}
                 type="email"
                 required
-                className="mt-2 w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#211918] outline-none"
+                className="mt-2 w-full rounded-[13px] border border-[var(--rk-n14)] bg-[var(--rk-n07)] px-[18px] py-[17px] text-[17px] text-[var(--rk-n77)] outline-none"
               />
             </label>
             {mode !== "forgot" ? (
-              <div className="mt-4 w-full text-[16px] text-[#78625E]">
+              <div className="mt-4 w-full text-[16px] text-[var(--rk-n36)]">
                 <label htmlFor={passwordFieldId}>
                   <Trans>Password</Trans>
                 </label>
@@ -153,14 +153,14 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                     type={showPassword ? "text" : "password"}
                     required
                     minLength={8}
-                    className="w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] py-[17px] pl-[18px] pr-[52px] text-[17px] text-[#211918] outline-none"
+                    className="w-full rounded-[13px] border border-[var(--rk-n14)] bg-[var(--rk-n07)] py-[17px] pl-[18px] pr-[52px] text-[17px] text-[var(--rk-n77)] outline-none"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((shown) => !shown)}
                     aria-label={showPassword ? t`Hide password` : t`Show password`}
                     aria-pressed={showPassword}
-                    className="absolute inset-y-0 right-0 flex items-center px-[18px] text-[#97807B] hover:text-[#211918]"
+                    className="absolute inset-y-0 right-0 flex items-center px-[18px] text-[var(--rk-n27)] hover:text-[var(--rk-n77)]"
                   >
                     {showPassword ? (
                       <svg
@@ -199,7 +199,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 </div>
                 {mode === "in" && reset?.passwordReset ? (
                   <div className="mt-2 text-right text-[14px]">
-                    <Link to="/forgot-password" className="font-medium text-[#211918]">
+                    <Link to="/forgot-password" className="font-medium text-[var(--rk-n77)]">
                       <Trans>Forgot password?</Trans>
                     </Link>
                   </div>
@@ -207,14 +207,14 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               </div>
             ) : null}
             {error ? (
-              <p role="alert" className="mt-3 w-full text-sm text-[#B91C1C]">
+              <p role="alert" className="mt-3 w-full text-sm text-[var(--rk-a20)]">
                 {error}
               </p>
             ) : null}
             <button
               type="submit"
               disabled={pending}
-              className="mt-3 w-full rounded-[13px] bg-[#E0393E] py-[18px] text-center text-[17px] font-medium text-white hover:bg-[#F2585C]"
+              className="mt-3 w-full rounded-[13px] bg-[var(--rk-a17)] py-[18px] text-center text-[17px] font-medium text-white hover:bg-[var(--rk-a13)]"
             >
               {pending ? (
                 <Trans>Working…</Trans>
@@ -226,23 +226,23 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
                 <Trans>Create account</Trans>
               )}
             </button>
-            <p className="mt-[30px] text-[16px] text-[#97807B]">
+            <p className="mt-[30px] text-[16px] text-[var(--rk-n27)]">
               {mode === "in" ? (
                 <>
                   <Trans>Don’t have an account?</Trans>{" "}
-                  <Link to="/sign-up" className="font-medium text-[#211918]">
+                  <Link to="/sign-up" className="font-medium text-[var(--rk-n77)]">
                     <Trans>Sign up</Trans>
                   </Link>
                 </>
               ) : mode === "up" ? (
                 <>
                   <Trans>Already have an account?</Trans>{" "}
-                  <Link to="/sign-in" className="font-medium text-[#211918]">
+                  <Link to="/sign-in" className="font-medium text-[var(--rk-n77)]">
                     <Trans>Sign in</Trans>
                   </Link>
                 </>
               ) : (
-                <Link to="/sign-in" className="font-medium text-[#211918]">
+                <Link to="/sign-in" className="font-medium text-[var(--rk-n77)]">
                   <Trans>Back to sign in</Trans>
                 </Link>
               )}
@@ -290,11 +290,11 @@ export function PasswordResetPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center bg-[#F7F7F4] px-6 py-16 text-[#211918]">
+    <div className="flex min-h-full items-center justify-center bg-[var(--rk-n02)] px-6 py-16 text-[var(--rk-n77)]">
       <form onSubmit={submit} className="flex w-[460px] flex-col items-center">
-        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[#1C1514]">
-          <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
-          <span className="h-5 w-[9px] rounded-full bg-[#F7F7F4]" />
+        <div className="flex h-[74px] w-[74px] items-center justify-center gap-[11px] rounded-full bg-[var(--rk-n84)]">
+          <span className="h-5 w-[9px] rounded-full bg-[var(--rk-n02)]" />
+          <span className="h-5 w-[9px] rounded-full bg-[var(--rk-n02)]" />
         </div>
         <h1 className="mb-[38px] mt-[30px] text-[38px] tracking-[-0.02em]">
           <Trans>Choose a new password</Trans>
@@ -324,14 +324,14 @@ export function PasswordResetPage() {
               className="mt-4"
             />
             {error ? (
-              <p role="alert" className="mt-3 w-full text-sm text-[#B91C1C]">
+              <p role="alert" className="mt-3 w-full text-sm text-[var(--rk-a20)]">
                 {error}
               </p>
             ) : null}
             <button
               type="submit"
               disabled={pending || !params.get("token")}
-              className="mt-4 w-full rounded-[13px] bg-[#E0393E] py-[18px] text-[17px] font-medium text-white disabled:opacity-60"
+              className="mt-4 w-full rounded-[13px] bg-[var(--rk-a17)] py-[18px] text-[17px] font-medium text-white disabled:opacity-60"
             >
               {pending ? <Trans>Working…</Trans> : <Trans>Reset password</Trans>}
             </button>
@@ -359,7 +359,7 @@ function PasswordField({
   className?: string;
 }) {
   return (
-    <label htmlFor={id} className={`w-full text-[16px] text-[#78625E] ${className}`}>
+    <label htmlFor={id} className={`w-full text-[16px] text-[var(--rk-n36)] ${className}`}>
       {label}
       <input
         id={id}
@@ -370,7 +370,7 @@ function PasswordField({
         minLength={8}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-[13px] border border-[#E3E0DF] bg-[#F1F1ED] px-[18px] py-[17px] text-[17px] text-[#211918] outline-none"
+        className="mt-2 w-full rounded-[13px] border border-[var(--rk-n14)] bg-[var(--rk-n07)] px-[18px] py-[17px] text-[17px] text-[var(--rk-n77)] outline-none"
       />
     </label>
   );

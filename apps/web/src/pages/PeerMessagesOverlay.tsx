@@ -129,9 +129,9 @@ export function PeerMessagesOverlay({
       aria-labelledby="peer-conversation-title"
       data-testid="peer-conversation-view"
       tabIndex={-1}
-      className="absolute inset-0 z-50 flex flex-col bg-[#060505] outline-none"
+      className="absolute inset-0 z-50 flex flex-col bg-[var(--rk-n101)] outline-none"
     >
-      <div className="flex items-center justify-between gap-4 border-b border-[#1C1514] px-[18px] py-3.5">
+      <div className="flex items-center justify-between gap-4 border-b border-[var(--rk-n84)] px-[18px] py-3.5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <div className="flex items-center -space-x-2">
             <BotAvatar color={botColor} identity={botId} size={28} />
@@ -139,7 +139,7 @@ export function PeerMessagesOverlay({
           </div>
           <h1
             id="peer-conversation-title"
-            className="truncate text-[15.5px] font-medium text-[#EEECEC]"
+            className="truncate text-[15.5px] font-medium text-[var(--rk-n08)]"
             dir="auto"
           >
             {title}
@@ -149,22 +149,22 @@ export function PeerMessagesOverlay({
           type="button"
           aria-label={t`Close`}
           onClick={onClose}
-          className="rounded-[9px] px-3 py-1.5 text-[13.5px] text-[#B2A5A3] hover:bg-[#211918] hover:text-[#EEECEC]"
+          className="rounded-[9px] px-3 py-1.5 text-[13.5px] text-[var(--rk-n22)] hover:bg-[var(--rk-n77)] hover:text-[var(--rk-n08)]"
         >
           <Trans>Close</Trans>
         </button>
       </div>
 
       {!historyReady ? (
-        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#7B6561]">
+        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[var(--rk-n35)]">
           <Trans>Loading…</Trans>
         </div>
       ) : historyFailed ? (
-        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#7B6561]">
+        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[var(--rk-n35)]">
           <Trans>Could not load this chat.</Trans>
         </div>
       ) : !conversation || conversation.messages.length === 0 ? (
-        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[#7B6561]">
+        <div className="grid flex-1 place-items-center px-8 text-center text-[13.5px] text-[var(--rk-n35)]">
           <Trans>No messages with {peerBotName} yet.</Trans>
         </div>
       ) : (
@@ -181,13 +181,13 @@ export function PeerMessagesOverlay({
               >
                 <div
                   className={`max-w-[80%] rounded-[16px] px-4 py-2.5 ${
-                    sent ? "bg-[#271D1B]" : "bg-[#1D1614]"
+                    sent ? "bg-[var(--rk-n71)]" : "bg-[var(--rk-n83)]"
                   }`}
                 >
-                  <div className="mb-1 text-[12px] text-[#8C736E]" dir="auto">
+                  <div className="mb-1 text-[12px] text-[var(--rk-n30)]" dir="auto">
                     {sent ? botName : peerBotName}
                   </div>
-                  <div className="text-[14.5px] leading-[1.5] text-[#E3DFDE]" dir="auto">
+                  <div className="text-[14.5px] leading-[1.5] text-[var(--rk-n15)]" dir="auto">
                     <ChatMarkdown>{peerMessage.text}</ChatMarkdown>
                   </div>
                 </div>
@@ -197,14 +197,14 @@ export function PeerMessagesOverlay({
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-4 border-t border-[#1C1514] px-[18px] py-3.5">
-        <p className="text-[13.5px] text-[#7B6561]">
+      <div className="flex items-center justify-between gap-4 border-t border-[var(--rk-n84)] px-[18px] py-3.5">
+        <p className="text-[13.5px] text-[var(--rk-n35)]">
           <Trans>This chat is view-only</Trans>
         </p>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-[9px] border border-[#342725] bg-[#191311] px-3.5 py-1.5 text-[13.5px] text-[#EEECEC] hover:bg-[#211918]"
+          className="rounded-[9px] border border-[var(--rk-n56)] bg-[var(--rk-n89)] px-3.5 py-1.5 text-[13.5px] text-[var(--rk-n08)] hover:bg-[var(--rk-n77)]"
         >
           <Trans>Close</Trans>
         </button>

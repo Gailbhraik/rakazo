@@ -10,12 +10,12 @@ const buttonVariants = cva(
       variant: {
         // L'action principale porte le rouge de marque ; les autres variantes
         // restent des surfaces neutres, sans quoi le signal se noierait.
-        default: "bg-[#E0393E] text-white hover:bg-[#F2585C]",
-        surface: "bg-[#171110] text-[#FBFBF9] hover:bg-[#2F2422]",
-        cream: "bg-[#F1EFEF] text-[#1D1614] hover:opacity-90",
-        outline: "border border-[#2F2321] text-[#EEECEC] hover:bg-[#201817]",
-        ghost: "text-[#D0C8C7] hover:bg-[#171211]",
-        pill: "rounded-full bg-[#221A18] text-[#F3F2F2] hover:bg-[#2F2422] hover:scale-[1.04]",
+        default: "bg-[var(--rk-a17)] text-white hover:bg-[var(--rk-a13)]",
+        surface: "bg-[var(--rk-n91)] text-[var(--rk-n01)] hover:bg-[var(--rk-n61)]",
+        cream: "bg-[var(--rk-n06)] text-[var(--rk-n83)] hover:opacity-90",
+        outline: "border border-[var(--rk-n62)] text-[var(--rk-n08)] hover:bg-[var(--rk-n80)]",
+        ghost: "text-[var(--rk-n18)] hover:bg-[var(--rk-n90)]",
+        pill: "rounded-full bg-[var(--rk-n76)] text-[var(--rk-n03)] hover:bg-[var(--rk-n61)] hover:scale-[1.04]",
       },
       size: {
         default: "h-10 px-4",

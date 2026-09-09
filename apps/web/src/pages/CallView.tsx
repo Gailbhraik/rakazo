@@ -227,13 +227,13 @@ export function CallView({
     <div className="absolute inset-0 z-40 grid place-items-center bg-[rgba(4,4,5,.82)] px-5">
       <div
         data-testid="call-view"
-        className="w-full max-w-[420px] rounded-[24px] border border-[#342725] bg-[#191311] p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,.55)]"
+        className="w-full max-w-[420px] rounded-[24px] border border-[var(--rk-n56)] bg-[var(--rk-n89)] p-6 text-center shadow-[0_30px_80px_rgba(0,0,0,.55)]"
       >
-        <div className="text-[13px] uppercase tracking-[0.12em] text-[#7B6561]">
+        <div className="text-[13px] uppercase tracking-[0.12em] text-[var(--rk-n35)]">
           <Trans>Call</Trans>
         </div>
-        <div className="mt-2 text-[22px] font-medium text-[#F2F1F1]">{botName}</div>
-        <div className="mt-5 text-[15px] text-[#D0C8C7]">
+        <div className="mt-2 text-[22px] font-medium text-[var(--rk-n04)]">{botName}</div>
+        <div className="mt-5 text-[15px] text-[var(--rk-n18)]">
           {phase === "listening" ? (
             <Trans>Listening…</Trans>
           ) : phase === "speaking" ? (
@@ -242,27 +242,27 @@ export function CallView({
             <Trans>Working…</Trans>
           )}
         </div>
-        <p className="mt-3 min-h-[3.2em] text-[14.5px] leading-[1.5] text-[#967E79]">
+        <p className="mt-3 min-h-[3.2em] text-[14.5px] leading-[1.5] text-[var(--rk-n29)]">
           {phase === "listening" ? heard || t`Say something. Silence sends it.` : caption}
         </p>
-        {error ? <p className="mt-2 text-[13px] text-[#EF4444]">{error}</p> : null}
+        {error ? <p className="mt-2 text-[13px] text-[var(--rk-a14)]">{error}</p> : null}
         <div className="mt-6 flex justify-center gap-3">
           <button
             type="button"
             onClick={interrupt}
-            className="rounded-full border border-[#342725] px-4 py-2 text-[14px] text-[#D0C8C7]"
+            className="rounded-full border border-[var(--rk-n56)] px-4 py-2 text-[14px] text-[var(--rk-n18)]"
           >
             <Trans>Interrupt</Trans>
           </button>
           <button
             type="button"
             onClick={hangUp}
-            className="rounded-full bg-[#DC2626] px-4 py-2 text-[14px] font-medium text-white"
+            className="rounded-full bg-[var(--rk-a18)] px-4 py-2 text-[14px] font-medium text-white"
           >
             <Trans>Hang up</Trans>
           </button>
         </div>
-        <p className="mt-4 text-[12px] text-[#7B6561]">
+        <p className="mt-4 text-[12px] text-[var(--rk-n35)]">
           <Trans>Space interrupts · Esc hangs up</Trans>
         </p>
       </div>

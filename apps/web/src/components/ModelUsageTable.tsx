@@ -47,21 +47,21 @@ export function ModelUsageTable() {
 
   if (error) {
     return (
-      <p role="alert" className="mt-3 text-[12.5px] text-[#F3A2AA]">
+      <p role="alert" className="mt-3 text-[12.5px] text-[var(--rk-a04)]">
         {error}
       </p>
     );
   }
   if (!rows) {
     return (
-      <p className="mt-3 text-[12.5px] text-[#7B6561]">
+      <p className="mt-3 text-[12.5px] text-[var(--rk-n35)]">
         <Trans>Loading usage…</Trans>
       </p>
     );
   }
   if (rows.length === 0) {
     return (
-      <p className="mt-3 text-[12.5px] text-[#7B6561]">
+      <p className="mt-3 text-[12.5px] text-[var(--rk-n35)]">
         <Trans>No model has run yet.</Trans>
       </p>
     );
@@ -76,7 +76,7 @@ export function ModelUsageTable() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[420px] border-collapse text-[13px]">
           <thead>
-            <tr className="text-start text-[12px] text-[#7B6561]">
+            <tr className="text-start text-[12px] text-[var(--rk-n35)]">
               <th className="pb-2 text-start font-normal">
                 <Trans>Model</Trans>
               </th>
@@ -96,12 +96,15 @@ export function ModelUsageTable() {
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={`${row.provider}:${row.model}`} className="border-t border-[#231A18]">
+              <tr key={`${row.provider}:${row.model}`} className="border-t border-[var(--rk-n75)]">
                 <td className="py-2 pe-3">
-                  <span className="block max-w-[220px] truncate text-[#EEECEC]" title={row.model}>
+                  <span
+                    className="block max-w-[220px] truncate text-[var(--rk-n08)]"
+                    title={row.model}
+                  >
                     {row.label}
                   </span>
-                  <span className="block text-[11.5px] text-[#7B6561]">
+                  <span className="block text-[11.5px] text-[var(--rk-n35)]">
                     {row.providerName ?? row.provider}
                     {" · "}
                     {new Date(row.lastUsedAt).toLocaleDateString(locale, {
@@ -110,18 +113,21 @@ export function ModelUsageTable() {
                     })}
                   </span>
                 </td>
-                <td className="py-2 text-end tabular-nums text-[#D0C8C7]">
+                <td className="py-2 text-end tabular-nums text-[var(--rk-n18)]">
                   {row.runs.toLocaleString(locale)}
                 </td>
-                <td className="py-2 text-end tabular-nums text-[#D0C8C7]">
+                <td className="py-2 text-end tabular-nums text-[var(--rk-n18)]">
                   {formatTokens(row.inputTokens, locale)}
                 </td>
-                <td className="py-2 text-end tabular-nums text-[#D0C8C7]">
+                <td className="py-2 text-end tabular-nums text-[var(--rk-n18)]">
                   {formatTokens(row.outputTokens, locale)}
                 </td>
-                <td className="py-2 text-end tabular-nums text-[#EEECEC]">
+                <td className="py-2 text-end tabular-nums text-[var(--rk-n08)]">
                   {row.estimatedCost === null ? (
-                    <span className="text-[#7B6561]" title={t`This model is not in the catalog`}>
+                    <span
+                      className="text-[var(--rk-n35)]"
+                      title={t`This model is not in the catalog`}
+                    >
                       —
                     </span>
                   ) : (
@@ -134,7 +140,7 @@ export function ModelUsageTable() {
         </table>
       </div>
 
-      <p className="mt-3 text-[12.5px] text-[#7B6561]">
+      <p className="mt-3 text-[12.5px] text-[var(--rk-n35)]">
         <Trans>Estimated total: {formatCost(total, locale)}</Trans>
         {". "}
         <Trans>

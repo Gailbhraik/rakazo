@@ -2390,7 +2390,7 @@ export function ShellPage() {
     <div
       data-testid="shell-root"
       data-ready={shellReady}
-      className="relative flex h-full min-w-0 overflow-hidden bg-[#060505] text-[#E3DFDE]"
+      className="relative flex h-full min-w-0 overflow-hidden bg-[var(--rk-n101)] text-[var(--rk-n15)]"
     >
       {bootstrapMe !== undefined ? (
         <HostComputerPrompt initialMe={bootstrapMe ?? undefined} />
@@ -2404,7 +2404,7 @@ export function ShellPage() {
         />
       ) : null}
       <aside
-        className={`absolute inset-y-0 start-0 z-40 flex w-[calc(100%-48px)] max-w-[316px] shrink-0 flex-col border-e border-[#1C1514] bg-[#0D0A0A] transition-transform md:static md:z-auto md:w-[316px] md:translate-x-0 ${
+        className={`absolute inset-y-0 start-0 z-40 flex w-[calc(100%-48px)] max-w-[316px] shrink-0 flex-col border-e border-[var(--rk-n84)] bg-[var(--rk-n98)] transition-transform md:static md:z-auto md:w-[316px] md:translate-x-0 ${
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
         }`}
       >
@@ -2419,7 +2419,9 @@ export function ShellPage() {
               data-activity-mode={activityMode ? "on" : "off"}
               onClick={toggleActivityMode}
               className={`app-no-drag flex h-7 w-7 items-center justify-center rounded-full ${
-                activityMode ? "bg-[#FF4C52] text-white" : "text-[#8C736E] hover:text-[#D0C8C7]"
+                activityMode
+                  ? "bg-[var(--rk-a12)] text-white"
+                  : "text-[var(--rk-n30)] hover:text-[var(--rk-n18)]"
               }`}
             >
               <Bell
@@ -2432,16 +2434,16 @@ export function ShellPage() {
             <button
               type="button"
               onClick={() => setCreateMenuOpen((open) => !open)}
-              className="app-no-drag text-[21px] text-[#8C736E] hover:text-[#D0C8C7]"
+              className="app-no-drag text-[21px] text-[var(--rk-n30)] hover:text-[var(--rk-n18)]"
               title={t`Create`}
             >
               +
             </button>
             {createMenuOpen ? (
-              <div className="app-no-drag absolute end-0 top-full z-20 mt-2 min-w-[160px] rounded-xl border border-[#2F2321] bg-[#191311] py-1 shadow-lg">
+              <div className="app-no-drag absolute end-0 top-full z-20 mt-2 min-w-[160px] rounded-xl border border-[var(--rk-n62)] bg-[var(--rk-n89)] py-1 shadow-lg">
                 <button
                   type="button"
-                  className="block w-full px-3.5 py-2 text-start text-[14px] text-[#EEECEC] hover:bg-[#201817]"
+                  className="block w-full px-3.5 py-2 text-start text-[14px] text-[var(--rk-n08)] hover:bg-[var(--rk-n80)]"
                   onClick={() => {
                     setCreateMenuOpen(false);
                     setPanel("create");
@@ -2451,7 +2453,7 @@ export function ShellPage() {
                 </button>
                 <button
                   type="button"
-                  className="block w-full px-3.5 py-2 text-start text-[14px] text-[#EEECEC] hover:bg-[#201817]"
+                  className="block w-full px-3.5 py-2 text-start text-[14px] text-[var(--rk-n08)] hover:bg-[var(--rk-n80)]"
                   onClick={() => {
                     setCreateMenuOpen(false);
                     setPanel("create-group");
@@ -2459,10 +2461,10 @@ export function ShellPage() {
                 >
                   <Trans>New group</Trans>
                 </button>
-                <div className="my-1 border-t border-[#2F2321]" />
+                <div className="my-1 border-t border-[var(--rk-n62)]" />
                 <button
                   type="button"
-                  className="flex w-full items-center gap-2 px-3.5 py-2 text-start text-[14px] text-[#EEECEC] hover:bg-[#201817]"
+                  className="flex w-full items-center gap-2 px-3.5 py-2 text-start text-[14px] text-[var(--rk-n08)] hover:bg-[var(--rk-n80)]"
                   onClick={() => {
                     setCreateMenuOpen(false);
                     setNewSpaceOpen(true);
@@ -2475,7 +2477,7 @@ export function ShellPage() {
             ) : null}
           </div>
         </div>
-        <div className="mx-3.5 mb-3 flex items-center gap-2.5 rounded-xl border border-[#271E1C] bg-[#191311] px-3 py-2 text-[14px] text-[#7B6561]">
+        <div className="mx-3.5 mb-3 flex items-center gap-2.5 rounded-xl border border-[var(--rk-n70)] bg-[var(--rk-n89)] px-3 py-2 text-[14px] text-[var(--rk-n35)]">
           <span>⌕</span>
           <input
             value={query}
@@ -2514,7 +2516,7 @@ export function ShellPage() {
                     data-sidebar-group={group.key}
                     className={
                       dropSectionKey === group.key
-                        ? "rounded-lg outline-2 outline-dashed outline-offset-[-2px] outline-[#E0393E]"
+                        ? "rounded-lg outline-2 outline-dashed outline-offset-[-2px] outline-[var(--rk-a17)]"
                         : undefined
                     }
                     onDragOver={(event) => {
@@ -2572,13 +2574,13 @@ export function ShellPage() {
                                 if (event.key === "Escape") setRenamingSection(null);
                               }}
                               aria-label={t`Section name`}
-                              className="w-full rounded-md border border-[#463532] bg-[#100C0B] px-2 py-1 text-[12.5px] text-[#EEECEC] outline-none"
+                              className="w-full rounded-md border border-[var(--rk-n45)] bg-[var(--rk-n96)] px-2 py-1 text-[12.5px] text-[var(--rk-n08)] outline-none"
                             />
                           </form>
                         ) : (
                           <button
                             type="button"
-                            className="flex flex-1 items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-[#7B6561] hover:bg-[#201817] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#8B5CF6]"
+                            className="flex flex-1 items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-[12.5px] font-medium text-[var(--rk-n35)] hover:bg-[var(--rk-n80)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#8B5CF6]"
                             onClick={() => {
                               if (group.emptySpaceId) {
                                 openSpaceChat(group.emptySpaceId, "/onboarding");
@@ -2627,7 +2629,7 @@ export function ShellPage() {
                                   name: group.title ?? "",
                                 })
                               }
-                              className="rounded-md p-1 text-[#7B6561] hover:bg-[#201817] hover:text-[#EEECEC]"
+                              className="rounded-md p-1 text-[var(--rk-n35)] hover:bg-[var(--rk-n80)] hover:text-[var(--rk-n08)]"
                             >
                               <Pencil size={12} strokeWidth={1.9} />
                             </button>
@@ -2641,7 +2643,7 @@ export function ShellPage() {
                                   .remove({ sectionId })
                                   .then(() => refreshBots(true));
                               }}
-                              className="rounded-md p-1 text-[#7B6561] hover:bg-[#2A1517] hover:text-[#E0393E]"
+                              className="rounded-md p-1 text-[var(--rk-n35)] hover:bg-[var(--rk-a30)] hover:text-[var(--rk-a17)]"
                             >
                               <Trash2 size={12} strokeWidth={1.9} />
                             </button>
@@ -2754,7 +2756,7 @@ export function ShellPage() {
                               <span
                                 dir="auto"
                                 data-roster-bot-name={item.kind === "bot" ? "" : undefined}
-                                className={`truncate text-[15px] text-[#EEECEC] ${
+                                className={`truncate text-[15px] text-[var(--rk-n08)] ${
                                   item.chat.unread ? "font-semibold" : "font-medium"
                                 }`}
                               >
@@ -2765,7 +2767,7 @@ export function ShellPage() {
                                   </span>
                                 ) : null}
                               </span>
-                              <span className="flex shrink-0 items-center gap-1.5 text-[12.5px] text-[#7B6561]">
+                              <span className="flex shrink-0 items-center gap-1.5 text-[12.5px] text-[var(--rk-n35)]">
                                 {item.kind === "bot" && item.chat.status !== "idle" ? (
                                   <PanelStatus state={item.chat.status} compact />
                                 ) : null}
@@ -2783,14 +2785,17 @@ export function ShellPage() {
                                   dir="auto"
                                   className={`mt-0.5 truncate text-[13.5px] ${
                                     item.chat.unread
-                                      ? "font-medium text-[#D0C8C7]"
-                                      : "text-[#967E79]"
+                                      ? "font-medium text-[var(--rk-n18)]"
+                                      : "text-[var(--rk-n29)]"
                                   }`}
                                 >
                                   {item.chat.title}
                                 </div>
                                 {item.chat.preview ? (
-                                  <div dir="auto" className="truncate text-[12.5px] text-[#7B6561]">
+                                  <div
+                                    dir="auto"
+                                    className="truncate text-[12.5px] text-[var(--rk-n35)]"
+                                  >
                                     {item.chat.preview}
                                   </div>
                                 ) : null}
@@ -2799,7 +2804,9 @@ export function ShellPage() {
                               <div
                                 dir="auto"
                                 className={`mt-0.5 truncate text-[13.5px] ${
-                                  item.chat.unread ? "font-medium text-[#D0C8C7]" : "text-[#967E79]"
+                                  item.chat.unread
+                                    ? "font-medium text-[var(--rk-n18)]"
+                                    : "text-[var(--rk-n29)]"
                                 }`}
                               >
                                 {item.kind === "bot"
@@ -2817,12 +2824,12 @@ export function ShellPage() {
             </>
           )}
           {archivedBots.length + archivedGroups.length > 0 && !showSpaceSearch ? (
-            <div className="mt-2 border-t border-[#271E1C] pt-2">
+            <div className="mt-2 border-t border-[var(--rk-n70)] pt-2">
               <button
                 type="button"
                 aria-expanded={archivedOpen}
                 onClick={() => setArchivedOpen((open) => !open)}
-                className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-[13.5px] text-[#967E79] hover:bg-[#171211]"
+                className="flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-[13.5px] text-[var(--rk-n29)] hover:bg-[var(--rk-n90)]"
               >
                 <span>
                   <Trans>Archived</Trans>
@@ -2841,7 +2848,7 @@ export function ShellPage() {
                         status={bot.status}
                       />
                       <span
-                        className="min-w-0 flex-1 truncate text-[14px] text-[#B2A5A3]"
+                        className="min-w-0 flex-1 truncate text-[14px] text-[var(--rk-n22)]"
                         dir="auto"
                       >
                         {bot.name}
@@ -2851,7 +2858,7 @@ export function ShellPage() {
                         onClick={() =>
                           void rpc.bots.restore({ botId: bot.id }).then(() => refreshBots(true))
                         }
-                        className="text-[12.5px] text-[#D0C8C7] hover:text-white"
+                        className="text-[12.5px] text-[var(--rk-n18)] hover:text-[var(--rk-ink)]"
                       >
                         <Trans>Restore</Trans>
                       </button>
@@ -2859,7 +2866,7 @@ export function ShellPage() {
                         type="button"
                         aria-label={t`Delete ${bot.name}`}
                         onClick={() => setDeleteTarget(bot)}
-                        className="text-[12.5px] text-[#EF4444]"
+                        className="text-[12.5px] text-[var(--rk-a14)]"
                       >
                         <Trans>Delete</Trans>
                       </button>
@@ -2869,7 +2876,7 @@ export function ShellPage() {
                     <div key={group.id} className="flex items-center gap-2 rounded-lg px-2.5 py-2">
                       <GroupAvatar members={group.members} size={28} />
                       <span
-                        className="min-w-0 flex-1 truncate text-[14px] text-[#B2A5A3]"
+                        className="min-w-0 flex-1 truncate text-[14px] text-[var(--rk-n22)]"
                         dir="auto"
                       >
                         {group.name}
@@ -2881,7 +2888,7 @@ export function ShellPage() {
                             .restore({ groupId: group.id })
                             .then(() => refreshBots(true))
                         }
-                        className="text-[12.5px] text-[#D0C8C7] hover:text-white"
+                        className="text-[12.5px] text-[var(--rk-n18)] hover:text-[var(--rk-ink)]"
                       >
                         <Trans>Restore</Trans>
                       </button>
@@ -2889,7 +2896,7 @@ export function ShellPage() {
                         type="button"
                         aria-label={t`Delete ${group.name}`}
                         onClick={() => setDeleteGroupTarget(group)}
-                        className="text-[12.5px] text-[#EF4444]"
+                        className="text-[12.5px] text-[var(--rk-a14)]"
                       >
                         <Trans>Delete</Trans>
                       </button>
@@ -2903,18 +2910,18 @@ export function ShellPage() {
         <button
           type="button"
           onClick={() => setPluginsOpen(true)}
-          className="mx-3 mb-1 flex items-center gap-3 rounded-[11px] px-2.5 py-2 hover:bg-[#171211]"
+          className="mx-3 mb-1 flex items-center gap-3 rounded-[11px] px-2.5 py-2 hover:bg-[var(--rk-n90)]"
         >
-          <span className="grid h-[30px] w-[30px] place-items-center rounded-full bg-[#1D1614] text-[#A69794]">
+          <span className="grid h-[30px] w-[30px] place-items-center rounded-full bg-[var(--rk-n83)] text-[var(--rk-n25)]">
             <Puzzle size={15} strokeWidth={1.7} />
           </span>
-          <span className="text-[14.5px] text-[#D0C8C7]">
+          <span className="text-[14.5px] text-[var(--rk-n18)]">
             <Trans>Integrations</Trans>
           </span>
         </button>
         <div className="relative">
           {menuOpen ? (
-            <div className="absolute bottom-14 inset-x-3 z-20 rounded-2xl border border-[#342725] bg-[#201817] p-2 shadow-[0_22px_50px_rgba(0,0,0,.55)]">
+            <div className="absolute bottom-14 inset-x-3 z-20 rounded-2xl border border-[var(--rk-n56)] bg-[var(--rk-n80)] p-2 shadow-[0_22px_50px_rgba(0,0,0,.55)]">
               <button
                 type="button"
                 aria-label={t`Settings`}
@@ -2923,10 +2930,10 @@ export function ShellPage() {
                   setAccountSettingsFocusUsage(false);
                   setAccountSettingsOpen(true);
                 }}
-                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
               >
-                <span className="text-[#A69794]">⚙</span>
-                <span className="flex-1 text-start text-[14.5px] text-[#EEECEC]">
+                <span className="text-[var(--rk-n25)]">⚙</span>
+                <span className="flex-1 text-start text-[14.5px] text-[var(--rk-n08)]">
                   <Trans>Settings</Trans>
                 </span>
               </button>
@@ -2936,10 +2943,10 @@ export function ShellPage() {
                   setMenuOpen(false);
                   setModelsOpen(true);
                 }}
-                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
               >
-                <Cpu size={16} strokeWidth={1.7} className="text-[#A69794]" />
-                <span className="flex-1 text-start text-[14.5px] text-[#EEECEC]">
+                <Cpu size={16} strokeWidth={1.7} className="text-[var(--rk-n25)]" />
+                <span className="flex-1 text-start text-[14.5px] text-[var(--rk-n08)]">
                   <Trans>Models</Trans>
                 </span>
               </button>
@@ -2949,13 +2956,13 @@ export function ShellPage() {
                   setMenuOpen(false);
                   setFavoriteModelsOpen(true);
                 }}
-                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
               >
-                <Star size={16} strokeWidth={1.7} className="text-[#A69794]" />
-                <span className="flex-1 text-start text-[14.5px] text-[#EEECEC]">
+                <Star size={16} strokeWidth={1.7} className="text-[var(--rk-n25)]" />
+                <span className="flex-1 text-start text-[14.5px] text-[var(--rk-n08)]">
                   <Trans>Favorite models</Trans>
                 </span>
-                <kbd className="rounded-[6px] border border-[#3A2C29] px-1.5 py-0.5 text-[11px] text-[#7B6561]">
+                <kbd className="rounded-[6px] border border-[var(--rk-n52)] px-1.5 py-0.5 text-[11px] text-[var(--rk-n35)]">
                   {shortcutLabel}
                 </kbd>
               </button>
@@ -2965,10 +2972,10 @@ export function ShellPage() {
                   setMenuOpen(false);
                   setMemorySettingsOpen(true);
                 }}
-                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
               >
-                <span className="text-[#A69794]">◇</span>
-                <span className="flex-1 text-start text-[14.5px] text-[#EEECEC]">
+                <span className="text-[var(--rk-n25)]">◇</span>
+                <span className="flex-1 text-start text-[14.5px] text-[var(--rk-n08)]">
                   <Trans>Memory</Trans>
                 </span>
               </button>
@@ -2978,27 +2985,27 @@ export function ShellPage() {
                   setMenuOpen(false);
                   setVoiceOpen(true);
                 }}
-                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
               >
-                <Volume2 size={16} strokeWidth={1.7} className="text-[#A69794]" />
-                <span className="flex-1 text-start text-[14.5px] text-[#EEECEC]">
+                <Volume2 size={16} strokeWidth={1.7} className="text-[var(--rk-n25)]" />
+                <span className="flex-1 text-start text-[14.5px] text-[var(--rk-n08)]">
                   <Trans>Voice</Trans>
                 </span>
               </button>
               <button
                 type="button"
-                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
                 onClick={async () => {
                   setUsage(await rpc.usage.summary());
                 }}
               >
-                <Gauge size={16} strokeWidth={1.7} className="text-[#A69794]" />
-                <span className="flex-1 text-start text-[14.5px] text-[#EEECEC]">
+                <Gauge size={16} strokeWidth={1.7} className="text-[var(--rk-n25)]" />
+                <span className="flex-1 text-start text-[14.5px] text-[var(--rk-n08)]">
                   <Trans>Usage</Trans>
                 </span>
               </button>
               {usage ? (
-                <p className="px-3 pb-2 text-[12.5px] text-[#967E79]">
+                <p className="px-3 pb-2 text-[12.5px] text-[var(--rk-n29)]">
                   <Trans>
                     {usage.runs} runs · {usage.inputTokens + usage.outputTokens} tokens
                   </Trans>
@@ -3012,10 +3019,10 @@ export function ShellPage() {
                     navigate("/");
                   })
                 }
-                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[#2B211F]"
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
               >
-                <LogOut size={16} strokeWidth={1.7} className="text-[#A69794]" />
-                <span className="text-[14.5px] text-[#EEECEC]">
+                <LogOut size={16} strokeWidth={1.7} className="text-[var(--rk-n25)]" />
+                <span className="text-[14.5px] text-[var(--rk-n08)]">
                   <Trans>Log out</Trans>
                 </span>
               </button>
@@ -3027,10 +3034,10 @@ export function ShellPage() {
             onClick={() => setMenuOpen((v) => !v)}
             className="flex items-center gap-[11px] px-[18px] py-3.5"
           >
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-[#2B201E] text-[12px] text-[#B2A5A3]">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--rk-n66)] text-[12px] text-[var(--rk-n22)]">
               {initials}
             </span>
-            <span className="text-[14.5px] text-[#D0C8C7]">{userName}</span>
+            <span className="text-[14.5px] text-[var(--rk-n18)]">{userName}</span>
           </button>
         </div>
       </aside>
@@ -3038,15 +3045,15 @@ export function ShellPage() {
       <main
         aria-hidden={mobileSidebarOpen || undefined}
         inert={mobileSidebarOpen}
-        className="flex min-w-0 flex-1 flex-col bg-[#100C0B]"
+        className="flex min-w-0 flex-1 flex-col bg-[var(--rk-n96)]"
       >
-        <div className="app-drag flex items-center justify-between border-b border-[#191311] px-3 py-[17px] md:px-[22px]">
+        <div className="app-drag flex items-center justify-between border-b border-[var(--rk-n89)] px-3 py-[17px] md:px-[22px]">
           <div className="flex min-w-0 items-center gap-2">
             <button
               type="button"
               aria-label={t`Open navigation`}
               onClick={() => setMobileSidebarOpen(true)}
-              className="app-no-drag grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[#B2A5A3] hover:bg-[#211918] md:hidden"
+              className="app-no-drag grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[var(--rk-n22)] hover:bg-[var(--rk-n77)] md:hidden"
             >
               <Menu size={19} strokeWidth={1.7} />
             </button>
@@ -3071,7 +3078,10 @@ export function ShellPage() {
                 />
               ) : null}
               <span className="min-w-0">
-                <span className="block truncate text-[16px] font-medium text-[#EEECEC]" dir="auto">
+                <span
+                  className="block truncate text-[16px] font-medium text-[var(--rk-n08)]"
+                  dir="auto"
+                >
                   {inGroup
                     ? (activeGroup?.name ?? activeSnapshot?.groupName ?? t`Group`)
                     : (active?.name ?? t`Select a bot`)}
@@ -3092,10 +3102,10 @@ export function ShellPage() {
                   }
                   setCallOpen(true);
                 }}
-                className="app-no-drag grid h-[30px] w-[34px] place-items-center rounded-[9px] hover:bg-[#211918]"
+                className="app-no-drag grid h-[30px] w-[34px] place-items-center rounded-[9px] hover:bg-[var(--rk-n77)]"
                 style={{ background: callOpen ? "#1B1B1E" : "transparent" }}
               >
-                <Phone size={16} strokeWidth={1.6} className="text-[#B2A5A3]" />
+                <Phone size={16} strokeWidth={1.6} className="text-[var(--rk-n22)]" />
               </button>
             ) : null}
             {!inGroup ? (
@@ -3110,10 +3120,10 @@ export function ShellPage() {
                     void refreshThread(active.id).catch(() => undefined);
                   }
                 }}
-                className="app-no-drag grid h-[30px] w-[34px] place-items-center rounded-[9px] hover:bg-[#211918]"
+                className="app-no-drag grid h-[30px] w-[34px] place-items-center rounded-[9px] hover:bg-[var(--rk-n77)]"
                 style={{ background: panel ? "#1B1B1E" : "transparent" }}
               >
-                <Monitor size={18} strokeWidth={1.6} className="text-[#B2A5A3]" />
+                <Monitor size={18} strokeWidth={1.6} className="text-[var(--rk-n22)]" />
               </button>
             ) : null}
           </div>
@@ -3147,7 +3157,7 @@ export function ShellPage() {
           onSpeak={speakMessage}
         />
         {recordingSkill ? (
-          <div className="px-6 pb-2 text-center text-[13px] text-[#EF4444]">
+          <div className="px-6 pb-2 text-center text-[13px] text-[var(--rk-a14)]">
             <Trans>Teaching in progress — stop teaching before sending a new message.</Trans>
           </div>
         ) : null}
@@ -3211,9 +3221,9 @@ export function ShellPage() {
       <aside
         data-testid="side-panel"
         data-panel={panel ?? "closed"}
-        className={`absolute inset-y-0 end-0 z-20 flex min-h-0 shrink-0 flex-col overflow-hidden bg-[#0C0909] transition-[width] duration-150 ease-out md:relative ${
+        className={`absolute inset-y-0 end-0 z-20 flex min-h-0 shrink-0 flex-col overflow-hidden bg-[var(--rk-n99)] transition-[width] duration-150 ease-out md:relative ${
           panel && (active || activeGroup)
-            ? "w-full max-w-[384px] border-s border-[#191311] md:w-[384px] md:max-w-none"
+            ? "w-full max-w-[384px] border-s border-[var(--rk-n89)] md:w-[384px] md:max-w-none"
             : "pointer-events-none w-0"
         }`}
       >
@@ -3224,7 +3234,7 @@ export function ShellPage() {
             panel !== "create-group" &&
             panel !== "group-settings" ? (
               <div className="mb-4 flex items-center justify-between">
-                <span className="text-[13.5px] text-[#967E79]">
+                <span className="text-[13.5px] text-[var(--rk-n29)]">
                   {panel === "settings" ? (
                     <Trans>Settings</Trans>
                   ) : active ? (
@@ -3241,8 +3251,8 @@ export function ShellPage() {
                       onClick={() => setPanel(panel === "settings" ? "computer" : "settings")}
                       className={
                         panel === "settings"
-                          ? "text-[#EEECEC]"
-                          : "text-[#967E79] hover:text-[#EEECEC]"
+                          ? "text-[var(--rk-n08)]"
+                          : "text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
                       }
                     >
                       <Settings size={16} strokeWidth={1.7} />
@@ -3258,14 +3268,14 @@ export function ShellPage() {
               <div>
                 <div
                   data-testid="computer-preview"
-                  className="group relative aspect-[16/10] overflow-hidden rounded-[14px] bg-[#120D0C]"
+                  className="group relative aspect-[16/10] overflow-hidden rounded-[14px] bg-[var(--rk-n94)]"
                 >
                   {computerOpen ? (
-                    <div className="grid h-full place-items-center text-sm text-[#7B6561]">
+                    <div className="grid h-full place-items-center text-sm text-[var(--rk-n35)]">
                       <Trans>Open in full window</Trans>
                     </div>
                   ) : computer?.kind === "desktop" ? (
-                    <div className="grid h-full place-items-center px-6 text-center text-sm text-[#7B6561]">
+                    <div className="grid h-full place-items-center px-6 text-center text-sm text-[var(--rk-n35)]">
                       <Trans>
                         This bot runs on this computer, not a Linux desktop. Shell and files use
                         your home folder.
@@ -3281,7 +3291,7 @@ export function ShellPage() {
                       style={{ pointerEvents: "none" }}
                     />
                   ) : (
-                    <div className="grid h-full place-items-center px-6 text-center text-sm text-[#7B6561]">
+                    <div className="grid h-full place-items-center px-6 text-center text-sm text-[var(--rk-n35)]">
                       {computersAreUnavailable(bootstrapMe?.sandboxProvider) ? (
                         <ComputersUnavailableHint />
                       ) : (
@@ -3300,13 +3310,13 @@ export function ShellPage() {
                     aria-label={t`Open`}
                     onClick={() => void openComputer()}
                   >
-                    <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(12,12,14,.82)] px-3.5 py-2 text-[14px] text-[#F2F1F1] shadow-[0_8px_24px_rgba(0,0,0,.45)]">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[rgba(12,12,14,.82)] px-3.5 py-2 text-[14px] text-[var(--rk-n04)] shadow-[0_8px_24px_rgba(0,0,0,.45)]">
                       <Maximize2 size={15} strokeWidth={1.9} aria-hidden />
                       <Trans>Open</Trans>
                     </span>
                   </button>
                 </div>
-                <p className="mt-2 truncate text-[13.5px] text-[#967E79]" dir="auto">
+                <p className="mt-2 truncate text-[13.5px] text-[var(--rk-n29)]" dir="auto">
                   {t`${active.name}'s screen`}
                 </p>
                 <RoutineListHeader
@@ -3865,18 +3875,18 @@ export function ShellPage() {
 
       {booting ? (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-[22px] bg-[rgba(4,4,5,.96)]">
-          <div className="text-[19px] font-medium text-[#F2F1F1]">
+          <div className="text-[19px] font-medium text-[var(--rk-n04)]">
             <Trans>Booting up {active?.name}’s computer</Trans>
           </div>
-          <div className="h-[5px] w-[min(420px,70%)] overflow-hidden rounded-full bg-[#2B211F]">
-            <div className="h-full w-2/3 rounded-full bg-[#F1EFEF]" />
+          <div className="h-[5px] w-[min(420px,70%)] overflow-hidden rounded-full bg-[var(--rk-n65)]">
+            <div className="h-full w-2/3 rounded-full bg-[var(--rk-n06)]" />
           </div>
         </div>
       ) : computerOpen && active ? (
-        <div className="absolute inset-0 z-30 flex flex-col bg-[#060505]">
+        <div className="absolute inset-0 z-30 flex flex-col bg-[var(--rk-n101)]">
           <div
             data-testid="computer-chrome"
-            className="flex items-center justify-between gap-4 border-b border-[#1C1514] px-[18px] py-3.5"
+            className="flex items-center justify-between gap-4 border-b border-[var(--rk-n84)] px-[18px] py-3.5"
           >
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <BotAvatar
@@ -3894,7 +3904,10 @@ export function ShellPage() {
                   variant="overlay"
                 />
               ) : (
-                <span className="truncate text-[15.5px] font-medium text-[#EEECEC]" dir="auto">
+                <span
+                  className="truncate text-[15.5px] font-medium text-[var(--rk-n08)]"
+                  dir="auto"
+                >
                   {computerLabel(computer?.mode, active.name)}
                 </span>
               )}
@@ -3944,7 +3957,7 @@ export function ShellPage() {
               ) : null}
               <button
                 type="button"
-                className="text-[16px] text-[#967E79] hover:text-[#EEECEC]"
+                className="text-[16px] text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
                 aria-label={t`Close computer`}
                 onClick={() => setComputerOpen(false)}
               >
@@ -3955,14 +3968,14 @@ export function ShellPage() {
           {sendError ? (
             <div
               role="alert"
-              className="border-b border-[#5A2A2A] bg-[#2A1717] px-[18px] py-2 text-[13px] text-[#FCA5A5]"
+              className="border-b border-[var(--rk-a24)] bg-[var(--rk-a29)] px-[18px] py-2 text-[13px] text-[var(--rk-a03)]"
             >
               {sendError}
             </div>
           ) : null}
-          <div className="relative min-h-0 flex-1 bg-[#120D0C]">
+          <div className="relative min-h-0 flex-1 bg-[var(--rk-n94)]">
             {computer?.kind === "desktop" ? (
-              <div className="grid h-full place-items-center px-8 text-center text-sm text-[#7B6561]">
+              <div className="grid h-full place-items-center px-8 text-center text-sm text-[var(--rk-n35)]">
                 <Trans>
                   This bot runs on this computer. There is no separate Linux desktop. Ask it to use
                   the shell; working directories under your home folder are allowed.
@@ -3991,7 +4004,7 @@ export function ShellPage() {
                 ) : null}
               </>
             ) : (
-              <div className="grid h-full place-items-center text-sm text-[#7B6561]">
+              <div className="grid h-full place-items-center text-sm text-[var(--rk-n35)]">
                 {computer?.state === "suspended"
                   ? t`Computer is asleep`
                   : computerLabel(computer?.mode, active.name)}
@@ -4185,7 +4198,7 @@ const Transcript = memo(function Transcript({
             type="button"
             disabled={loadingOlder}
             onClick={() => void loadOlder()}
-            className="self-center rounded-lg px-3 py-1.5 text-[13px] text-[#967E79] hover:bg-[#201817] hover:text-[#D0C8C7] disabled:opacity-50"
+            className="self-center rounded-lg px-3 py-1.5 text-[13px] text-[var(--rk-n29)] hover:bg-[var(--rk-n80)] hover:text-[var(--rk-n18)] disabled:opacity-50"
           >
             {loadingOlder ? t`Loading…` : t`Load earlier messages`}
           </button>
@@ -4238,7 +4251,7 @@ const Transcript = memo(function Transcript({
                   type="button"
                   aria-label={t`Remove thumbs-up`}
                   onClick={() => void onReact(message)}
-                  className={`mt-1 rounded-full border border-[#3B2C2A] bg-[#201817] px-2 py-0.5 text-xs ${
+                  className={`mt-1 rounded-full border border-[var(--rk-n50)] bg-[var(--rk-n80)] px-2 py-0.5 text-xs ${
                     message.role === "user" ? "ml-auto block" : ""
                   }`}
                 >
@@ -4265,7 +4278,7 @@ const Transcript = memo(function Transcript({
         aria-hidden={atEnd}
         tabIndex={atEnd ? -1 : 0}
         onClick={jumpToLatest}
-        className={`absolute bottom-4 left-1/2 z-20 grid h-9 w-9 -translate-x-1/2 place-items-center rounded-full border border-[#3B2C2A] bg-[#201817]/95 text-[#D0C8C7] shadow-[0_8px_24px_rgba(0,0,0,.45)] backdrop-blur transition-[opacity,transform,background-color] duration-200 ease-[cubic-bezier(.22,1,.36,1)] hover:bg-[#2C2220] motion-reduce:transition-none ${
+        className={`absolute bottom-4 left-1/2 z-20 grid h-9 w-9 -translate-x-1/2 place-items-center rounded-full border border-[var(--rk-n50)] bg-[var(--rk-n80)]/95 text-[var(--rk-n18)] shadow-[0_8px_24px_rgba(0,0,0,.45)] backdrop-blur transition-[opacity,transform,background-color] duration-200 ease-[cubic-bezier(.22,1,.36,1)] hover:bg-[var(--rk-n64)] motion-reduce:transition-none ${
           atEnd ? "pointer-events-none translate-y-2 opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
@@ -4586,7 +4599,7 @@ const Composer = memo(function Composer({
           ref={runErrorRef}
           role="alert"
           data-testid="composer-error"
-          className="mb-3 flex items-center gap-2 rounded-[14px] border border-[#5A2A2A] bg-[#2A1717] px-4 py-2 text-[13px] text-[#FCA5A5]"
+          className="mb-3 flex items-center gap-2 rounded-[14px] border border-[var(--rk-a24)] bg-[var(--rk-a29)] px-4 py-2 text-[13px] text-[var(--rk-a03)]"
         >
           <span className="min-w-0 flex-1">{sendError ?? dictationError ?? runError}</span>
           <button
@@ -4597,7 +4610,7 @@ const Composer = memo(function Composer({
               onDismissError();
               window.requestAnimationFrame(() => textareaRef.current?.focus());
             }}
-            className="shrink-0 text-[#FCA5A5] hover:text-[#EEECEC]"
+            className="shrink-0 text-[var(--rk-a03)] hover:text-[var(--rk-n08)]"
           >
             <X size={13} strokeWidth={2} />
           </button>
@@ -4606,21 +4619,21 @@ const Composer = memo(function Composer({
       {replyTarget ? (
         <div
           data-testid="reply-chip"
-          className="mb-2 flex items-center gap-2 rounded-full border border-[#2F2321] bg-[#1D1614] px-3 py-1.5 text-[13px] text-[#D0C8C7]"
+          className="mb-2 flex items-center gap-2 rounded-full border border-[var(--rk-n62)] bg-[var(--rk-n83)] px-3 py-1.5 text-[13px] text-[var(--rk-n18)]"
         >
-          <span className="min-w-0 flex-1 truncate text-[#967E79]">{t`Replying to ${replyName}`}</span>
+          <span className="min-w-0 flex-1 truncate text-[var(--rk-n29)]">{t`Replying to ${replyName}`}</span>
           <button
             type="button"
             aria-label={t`Cancel reply`}
             onClick={onClearReply}
-            className="shrink-0 text-[#967E79] hover:text-[#EEECEC]"
+            className="shrink-0 text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
           >
             <X size={13} strokeWidth={2} />
           </button>
         </div>
       ) : null}
       {attachmentNotice ? (
-        <div className="mb-3 rounded-[14px] border border-[#3A3A20] bg-[#232316] px-4 py-2 text-[13px] text-[#D6CFA0]">
+        <div className="mb-3 rounded-[14px] border border-[#3A3A20] bg-[var(--rk-n78)] px-4 py-2 text-[13px] text-[#D6CFA0]">
           {attachmentNotice}
         </div>
       ) : null}
@@ -4629,7 +4642,7 @@ const Composer = memo(function Composer({
           {pendingAttachments.map((attachment) => (
             <div
               key={attachment.id}
-              className="flex items-center gap-2 rounded-full border border-[#2F2321] bg-[#1D1614] px-3 py-1.5 text-[13px] text-[#D0C8C7]"
+              className="flex items-center gap-2 rounded-full border border-[var(--rk-n62)] bg-[var(--rk-n83)] px-3 py-1.5 text-[13px] text-[var(--rk-n18)]"
             >
               {attachment.previewUrl ? (
                 <img
@@ -4647,7 +4660,7 @@ const Composer = memo(function Composer({
                 type="button"
                 aria-label={t`Remove ${attachment.file.name}`}
                 onClick={() => onRemoveAttachment(attachment)}
-                className="text-[#967E79] hover:text-[#EEECEC]"
+                className="text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
               >
                 <X size={13} strokeWidth={2} />
               </button>
@@ -4661,7 +4674,7 @@ const Composer = memo(function Composer({
           role="listbox"
           aria-label={t`Mentions`}
           data-testid="mention-picker"
-          className="mb-2 overflow-hidden rounded-[14px] border border-[#2F2321] bg-[#1D1614]"
+          className="mb-2 overflow-hidden rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n83)]"
         >
           {mentionOptions.map((mention, index) => {
             const optionId = `${mentionListboxId}-option-${index}`;
@@ -4677,17 +4690,17 @@ const Composer = memo(function Composer({
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => insertMention(mention)}
                 onMouseEnter={() => setMentionHighlightIndex(index)}
-                className={`flex w-full items-start gap-3 px-4 py-2.5 text-start hover:bg-[#261D1B] ${
-                  highlighted ? "bg-[#261D1B]" : ""
+                className={`flex w-full items-start gap-3 px-4 py-2.5 text-start hover:bg-[var(--rk-n72)] ${
+                  highlighted ? "bg-[var(--rk-n72)]" : ""
                 }`}
               >
                 <MentionOptionIcon mention={mention} />
                 <span className="min-w-0">
-                  <span dir="auto" className="block text-[14px] text-[#EEECEC]">
+                  <span dir="auto" className="block text-[14px] text-[var(--rk-n08)]">
                     @{mention.name}
                   </span>
                   {mention.subtitle ? (
-                    <span dir="auto" className="block truncate text-[12.5px] text-[#967E79]">
+                    <span dir="auto" className="block truncate text-[12.5px] text-[var(--rk-n29)]">
                       {mention.subtitle}
                     </span>
                   ) : null}
@@ -4700,7 +4713,7 @@ const Composer = memo(function Composer({
       {showSlashPicker ? (
         <div
           data-testid="slash-picker"
-          className="mb-2 overflow-hidden rounded-[14px] border border-[#2F2321] bg-[#1D1614]"
+          className="mb-2 overflow-hidden rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n83)]"
         >
           {slashSkillOptions.map((skill) => (
             <button
@@ -4708,14 +4721,14 @@ const Composer = memo(function Composer({
               type="button"
               aria-label={t`Skill ${skill.name}`}
               onClick={() => insertSkill(skill)}
-              className="flex w-full items-start gap-3 px-4 py-2.5 text-start hover:bg-[#261D1B]"
+              className="flex w-full items-start gap-3 px-4 py-2.5 text-start hover:bg-[var(--rk-n72)]"
             >
-              <Box size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-[#A69794]" />
+              <Box size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-[var(--rk-n25)]" />
               <span className="min-w-0">
-                <span dir="auto" className="block text-[14px] text-[#EEECEC]">
+                <span dir="auto" className="block text-[14px] text-[var(--rk-n08)]">
                   {skill.name}
                 </span>
-                <span dir="auto" className="block truncate text-[12.5px] text-[#967E79]">
+                <span dir="auto" className="block truncate text-[12.5px] text-[var(--rk-n29)]">
                   {truncateSlashDescription(skill.description)}
                 </span>
               </span>
@@ -4729,10 +4742,10 @@ const Composer = memo(function Composer({
                 type="button"
                 aria-label={label}
                 onClick={() => runSlashAction(action.id)}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-start hover:bg-[#261D1B]"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-start hover:bg-[var(--rk-n72)]"
               >
-                <Settings size={16} strokeWidth={1.7} className="shrink-0 text-[#A69794]" />
-                <span className="text-[14px] text-[#EEECEC]">{label}</span>
+                <Settings size={16} strokeWidth={1.7} className="shrink-0 text-[var(--rk-n25)]" />
+                <span className="text-[14px] text-[var(--rk-n08)]">{label}</span>
               </button>
             );
           })}
@@ -4740,7 +4753,7 @@ const Composer = memo(function Composer({
       ) : null}
       <div
         data-testid="composer-bar"
-        className="flex items-center gap-3.5 rounded-full border border-[#271E1C] bg-[#171211] py-[9px] pe-2.5 ps-3"
+        className="flex items-center gap-3.5 rounded-full border border-[var(--rk-n70)] bg-[var(--rk-n90)] py-[9px] pe-2.5 ps-3"
       >
         <input
           ref={fileInputRef}
@@ -4755,7 +4768,7 @@ const Composer = memo(function Composer({
           aria-label={t`Attach file`}
           disabled={disabled}
           onClick={() => fileInputRef.current?.click()}
-          className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full border border-[#2F2321] text-[#A69794] disabled:opacity-40"
+          className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full border border-[var(--rk-n62)] text-[var(--rk-n25)] disabled:opacity-40"
         >
           <Plus size={17} strokeWidth={1.8} />
         </button>
@@ -4778,7 +4791,7 @@ const Composer = memo(function Composer({
           className={`grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full border ${
             dictating
               ? "border-[#4ECB71] bg-[rgba(48,162,75,.16)] text-[#4ECB71]"
-              : "border-[#2F2321] text-[#A69794]"
+              : "border-[var(--rk-n62)] text-[var(--rk-n25)]"
           }`}
           title={transcribe ? t`Hold to talk` : t`Hold to talk (on-device dictation)`}
         >
@@ -4788,9 +4801,9 @@ const Composer = memo(function Composer({
           {selectedSkill ? (
             <span
               data-testid="skill-chip"
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#231A18] px-2.5 py-1 text-[13px] text-[#EEECEC]"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[var(--rk-n75)] px-2.5 py-1 text-[13px] text-[var(--rk-n08)]"
             >
-              <Box size={13} strokeWidth={1.7} className="shrink-0 text-[#BAAEAC]" />
+              <Box size={13} strokeWidth={1.7} className="shrink-0 text-[var(--rk-n21)]" />
               <span dir="auto" className="truncate">
                 {selectedSkill.name}
               </span>
@@ -4798,7 +4811,7 @@ const Composer = memo(function Composer({
                 type="button"
                 aria-label={t`Remove skill ${selectedSkill.name}`}
                 onClick={() => setSelectedSkill(null)}
-                className="text-[#967E79] hover:text-[#EEECEC]"
+                className="text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
               >
                 <X size={12} strokeWidth={2} />
               </button>
@@ -4809,7 +4822,7 @@ const Composer = memo(function Composer({
               key={mentionChipKey(mention)}
               data-testid="mention-chip"
               data-mention-kind={mention.kind}
-              className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#231A18] px-2.5 py-1 text-[13px] text-[#EEECEC]"
+              className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[var(--rk-n75)] px-2.5 py-1 text-[13px] text-[var(--rk-n08)]"
             >
               <MentionChipIcon mention={mention} />
               <span dir="auto" className="truncate">
@@ -4825,7 +4838,7 @@ const Composer = memo(function Composer({
                     ),
                   )
                 }
-                className="text-[#967E79] hover:text-[#EEECEC]"
+                className="text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
               >
                 <X size={12} strokeWidth={2} />
               </button>
@@ -4894,7 +4907,7 @@ const Composer = memo(function Composer({
             autoComplete="off"
             dir="auto"
             rows={1}
-            className="max-h-32 min-h-[24px] min-w-[8rem] flex-1 resize-none overflow-y-auto bg-transparent py-0.5 text-[15.5px] leading-6 text-[#EBE8E8] outline-none disabled:opacity-40"
+            className="max-h-32 min-h-[24px] min-w-[8rem] flex-1 resize-none overflow-y-auto bg-transparent py-0.5 text-[15.5px] leading-6 text-[var(--rk-n09)] outline-none disabled:opacity-40"
           />
         </div>
         {running ? (
@@ -4904,7 +4917,7 @@ const Composer = memo(function Composer({
               aria-label={t`Send`}
               disabled={sending || !canSend || disabled}
               onClick={send}
-              className="grid h-10 w-10 place-items-center rounded-full bg-[#F1EFEF] text-[#1D1614] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B1A4A2] disabled:opacity-50"
+              className="grid h-10 w-10 place-items-center rounded-full bg-[var(--rk-n06)] text-[var(--rk-n83)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rk-n23)] disabled:opacity-50"
             >
               <ArrowUp size={18} strokeWidth={2} />
             </button>
@@ -4913,7 +4926,7 @@ const Composer = memo(function Composer({
               aria-label={t`Stop`}
               disabled={sending}
               onClick={() => void onStop()}
-              className="grid h-10 w-10 place-items-center rounded-full border border-[#40312E] text-[#D0C8C7] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B1A4A2] disabled:opacity-50"
+              className="grid h-10 w-10 place-items-center rounded-full border border-[var(--rk-n47)] text-[var(--rk-n18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rk-n23)] disabled:opacity-50"
             >
               <Square size={12} strokeWidth={0} fill="currentColor" />
             </button>
@@ -4924,7 +4937,7 @@ const Composer = memo(function Composer({
             aria-label={t`Send`}
             disabled={sending || !canSend || disabled}
             onClick={send}
-            className="grid h-9 w-9 place-items-center rounded-full bg-[#F1EFEF] text-[#1D1614] disabled:opacity-50"
+            className="grid h-9 w-9 place-items-center rounded-full bg-[var(--rk-n06)] text-[var(--rk-n83)] disabled:opacity-50"
           >
             <ArrowUp size={18} strokeWidth={2} />
           </button>
@@ -4947,21 +4960,21 @@ function slashActionLabel(id: SlashActionId) {
 
 function MentionOptionIcon({ mention }: { mention: ComposerMention }) {
   if (mention.kind === "routine") {
-    return <Clock size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-[#A69794]" />;
+    return <Clock size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-[var(--rk-n25)]" />;
   }
   if (mention.kind === "connector") {
-    return <Puzzle size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-[#A69794]" />;
+    return <Puzzle size={16} strokeWidth={1.7} className="mt-0.5 shrink-0 text-[var(--rk-n25)]" />;
   }
   if (mention.kind === "group") {
     return (
-      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#332725] text-[9px] text-[#D0C8C7]">
+      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[var(--rk-n57)] text-[9px] text-[var(--rk-n18)]">
         G
       </span>
     );
   }
   if (mention.kind === "everyone") {
     return (
-      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#332725] text-[9px] text-[#D0C8C7]">
+      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[var(--rk-n57)] text-[9px] text-[var(--rk-n18)]">
         @
       </span>
     );
@@ -4971,14 +4984,14 @@ function MentionOptionIcon({ mention }: { mention: ComposerMention }) {
 
 function MentionChipIcon({ mention }: { mention: ComposerMention }) {
   if (mention.kind === "routine") {
-    return <Clock size={13} strokeWidth={1.7} className="shrink-0 text-[#BAAEAC]" />;
+    return <Clock size={13} strokeWidth={1.7} className="shrink-0 text-[var(--rk-n21)]" />;
   }
   if (mention.kind === "connector") {
-    return <Puzzle size={13} strokeWidth={1.7} className="shrink-0 text-[#BAAEAC]" />;
+    return <Puzzle size={13} strokeWidth={1.7} className="shrink-0 text-[var(--rk-n21)]" />;
   }
   if (mention.kind === "group" || mention.kind === "everyone") {
     return (
-      <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#332725] text-[9px] text-[#D0C8C7]">
+      <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[var(--rk-n57)] text-[9px] text-[var(--rk-n18)]">
         {mention.kind === "group" ? "G" : "@"}
       </span>
     );
@@ -5022,13 +5035,13 @@ function MessageHoverActions({
     <MessageHoverMetadata createdAt={message.createdAt}>
       <div
         data-testid="message-hover-actions"
-        className="flex items-center gap-0.5 rounded-full bg-[#231A18] p-0.5 shadow-[0_1px_4px_rgba(0,0,0,0.45)]"
+        className="flex items-center gap-0.5 rounded-full bg-[var(--rk-n75)] p-0.5 shadow-[0_1px_4px_rgba(0,0,0,0.45)]"
       >
         <button
           type="button"
           aria-label={t`Reply`}
           onClick={() => onReply(message)}
-          className="grid h-7 w-7 place-items-center rounded-full text-[#D0C8C7] hover:bg-[#342725] hover:text-[#EEECEC]"
+          className="grid h-7 w-7 place-items-center rounded-full text-[var(--rk-n18)] hover:bg-[var(--rk-n56)] hover:text-[var(--rk-n08)]"
         >
           <Reply size={14} strokeWidth={1.8} />
         </button>
@@ -5038,8 +5051,8 @@ function MessageHoverActions({
             aria-label={message.thumbsUp ? t`Remove thumbs-up` : t`Add thumbs-up`}
             aria-pressed={Boolean(message.thumbsUp)}
             onClick={() => void onReact(message)}
-            className={`grid h-7 w-7 place-items-center rounded-full hover:bg-[#342725] hover:text-[#EEECEC] ${
-              message.thumbsUp ? "text-[#E9C46A]" : "text-[#D0C8C7]"
+            className={`grid h-7 w-7 place-items-center rounded-full hover:bg-[var(--rk-n56)] hover:text-[var(--rk-n08)] ${
+              message.thumbsUp ? "text-[#E9C46A]" : "text-[var(--rk-n18)]"
             }`}
           >
             <ThumbsUp size={14} strokeWidth={1.8} />
@@ -5049,7 +5062,7 @@ function MessageHoverActions({
           type="button"
           aria-label={t`Copy`}
           onClick={copyMessage}
-          className="grid h-7 w-7 place-items-center rounded-full text-[#D0C8C7] hover:bg-[#342725] hover:text-[#EEECEC]"
+          className="grid h-7 w-7 place-items-center rounded-full text-[var(--rk-n18)] hover:bg-[var(--rk-n56)] hover:text-[var(--rk-n08)]"
         >
           <Copy size={14} strokeWidth={1.8} />
         </button>
@@ -5161,7 +5174,7 @@ const MessageView = memo(function MessageView({
   const messageContext = (
     <>
       {speakerName ? (
-        <div className="mb-1 text-[12.5px] font-medium text-[#967E79]" dir="auto">
+        <div className="mb-1 text-[12.5px] font-medium text-[var(--rk-n29)]" dir="auto">
           {speakerName}
         </div>
       ) : null}
@@ -5171,7 +5184,7 @@ const MessageView = memo(function MessageView({
           data-testid="reply-parent-preview"
           aria-label={t`Jump to replied message`}
           onClick={() => onJumpToMessage?.(parentJumpId)}
-          className="mb-2 block max-w-[74%] truncate rounded-[14px] border border-[#2F2321] bg-[#171211] px-3 py-2 text-start text-[12.5px] text-[#967E79] hover:border-[#41312E] hover:text-[#D0C8C7]"
+          className="mb-2 block max-w-[74%] truncate rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n90)] px-3 py-2 text-start text-[12.5px] text-[var(--rk-n29)] hover:border-[var(--rk-n46)] hover:text-[var(--rk-n18)]"
           dir="auto"
         >
           {replyPreview ? previewMessageText(replyPreview) : t`Earlier message`}
@@ -5185,7 +5198,7 @@ const MessageView = memo(function MessageView({
         {messageContext}
         <div className="flex justify-start">
           <div
-            className="max-w-[74%] space-y-2.5 rounded-[20px] bg-[#201817] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#E3DFDE]"
+            className="max-w-[74%] space-y-2.5 rounded-[20px] bg-[var(--rk-n80)] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[var(--rk-n15)]"
             dir="auto"
           >
             {message.blocks.map((block, i) => {
@@ -5218,7 +5231,7 @@ const MessageView = memo(function MessageView({
                 type="button"
                 aria-label={speaking ? t`Stop speaking` : t`Speak this reply`}
                 onClick={onSpeak}
-                className="text-[12px] text-[#967E79] hover:text-[#EEECEC]"
+                className="text-[12px] text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
               >
                 {speaking ? <Trans>Stop</Trans> : <Trans>Speak</Trans>}
               </button>
@@ -5238,7 +5251,7 @@ const MessageView = memo(function MessageView({
           return (
             <div
               key={i}
-              className="flex items-center justify-center gap-2 py-1 text-[13.5px] text-[#967E79]"
+              className="flex items-center justify-center gap-2 py-1 text-[13.5px] text-[var(--rk-n29)]"
             >
               <span>
                 ↪ {to} ← {from}
@@ -5267,7 +5280,7 @@ const MessageView = memo(function MessageView({
           return (
             <div
               key={i}
-              className="flex items-center justify-center gap-2 py-1 text-[13.5px] text-[#967E79]"
+              className="flex items-center justify-center gap-2 py-1 text-[13.5px] text-[var(--rk-n29)]"
             >
               <span>
                 {providerLabel(block.provider)} · {block.fromLabel}: {block.text}
@@ -5279,7 +5292,7 @@ const MessageView = memo(function MessageView({
           return (
             <div
               key={i}
-              className="flex items-center justify-center gap-2 py-1 text-[13.5px] text-[#967E79]"
+              className="flex items-center justify-center gap-2 py-1 text-[13.5px] text-[var(--rk-n29)]"
             >
               <span className="text-[#E65707]">◷</span>
               <span>{block.text}</span>
@@ -5290,7 +5303,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-start">
               <div
-                className="max-w-[78%] rounded-[20px] bg-[#201817] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#E3DFDE]"
+                className="max-w-[78%] rounded-[20px] bg-[var(--rk-n80)] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[var(--rk-n15)]"
                 dir="auto"
               >
                 <ChatMarkdown streaming>{block.text}</ChatMarkdown>
@@ -5302,7 +5315,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-start">
               <div
-                className="max-w-[74%] space-y-1.5 rounded-[20px] bg-[#201817] px-[18px] py-3"
+                className="max-w-[74%] space-y-1.5 rounded-[20px] bg-[var(--rk-n80)] px-[18px] py-3"
                 dir="ltr"
               >
                 <ToolActivityDisclosure
@@ -5324,10 +5337,10 @@ const MessageView = memo(function MessageView({
           return (
             <div
               key={i}
-              className="w-[min(420px,90%)] rounded-[18px] border border-[#2B201E] bg-[#1D1614] px-[18px] py-4"
+              className="w-[min(420px,90%)] rounded-[18px] border border-[var(--rk-n66)] bg-[var(--rk-n83)] px-[18px] py-4"
             >
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[15px] font-medium text-[#EEECEC]" dir="auto">
+                <span className="text-[15px] font-medium text-[var(--rk-n08)]" dir="auto">
                   {block.name}
                 </span>
                 <span
@@ -5345,9 +5358,9 @@ const MessageView = memo(function MessageView({
                   {running ? <Trans>subagent</Trans> : block.status}
                 </span>
               </div>
-              <div className="mt-2 text-[13.5px] text-[#967E79]">{block.task}</div>
+              <div className="mt-2 text-[13.5px] text-[var(--rk-n29)]">{block.task}</div>
               {block.progress || block.result ? (
-                <div className="mt-2.5 text-[14.5px] leading-[1.5] text-[#B2A5A3]">
+                <div className="mt-2.5 text-[14.5px] leading-[1.5] text-[var(--rk-n22)]">
                   <ChatMarkdown streaming={running}>
                     {block.result || block.progress || ""}
                   </ChatMarkdown>
@@ -5364,10 +5377,10 @@ const MessageView = memo(function MessageView({
               type="button"
               disabled={removed}
               onClick={() => onOpenBot(block.botId)}
-              className="w-[min(340px,90%)] rounded-[18px] border border-[#2B201E] bg-[#1D1614] px-[18px] py-4 text-start disabled:opacity-60"
+              className="w-[min(340px,90%)] rounded-[18px] border border-[var(--rk-n66)] bg-[var(--rk-n83)] px-[18px] py-4 text-start disabled:opacity-60"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[15px] font-medium text-[#EEECEC]" dir="auto">
+                <span className="text-[15px] font-medium text-[var(--rk-n08)]" dir="auto">
                   {block.name}
                 </span>
                 <span
@@ -5386,7 +5399,7 @@ const MessageView = memo(function MessageView({
                   )}
                 </span>
               </div>
-              <div className="mt-2 text-[14.5px] leading-[1.5] text-[#B2A5A3]" dir="auto">
+              <div className="mt-2 text-[14.5px] leading-[1.5] text-[var(--rk-n22)]" dir="auto">
                 {removed
                   ? block.status === "archived"
                     ? t`Archived. Chat, memory, and files kept.`
@@ -5465,7 +5478,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-end">
               <div
-                className="max-w-[78%] whitespace-pre-wrap rounded-[20px] bg-[#F1EFEF] px-[18px] py-3 text-[15.5px] leading-[1.45] text-[#1E1716]"
+                className="max-w-[78%] whitespace-pre-wrap rounded-[20px] bg-[var(--rk-n06)] px-[18px] py-3 text-[15.5px] leading-[1.45] text-[var(--rk-n81)]"
                 dir="auto"
               >
                 {block.text}
@@ -5477,7 +5490,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-start">
               <div
-                className="max-w-[74%] rounded-[20px] bg-[#201817] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#E3DFDE]"
+                className="max-w-[74%] rounded-[20px] bg-[var(--rk-n80)] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[var(--rk-n15)]"
                 dir="auto"
               >
                 <ChatMarkdown>{block.text}</ChatMarkdown>
@@ -5486,7 +5499,7 @@ const MessageView = memo(function MessageView({
                     type="button"
                     aria-label={speaking ? t`Stop speaking` : t`Speak this reply`}
                     onClick={onSpeak}
-                    className="mt-2 text-[12px] text-[#967E79] hover:text-[#EEECEC]"
+                    className="mt-2 text-[12px] text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
                   >
                     {speaking ? <Trans>Stop</Trans> : <Trans>Speak</Trans>}
                   </button>
@@ -5498,12 +5511,12 @@ const MessageView = memo(function MessageView({
         if (block.kind === "card") {
           return (
             <div key={i} className="flex justify-start">
-              <div className="flex flex-col gap-2 rounded-[20px] bg-[#201817] px-5 py-4">
+              <div className="flex flex-col gap-2 rounded-[20px] bg-[var(--rk-n80)] px-5 py-4">
                 {block.lines.map((line) => (
                   <div key={line.k} className="flex items-baseline gap-2.5 text-[15px]">
                     <span className="text-[#30A24B]">✓</span>
-                    <span className="font-semibold text-white">{line.k}</span>
-                    <span className="text-[#967E79]">→</span>
+                    <span className="font-semibold text-[var(--rk-ink)]">{line.k}</span>
+                    <span className="text-[var(--rk-n29)]">→</span>
                     <span>{line.v}</span>
                   </div>
                 ))}
@@ -5532,17 +5545,17 @@ const MessageView = memo(function MessageView({
           return (
             <div
               key={i}
-              className="w-[340px] rounded-[18px] border border-[#2B201E] bg-[#1D1614] px-[18px] py-4"
+              className="w-[340px] rounded-[18px] border border-[var(--rk-n66)] bg-[var(--rk-n83)] px-[18px] py-4"
             >
               <div className="flex items-center justify-between">
-                <span className="text-[15px] font-medium text-[#EEECEC]">
+                <span className="text-[15px] font-medium text-[var(--rk-n08)]">
                   <Trans>Computer</Trans>
                 </span>
                 <span className="rounded-full bg-[rgba(48,162,75,.14)] px-[11px] py-1 text-[13px] text-[#4ECB71]">
                   {block.state}
                 </span>
               </div>
-              <div className="my-2.5 text-[14.5px] leading-[1.5] text-[#B2A5A3]">
+              <div className="my-2.5 text-[14.5px] leading-[1.5] text-[var(--rk-n22)]">
                 <ChatMarkdown>{block.text}</ChatMarkdown>
               </div>
             </div>
@@ -5563,7 +5576,7 @@ function ComputerModePicker({
 }) {
   return (
     <div className="mt-4">
-      <div className="text-[14px] text-[#967E79]">
+      <div className="text-[14px] text-[var(--rk-n29)]">
         <Trans>Computer</Trans>
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2">
@@ -5575,8 +5588,8 @@ function ComputerModePicker({
             onClick={() => onChange(mode)}
             className={`rounded-[11px] border px-3.5 py-3 text-[14px] capitalize ${
               value === mode
-                ? "border-[#7B6561] bg-[#201817] text-[#EEECEC]"
-                : "border-[#2F2321] text-[#967E79]"
+                ? "border-[var(--rk-n35)] bg-[var(--rk-n80)] text-[var(--rk-n08)]"
+                : "border-[var(--rk-n62)] text-[var(--rk-n29)]"
             }`}
           >
             {mode === "team" ? <Trans>Team</Trans> : <Trans>Private</Trans>}
@@ -5623,7 +5636,7 @@ function CreateBotForm({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <span className="text-[13.5px] text-[#967E79]">
+        <span className="text-[13.5px] text-[var(--rk-n29)]">
           <Trans>New bot</Trans>
         </span>
         <button type="button" aria-label={t`Cancel new bot`} onClick={onCancel}>
@@ -5631,31 +5644,35 @@ function CreateBotForm({
         </button>
       </div>
       {error ? (
-        <p role="alert" data-testid="create-bot-error" className="mb-3 text-[13px] text-[#EF4444]">
+        <p
+          role="alert"
+          data-testid="create-bot-error"
+          className="mb-3 text-[13px] text-[var(--rk-a14)]"
+        >
           {error}
         </p>
       ) : null}
-      <label className="mt-6 block text-[14px] text-[#967E79]">
+      <label className="mt-6 block text-[14px] text-[var(--rk-n29)]">
         <Trans>Name</Trans>
         <input
           value={name}
           maxLength={BOT_NAME_MAX_LENGTH}
           onChange={(e) => setName(e.target.value)}
           placeholder={t`Name this bot`}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
-      <label className="mt-4 block text-[14px] text-[#967E79]">
+      <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
         <Trans>Title</Trans>
         <input
           value={title}
           maxLength={BOT_TITLE_MAX_LENGTH}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t`Describe what this bot does`}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
-      <label className="mt-4 block text-[14px] text-[#967E79]">
+      <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
         <Trans>Description</Trans>
         <textarea
           value={description}
@@ -5663,7 +5680,7 @@ function CreateBotForm({
           onChange={(e) => setDescription(e.target.value)}
           placeholder={t`What this bot is for`}
           rows={4}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
       <ComputerModePicker value={computerMode} onChange={setComputerMode} />
@@ -5671,7 +5688,7 @@ function CreateBotForm({
         type="button"
         disabled={!name.trim() || submitting}
         onClick={() => void handleSubmit()}
-        className="mt-5 rounded-[11px] bg-[#F1EFEF] px-4 py-2 text-[#1D1614] disabled:opacity-40"
+        className="mt-5 rounded-[11px] bg-[var(--rk-n06)] px-4 py-2 text-[var(--rk-n83)] disabled:opacity-40"
       >
         {submitting ? <Trans>Creating…</Trans> : <Trans>Create</Trans>}
       </button>
@@ -5806,7 +5823,7 @@ function BotSettings({
           type="button"
           onClick={() => setPokemonPickerOpen(true)}
           title={t`Choose an avatar`}
-          className="rounded-full transition hover:scale-[1.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E0393E]"
+          className="rounded-full transition hover:scale-[1.06] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rk-a17)]"
         >
           <BotAvatar
             color={bot.color}
@@ -5830,37 +5847,37 @@ function BotSettings({
           />
         </Suspense>
       ) : null}
-      <label className="mt-6 block text-[14px] text-[#967E79]">
+      <label className="mt-6 block text-[14px] text-[var(--rk-n29)]">
         <Trans>Name</Trans>
         <input
           value={name}
           maxLength={BOT_NAME_MAX_LENGTH}
           onChange={(e) => setName(e.target.value)}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
-      <label className="mt-4 block text-[14px] text-[#967E79]">
+      <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
         <Trans>Title</Trans>
         <input
           value={title}
           maxLength={BOT_TITLE_MAX_LENGTH}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
-      <label className="mt-4 block text-[14px] text-[#967E79]">
+      <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
         <Trans>Description</Trans>
         <textarea
           value={description}
           maxLength={BOT_DESCRIPTION_MAX_LENGTH}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
-          className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+          className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
       <details data-testid="bot-settings-advanced" className="group mt-5">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14px] text-[#967E79]">
-          <span className="text-[#967E79]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14px] text-[var(--rk-n29)]">
+          <span className="text-[var(--rk-n29)]">
             <Trans>Advanced</Trans>
           </span>
           <span aria-hidden="true" className="transition-transform group-open:rotate-90">
@@ -5871,7 +5888,7 @@ function BotSettings({
         <Suspense fallback={null}>
           <ScratchpadSection botId={bot.id} />
         </Suspense>
-        <label className="mt-4 block text-[14px] text-[#967E79]">
+        <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
           <Trans>Model</Trans>
           <select
             value={modelKey}
@@ -5879,7 +5896,7 @@ function BotSettings({
               setModelKey(event.target.value);
               setThinkingLevel("");
             }}
-            className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+            className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
           >
             <option value="">
               {t`Space default`}
@@ -5898,12 +5915,12 @@ function BotSettings({
           </select>
         </label>
         {thinkingOptions.length ? (
-          <label className="mt-4 block text-[14px] text-[#967E79]">
+          <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
             <Trans>Thinking</Trans>
             <select
               value={thinkingLevel}
               onChange={(event) => setThinkingLevel(event.target.value)}
-              className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+              className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
             >
               <option value="">{t`Default (medium)`}</option>
               {thinkingOptions.map((level) => (
@@ -5915,7 +5932,7 @@ function BotSettings({
           </label>
         ) : null}
         {memoryProviderConfigured ? (
-          <div className="mt-4 text-[14px] text-[#967E79]">
+          <div className="mt-4 text-[14px] text-[var(--rk-n29)]">
             <Trans>Memory scope</Trans>
             <div className="mt-2 flex gap-2">
               {(
@@ -5932,8 +5949,8 @@ function BotSettings({
                   onClick={() => setMemoryScope(option.value)}
                   className={`flex-1 rounded-[11px] border px-3 py-2 text-[13px] ${
                     memoryScope === option.value
-                      ? "border-[#564744] bg-[#201817] text-[#EEECEC]"
-                      : "border-[#2F2321] text-[#967E79]"
+                      ? "border-[var(--rk-n42)] bg-[var(--rk-n80)] text-[var(--rk-n08)]"
+                      : "border-[var(--rk-n62)] text-[var(--rk-n29)]"
                   }`}
                 >
                   {option.label}
@@ -5942,7 +5959,7 @@ function BotSettings({
             </div>
           </div>
         ) : null}
-        <label className="mt-5 flex cursor-pointer items-center gap-3 text-[14px] text-[#D0C8C7]">
+        <label className="mt-5 flex cursor-pointer items-center gap-3 text-[14px] text-[var(--rk-n18)]">
           <input
             type="checkbox"
             checked={autoSpeak}
@@ -5951,12 +5968,12 @@ function BotSettings({
           <Trans>Read replies aloud</Trans>
         </label>
         {voices.length ? (
-          <label className="mt-4 block text-[14px] text-[#967E79]">
+          <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
             <Trans>Voice</Trans>
             <select
               value={voiceId}
               onChange={(event) => setVoiceId(event.target.value)}
-              className="mt-2 w-full rounded-[11px] border border-[#2F2321] bg-transparent px-3.5 py-3 text-[#EEECEC]"
+              className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
             >
               <option value="">{t`Account default`}</option>
               {voices.map((voice) => (
@@ -5968,7 +5985,7 @@ function BotSettings({
           </label>
         ) : null}
       </details>
-      {error ? <p className="mt-2 text-[13px] text-[#EF4444]">{error}</p> : null}
+      {error ? <p className="mt-2 text-[13px] text-[var(--rk-a14)]">{error}</p> : null}
       <div className="mt-5 flex flex-col items-start gap-3">
         <button
           type="button"
@@ -6001,18 +6018,18 @@ function BotSettings({
               .catch((err) => setError(err instanceof Error ? err.message : t`Could not save`))
               .finally(() => setSaving(false));
           }}
-          className="rounded-[11px] bg-[#F1EFEF] px-4 py-2 text-[#1D1614] disabled:opacity-40"
+          className="rounded-[11px] bg-[var(--rk-n06)] px-4 py-2 text-[var(--rk-n83)] disabled:opacity-40"
         >
           <Trans>Save</Trans>
         </button>
         <button
           type="button"
           onClick={() => void onExport()}
-          className="text-[14px] text-[#967E79]"
+          className="text-[14px] text-[var(--rk-n29)]"
         >
           <Trans>Export</Trans>
         </button>
-        <button type="button" onClick={onClear} className="text-[14px] text-[#EF4444]">
+        <button type="button" onClick={onClear} className="text-[14px] text-[var(--rk-a14)]">
           <Trans>Clear conversation</Trans>
         </button>
         <ComputerMaintenanceActions
@@ -6097,16 +6114,16 @@ function NewSpaceDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-space-title"
-        className="w-full max-w-[420px] border border-[#3F302D] p-5"
+        className="w-full max-w-[420px] border border-[var(--rk-n48)] p-5"
         onPointerDown={(event) => event.stopPropagation()}
       >
         <div className="flex items-center gap-2.5">
           <Lock size={17} strokeWidth={1.8} className="text-[#A78BFA]" aria-hidden="true" />
-          <h2 id="new-space-title" className="text-[17px] font-medium text-[#F2F1F1]">
+          <h2 id="new-space-title" className="text-[17px] font-medium text-[var(--rk-n04)]">
             <Trans>New space</Trans>
           </h2>
         </div>
-        <label className="mt-4 block text-[13.5px] text-[#D0C8C7]">
+        <label className="mt-4 block text-[13.5px] text-[var(--rk-n18)]">
           <Trans>Name</Trans>
           <input
             maxLength={60}
@@ -6117,10 +6134,10 @@ function NewSpaceDialog({
               if (event.key === "Escape" && !saving) onCancel();
             }}
             placeholder={t`Customer support`}
-            className="mt-2 w-full rounded-[11px] border border-[#3F302D] bg-[#140F0E] px-3.5 py-2.5 text-[14.5px] text-[#EEECEC] outline-none focus:border-[#76615D]"
+            className="mt-2 w-full rounded-[11px] border border-[var(--rk-n48)] bg-[var(--rk-n93)] px-3.5 py-2.5 text-[14.5px] text-[var(--rk-n08)] outline-none focus:border-[var(--rk-n37)]"
           />
         </label>
-        {error ? <p className="mt-3 text-[13.5px] text-[#EF4444]">{error}</p> : null}
+        {error ? <p className="mt-3 text-[13.5px] text-[var(--rk-a14)]">{error}</p> : null}
         <div className="mt-5 flex justify-end gap-2.5">
           <BuiButton disabled={saving} onClick={onCancel}>
             <Trans>Cancel</Trans>
@@ -6168,7 +6185,7 @@ function NewBotSectionDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-bot-section-title"
-        className="w-full max-w-[420px] rounded-[18px] border border-[#3F302D] bg-[#201817] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
+        className="w-full max-w-[420px] rounded-[18px] border border-[var(--rk-n48)] bg-[var(--rk-n80)] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
         onPointerDown={(event) => event.stopPropagation()}
         onSubmit={(event) => {
           event.preventDefault();
@@ -6182,35 +6199,35 @@ function NewBotSectionDialog({
           });
         }}
       >
-        <h2 id="new-bot-section-title" className="text-[17px] font-medium text-[#F2F1F1]">
+        <h2 id="new-bot-section-title" className="text-[17px] font-medium text-[var(--rk-n04)]">
           <Trans>New section</Trans>
         </h2>
-        <p className="mt-2 text-[14px] leading-6 text-[#A69794]">
+        <p className="mt-2 text-[14px] leading-6 text-[var(--rk-n25)]">
           <Trans>Create a section and move {bot.name} into it.</Trans>
         </p>
-        <label className="mt-4 block text-[13.5px] text-[#D0C8C7]">
+        <label className="mt-4 block text-[13.5px] text-[var(--rk-n18)]">
           <Trans>Name</Trans>
           <input
             maxLength={60}
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="mt-2 w-full rounded-[11px] border border-[#3F302D] bg-[#140F0E] px-3.5 py-2.5 text-[14.5px] text-[#EEECEC] outline-none focus:border-[#76615D]"
+            className="mt-2 w-full rounded-[11px] border border-[var(--rk-n48)] bg-[var(--rk-n93)] px-3.5 py-2.5 text-[14.5px] text-[var(--rk-n08)] outline-none focus:border-[var(--rk-n37)]"
           />
         </label>
-        {error ? <p className="mt-3 text-[13.5px] text-[#EF4444]">{error}</p> : null}
+        {error ? <p className="mt-3 text-[13.5px] text-[var(--rk-a14)]">{error}</p> : null}
         <div className="mt-5 flex justify-end gap-2.5">
           <button
             type="button"
             disabled={saving}
             onClick={onCancel}
-            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[#D0C8C7] hover:bg-[#322624] disabled:opacity-40"
+            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[var(--rk-n18)] hover:bg-[var(--rk-n58)] disabled:opacity-40"
           >
             <Trans>Cancel</Trans>
           </button>
           <button
             type="submit"
             disabled={saving || !name.trim()}
-            className="rounded-[10px] bg-[#F1EFEF] px-3.5 py-2 text-[14px] font-medium text-[#1D1614] disabled:opacity-40"
+            className="rounded-[10px] bg-[var(--rk-n06)] px-3.5 py-2 text-[14px] font-medium text-[var(--rk-n83)] disabled:opacity-40"
           >
             {saving ? <Trans>Creating…</Trans> : <Trans>Create</Trans>}
           </button>
@@ -6254,28 +6271,28 @@ function ClearConversationDialog({
         aria-modal="true"
         aria-labelledby="clear-conversation-title"
         aria-describedby="clear-conversation-description"
-        className="w-full max-w-[420px] rounded-[18px] border border-[#3F302D] bg-[#201817] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
+        className="w-full max-w-[420px] rounded-[18px] border border-[var(--rk-n48)] bg-[var(--rk-n80)] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <h2 id="clear-conversation-title" className="text-[17px] font-medium text-[#F2F1F1]">
+        <h2 id="clear-conversation-title" className="text-[17px] font-medium text-[var(--rk-n04)]">
           <Trans>Clear {bot.name}’s conversation?</Trans>
         </h2>
         <p
           id="clear-conversation-description"
-          className="mt-2 text-[14px] leading-6 text-[#A69794]"
+          className="mt-2 text-[14px] leading-6 text-[var(--rk-n25)]"
         >
           <Trans>
             This permanently removes every message and stops current work. The chat remains
             available.
           </Trans>
         </p>
-        {error ? <p className="mt-3 text-[13.5px] text-[#EF4444]">{error}</p> : null}
+        {error ? <p className="mt-3 text-[13.5px] text-[var(--rk-a14)]">{error}</p> : null}
         <div className="mt-5 flex justify-end gap-2.5">
           <button
             type="button"
             disabled={clearing}
             onClick={onCancel}
-            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[#D0C8C7] hover:bg-[#322624] disabled:opacity-40"
+            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[var(--rk-n18)] hover:bg-[var(--rk-n58)] disabled:opacity-40"
           >
             <Trans>Cancel</Trans>
           </button>
@@ -6290,7 +6307,7 @@ function ClearConversationDialog({
                 setClearing(false);
               });
             }}
-            className="rounded-[10px] bg-[#DC2626] px-3.5 py-2 text-[14px] font-medium text-white disabled:opacity-40"
+            className="rounded-[10px] bg-[var(--rk-a18)] px-3.5 py-2 text-[14px] font-medium text-white disabled:opacity-40"
           >
             {clearing ? <Trans>Clearing…</Trans> : <Trans>Clear</Trans>}
           </button>
@@ -6335,23 +6352,23 @@ function DeleteBotDialog({
         aria-modal="true"
         aria-labelledby="delete-bot-title"
         aria-describedby="delete-bot-description"
-        className="w-full max-w-[420px] rounded-[18px] border border-[#3F302D] bg-[#201817] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
+        className="w-full max-w-[420px] rounded-[18px] border border-[var(--rk-n48)] bg-[var(--rk-n80)] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <h2 id="delete-bot-title" className="text-[17px] font-medium text-[#F2F1F1]">
+        <h2 id="delete-bot-title" className="text-[17px] font-medium text-[var(--rk-n04)]">
           <Trans>Delete {bot.name}?</Trans>
         </h2>
-        <p id="delete-bot-description" className="mt-2 text-[14px] leading-6 text-[#A69794]">
+        <p id="delete-bot-description" className="mt-2 text-[14px] leading-6 text-[var(--rk-n25)]">
           <Trans>
             Its conversation, files, and routines will be permanently deleted. Bots it created stay
             in your list.
           </Trans>
         </p>
         <fieldset className="mt-4 space-y-2">
-          <legend className="mb-2 text-[13.5px] text-[#D0C8C7]">
+          <legend className="mb-2 text-[13.5px] text-[var(--rk-n18)]">
             <Trans>What about its memories?</Trans>
           </legend>
-          <label className="flex cursor-pointer gap-3 rounded-[11px] border border-[#3F302D] p-3">
+          <label className="flex cursor-pointer gap-3 rounded-[11px] border border-[var(--rk-n48)] p-3">
             <input
               type="radio"
               name="delete-memory"
@@ -6359,15 +6376,15 @@ function DeleteBotDialog({
               onChange={() => setDeleteMemories(false)}
             />
             <span>
-              <span className="block text-[14px] text-[#EEECEC]">
+              <span className="block text-[14px] text-[var(--rk-n08)]">
                 <Trans>Keep memories</Trans>
               </span>
-              <span className="mt-0.5 block text-[12.5px] text-[#967E79]">
+              <span className="mt-0.5 block text-[12.5px] text-[var(--rk-n29)]">
                 <Trans>Move them to your shared memory.</Trans>
               </span>
             </span>
           </label>
-          <label className="flex cursor-pointer gap-3 rounded-[11px] border border-[#3F302D] p-3">
+          <label className="flex cursor-pointer gap-3 rounded-[11px] border border-[var(--rk-n48)] p-3">
             <input
               type="radio"
               name="delete-memory"
@@ -6375,22 +6392,22 @@ function DeleteBotDialog({
               onChange={() => setDeleteMemories(true)}
             />
             <span>
-              <span className="block text-[14px] text-[#EEECEC]">
+              <span className="block text-[14px] text-[var(--rk-n08)]">
                 <Trans>Delete memories too</Trans>
               </span>
-              <span className="mt-0.5 block text-[12.5px] text-[#967E79]">
+              <span className="mt-0.5 block text-[12.5px] text-[var(--rk-n29)]">
                 <Trans>This cannot be undone.</Trans>
               </span>
             </span>
           </label>
         </fieldset>
-        {error ? <p className="mt-3 text-[13.5px] text-[#EF4444]">{error}</p> : null}
+        {error ? <p className="mt-3 text-[13.5px] text-[var(--rk-a14)]">{error}</p> : null}
         <div className="mt-5 flex justify-end gap-2.5">
           <button
             type="button"
             disabled={deleting}
             onClick={onCancel}
-            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[#D0C8C7] hover:bg-[#322624] disabled:opacity-40"
+            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[var(--rk-n18)] hover:bg-[var(--rk-n58)] disabled:opacity-40"
           >
             <Trans>Cancel</Trans>
           </button>
@@ -6405,7 +6422,7 @@ function DeleteBotDialog({
                 setDeleting(false);
               });
             }}
-            className="rounded-[10px] bg-[#DC2626] px-3.5 py-2 text-[14px] font-medium text-white disabled:opacity-40"
+            className="rounded-[10px] bg-[var(--rk-a18)] px-3.5 py-2 text-[14px] font-medium text-white disabled:opacity-40"
           >
             {deleting ? <Trans>Deleting…</Trans> : <Trans>Delete</Trans>}
           </button>
@@ -6451,22 +6468,22 @@ function DeleteItemDialog({
         aria-modal="true"
         aria-labelledby="delete-item-title"
         aria-describedby="delete-item-description"
-        className="w-full max-w-[420px] rounded-[18px] border border-[#3F302D] bg-[#201817] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
+        className="w-full max-w-[420px] rounded-[18px] border border-[var(--rk-n48)] bg-[var(--rk-n80)] p-5 shadow-[0_24px_70px_rgba(0,0,0,.65)]"
         onPointerDown={(event) => event.stopPropagation()}
       >
-        <h2 id="delete-item-title" className="text-[17px] font-medium text-[#F2F1F1]">
+        <h2 id="delete-item-title" className="text-[17px] font-medium text-[var(--rk-n04)]">
           <Trans>Delete {item.name}?</Trans>
         </h2>
-        <p id="delete-item-description" className="mt-2 text-[14px] leading-6 text-[#A69794]">
+        <p id="delete-item-description" className="mt-2 text-[14px] leading-6 text-[var(--rk-n25)]">
           <Trans>This cannot be undone.</Trans>
         </p>
-        {error ? <p className="mt-3 text-[13.5px] text-[#EF4444]">{error}</p> : null}
+        {error ? <p className="mt-3 text-[13.5px] text-[var(--rk-a14)]">{error}</p> : null}
         <div className="mt-5 flex justify-end gap-2.5">
           <button
             type="button"
             disabled={deleting}
             onClick={onCancel}
-            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[#D0C8C7] hover:bg-[#322624] disabled:opacity-40"
+            className="rounded-[10px] px-3.5 py-2 text-[14px] text-[var(--rk-n18)] hover:bg-[var(--rk-n58)] disabled:opacity-40"
           >
             <Trans>Cancel</Trans>
           </button>
@@ -6487,7 +6504,7 @@ function DeleteItemDialog({
                 setDeleting(false);
               });
             }}
-            className="rounded-[10px] bg-[#DC2626] px-3.5 py-2 text-[14px] font-medium text-white disabled:opacity-40"
+            className="rounded-[10px] bg-[var(--rk-a18)] px-3.5 py-2 text-[14px] font-medium text-white disabled:opacity-40"
           >
             {deleting ? <Trans>Deleting…</Trans> : <Trans>Delete</Trans>}
           </button>
@@ -6567,10 +6584,10 @@ function ChoiceCard({
 
   return (
     <div className="flex justify-start">
-      <div className="w-[min(420px,80%)] rounded-[20px] bg-[#201817] px-[18px] py-[14px]">
-        <div className="text-[15.5px] text-[#E3DFDE]">{block.question}</div>
+      <div className="w-[min(420px,80%)] rounded-[20px] bg-[var(--rk-n80)] px-[18px] py-[14px]">
+        <div className="text-[15.5px] text-[var(--rk-n15)]">{block.question}</div>
         {block.subtitle ? (
-          <div className="mt-0.5 text-[13px] text-[#967E79]">{block.subtitle}</div>
+          <div className="mt-0.5 text-[13px] text-[var(--rk-n29)]">{block.subtitle}</div>
         ) : null}
         <div className="mt-3 space-y-1.5">
           {block.options
@@ -6581,21 +6598,23 @@ function ChoiceCard({
                 type="button"
                 disabled={Boolean(block.answerId) || pending}
                 onClick={() => void choose(option.id)}
-                className={`flex w-full items-center gap-3 rounded-[12px] border border-[#342725] px-3.5 py-3 text-start disabled:opacity-60 ${block.answerId ? "bg-[#271D1B]" : "bg-[#1B1514] hover:bg-[#2A201E]"}`}
+                className={`flex w-full items-center gap-3 rounded-[12px] border border-[var(--rk-n56)] px-3.5 py-3 text-start disabled:opacity-60 ${block.answerId ? "bg-[var(--rk-n71)]" : "bg-[var(--rk-n85)] hover:bg-[var(--rk-n67)]"}`}
               >
-                <span className="grid h-[24px] w-[24px] place-items-center rounded-[7px] bg-[#2B211F] text-[12.5px] text-[#A69794]">
+                <span className="grid h-[24px] w-[24px] place-items-center rounded-[7px] bg-[var(--rk-n65)] text-[12.5px] text-[var(--rk-n25)]">
                   {option.letter}
                 </span>
                 <span
-                  className={`flex-1 text-[15px] ${block.answerId ? "text-[#967E79]" : "text-[#EEECEC]"}`}
+                  className={`flex-1 text-[15px] ${block.answerId ? "text-[var(--rk-n29)]" : "text-[var(--rk-n08)]"}`}
                 >
                   {option.label}
                 </span>
-                {block.answerId === option.id ? <span className="text-[#C2B9B7]">✓</span> : null}
+                {block.answerId === option.id ? (
+                  <span className="text-[var(--rk-n19)]">✓</span>
+                ) : null}
               </button>
             ))}
         </div>
-        {error ? <p className="mt-2 text-xs text-[#F07178]">{error}</p> : null}
+        {error ? <p className="mt-2 text-xs text-[var(--rk-a09)]">{error}</p> : null}
       </div>
     </div>
   );
@@ -6668,10 +6687,10 @@ function AppConnectCard({
           <img
             src={block.logo}
             alt=""
-            className="h-10 w-10 rounded-[10px] bg-white object-contain p-1"
+            className="h-10 w-10 rounded-[10px] bg-[var(--rk-main)] object-contain p-1"
           />
         ) : (
-          <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-[#6A3032] text-[15px] text-[#FFE2E3]">
+          <span className="grid h-10 w-10 place-items-center rounded-[10px] bg-[var(--rk-a21)] text-[15px] text-[var(--rk-a01)]">
             {block.name.slice(0, 1).toUpperCase()}
           </span>
         )}
@@ -6691,7 +6710,7 @@ function AppConnectCard({
           </BuiButton>
         )}
       </div>
-      {error ? <p className="mt-2 text-xs text-[#F07178]">{error}</p> : null}
+      {error ? <p className="mt-2 text-xs text-[var(--rk-a09)]">{error}</p> : null}
     </BuiCard>
   );
 }
@@ -6749,21 +6768,21 @@ function ChartCanvas({
   }, [spec, data, width, height, t]);
   if (error)
     return (
-      <div className="text-[13px] text-[#F3A2AA]">
+      <div className="text-[13px] text-[var(--rk-a04)]">
         <Trans>Chart failed to render: {error}</Trans>
       </div>
     );
   return (
-    <div className="text-[#D0C8C7]">
+    <div className="text-[var(--rk-n18)]">
       {meta.title ? (
-        <div className="mb-1 text-[14.5px] font-semibold text-[#EEECEC]">{meta.title}</div>
+        <div className="mb-1 text-[14.5px] font-semibold text-[var(--rk-n08)]">{meta.title}</div>
       ) : null}
       {meta.swatches.length > 0 ? (
         <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1">
           {meta.swatches.map((swatch) => (
             <span
               key={swatch.label}
-              className="flex items-center gap-1.5 text-[12px] text-[#B1A4A2]"
+              className="flex items-center gap-1.5 text-[12px] text-[var(--rk-n23)]"
             >
               <span
                 className="h-[10px] w-[10px] rounded-[3px]"
@@ -6829,7 +6848,7 @@ function McpApprovalCard({
   return (
     <BuiCard className="max-w-[74%] p-4">
       <div className="flex items-center gap-2">
-        <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#6A3032] text-xs text-[#FFE2E3]">
+        <span className="grid h-7 w-7 place-items-center rounded-lg bg-[var(--rk-a21)] text-xs text-[var(--rk-a01)]">
           M
         </span>
         <span className="text-[14.5px] font-medium" style={{ color: "var(--bui-ink)" }}>
@@ -6846,7 +6865,7 @@ function McpApprovalCard({
               ? t`This server uses browser sign-in. Authorize it to let your agents use its tools — a popup will open.`
               : t`Approve this server to let your agent use its tools.`}
           </p>
-          {error ? <p className="mt-2 text-xs text-[#F07178]">{error}</p> : null}
+          {error ? <p className="mt-2 text-xs text-[var(--rk-a09)]">{error}</p> : null}
           <div className="mt-3 flex gap-2">
             <BuiButton
               tone="accent"
@@ -6867,7 +6886,7 @@ function McpApprovalCard({
         </div>
       ) : null}
       {state === "dismissed" ? (
-        <p className="mt-2 text-[13px] text-[#967E79]">
+        <p className="mt-2 text-[13px] text-[var(--rk-n29)]">
           <Trans>Dismissed — reconnect anytime from MCP settings.</Trans>
         </p>
       ) : null}
@@ -6907,12 +6926,12 @@ function ChartBlockView({
   const expandedViewport = chartViewport(viewport.width, viewport.height);
   return (
     <>
-      <div className="group relative max-w-[74%] rounded-[20px] bg-[#1D1614] p-4">
+      <div className="group relative max-w-[74%] rounded-[20px] bg-[var(--rk-n83)] p-4">
         <ChartCanvas spec={spec} data={data} width={520} />
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="absolute end-3 top-3 rounded-lg border border-[#41312E] bg-[#261D1B] px-2.5 py-1 text-[11px] text-[#C2B9B7] opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B1A4A2]"
+          className="absolute end-3 top-3 rounded-lg border border-[var(--rk-n46)] bg-[var(--rk-n72)] px-2.5 py-1 text-[11px] text-[var(--rk-n19)] opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--rk-n23)]"
         >
           <Trans>Expand</Trans>
         </button>
@@ -6930,14 +6949,14 @@ function ChartBlockView({
             if (event.key === "Escape") setExpanded(false);
           }}
         >
-          <div className="max-h-[92vh] w-[min(1320px,94vw)] overflow-auto rounded-[24px] border border-[#352826] bg-[#191311] p-8 shadow-[0_40px_90px_rgba(0,0,0,.6)]">
+          <div className="max-h-[92vh] w-[min(1320px,94vw)] overflow-auto rounded-[24px] border border-[var(--rk-n54)] bg-[var(--rk-n89)] p-8 shadow-[0_40px_90px_rgba(0,0,0,.6)]">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[13px] text-[#967E79]">{name}</span>
+              <span className="text-[13px] text-[var(--rk-n29)]">{name}</span>
               <button
                 type="button"
                 aria-label={t`Close chart`}
                 onClick={() => setExpanded(false)}
-                className="text-lg text-[#967E79] hover:text-[#E3DFDE]"
+                className="text-lg text-[var(--rk-n29)] hover:text-[var(--rk-n15)]"
               >
                 ✕
               </button>
@@ -7028,7 +7047,7 @@ function ArtifactImage({
           <img src={src} alt={name} className="max-h-48 w-full object-cover" />
         </button>
       ) : (
-        <div className="rounded-[20px] border border-[#2F2321] bg-[#1D1614] px-4 py-3 text-[14px] text-[#967E79]">
+        <div className="rounded-[20px] border border-[var(--rk-n62)] bg-[var(--rk-n83)] px-4 py-3 text-[14px] text-[var(--rk-n29)]">
           {name}
         </div>
       )}

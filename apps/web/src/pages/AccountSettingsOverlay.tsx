@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { AppearanceSettings } from "../components/AppearanceSettings";
 import { ApprovalRulesSettings } from "../components/ApprovalRulesSettings";
 import { BuiButton, SuccessPop } from "../components/beautiful-ui/primitives";
 import {
@@ -108,11 +109,11 @@ export function AccountSettingsOverlay({
         aria-modal="true"
         aria-labelledby="account-settings-title"
         tabIndex={-1}
-        className="rk-scroll max-h-full w-[640px] max-w-full overflow-y-auto rounded-[26px] border border-[#2B201E] bg-[#191311] p-6 shadow-[0_40px_90px_rgba(0,0,0,.55)] sm:p-8"
+        className="rk-scroll max-h-full w-[640px] max-w-full overflow-y-auto rounded-[26px] border border-[var(--rk-n66)] bg-[var(--rk-n89)] p-6 shadow-[0_40px_90px_rgba(0,0,0,.55)] sm:p-8"
       >
         <div className="flex items-start justify-between gap-6">
           <div>
-            <h2 id="account-settings-title" className="text-2xl font-medium text-[#F2F1F1]">
+            <h2 id="account-settings-title" className="text-2xl font-medium text-[var(--rk-n04)]">
               <Trans>Settings</Trans>
             </h2>
           </div>
@@ -120,49 +121,49 @@ export function AccountSettingsOverlay({
             type="button"
             aria-label={t`Close user settings`}
             onClick={onClose}
-            className="text-[#967E79]"
+            className="text-[var(--rk-n29)]"
           >
             ✕
           </button>
         </div>
 
-        <section className="mt-8 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#EEECEC]">
+        <section className="mt-8 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
             <Trans>Account</Trans>
           </h3>
-          <p className="mt-3 text-[14px] text-[#D0C8C7]">{name}</p>
-          {email ? <p className="mt-1 text-[13px] text-[#8C736E]">{email}</p> : null}
+          <p className="mt-3 text-[14px] text-[var(--rk-n18)]">{name}</p>
+          {email ? <p className="mt-1 text-[13px] text-[var(--rk-n30)]">{email}</p> : null}
         </section>
 
         <ChangePasswordSection />
 
         {messagingEnabled && onOpenMessaging ? (
-          <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
-            <h3 className="text-[15px] font-medium text-[#EEECEC]">
+          <section className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4">
+            <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
               <Trans>Messaging</Trans>
             </h3>
-            <p className="mt-3 text-[13px] text-[#8C736E]">
+            <p className="mt-3 text-[13px] text-[var(--rk-n30)]">
               <Trans>Chat apps, group channels, and agent connections.</Trans>
             </p>
             <button
               type="button"
               onClick={onOpenMessaging}
-              className="mt-3 rounded-full bg-[#2F2321] px-4 py-2 text-[13.5px] font-medium text-[#EEECEC]"
+              className="mt-3 rounded-full bg-[var(--rk-n62)] px-4 py-2 text-[13.5px] font-medium text-[var(--rk-n08)]"
             >
               <Trans>Manage messaging settings</Trans>
             </button>
           </section>
         ) : null}
 
-        <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#EEECEC]">
+        <section className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
             <Trans>Language</Trans>
           </h3>
           <UiLocalePicker value={locale} onChange={chooseLocale} />
         </section>
 
-        <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
-          <h3 className="text-[15px] font-medium text-[#EEECEC]">
+        <section className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4">
+          <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
             <Trans>Avatars</Trans>
           </h3>
           <div className="mt-3 grid grid-cols-2 gap-3">
@@ -175,10 +176,10 @@ export function AccountSettingsOverlay({
                   aria-pressed={selected}
                   disabled={avatarPending}
                   onClick={() => void chooseAvatarStyle(style)}
-                  className={`flex items-center gap-3 rounded-[12px] border px-3.5 py-3 text-start text-[14px] text-[#EEECEC] transition-colors disabled:opacity-50 ${
+                  className={`flex items-center gap-3 rounded-[12px] border px-3.5 py-3 text-start text-[14px] text-[var(--rk-n08)] transition-colors disabled:opacity-50 ${
                     selected
-                      ? "border-[#695653] bg-[#201817]"
-                      : "border-[#2F2321] hover:border-[#473633]"
+                      ? "border-[var(--rk-n39)] bg-[var(--rk-n80)]"
+                      : "border-[var(--rk-n62)] hover:border-[var(--rk-n44)]"
                   }`}
                 >
                   <BotAvatar
@@ -193,7 +194,7 @@ export function AccountSettingsOverlay({
             })}
           </div>
           {avatarError ? (
-            <p role="alert" className="mt-3 text-[12.5px] text-[#EF4444]">
+            <p role="alert" className="mt-3 text-[12.5px] text-[var(--rk-a14)]">
               {avatarError}
             </p>
           ) : null}
@@ -203,48 +204,50 @@ export function AccountSettingsOverlay({
           ref={usageRef}
           tabIndex={-1}
           data-testid="usage-settings"
-          className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4 outline-none"
+          className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4 outline-none"
         >
-          <h3 className="text-[15px] font-medium text-[#EEECEC]">
+          <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
             <Trans>Usage</Trans>
           </h3>
           {usage ? (
-            <p className="mt-3 text-[14px] text-[#D0C8C7]">
+            <p className="mt-3 text-[14px] text-[var(--rk-n18)]">
               <Trans>
                 {usage.runs} runs · {usage.inputTokens + usage.outputTokens} tokens
               </Trans>
             </p>
           ) : null}
-          <p className={`text-[12.5px] text-[#7B6561] ${usage ? "mt-2" : "mt-3"}`}>
+          <p className={`text-[12.5px] text-[var(--rk-n35)] ${usage ? "mt-2" : "mt-3"}`}>
             <Trans>Model spend uses your provider keys.</Trans>
           </p>
           <ModelUsageTable />
         </div>
+
+        <AppearanceSettings />
 
         <SoftwareUpdateSection isDeploymentOwner={isDeploymentOwner} />
 
         {isDeploymentOwner && computersAreUnavailable(sandboxProvider) ? (
           <div
             data-testid="computers-setup-settings"
-            className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4"
+            className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4"
           >
-            <h3 className="text-[15px] font-medium text-[#EEECEC]">
+            <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
               <Trans>Computers</Trans>
             </h3>
-            <ComputersUnavailableHint className="mt-3 text-[13px] leading-relaxed text-[#967E79]" />
+            <ComputersUnavailableHint className="mt-3 text-[13px] leading-relaxed text-[var(--rk-n29)]" />
           </div>
         ) : null}
 
         <details
           data-testid="advanced-settings"
-          className="group mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E]"
+          className="group mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)]"
         >
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-[14px] text-[#B2A5A3]">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-4 text-[14px] text-[var(--rk-n22)]">
             <span>
-              <span className="block text-[15px] text-[#EEECEC]">
+              <span className="block text-[15px] text-[var(--rk-n08)]">
                 <Trans>Advanced</Trans>
               </span>
-              <span className="mt-1 block text-[12.5px] text-[#7B6561]">
+              <span className="mt-1 block text-[12.5px] text-[var(--rk-n35)]">
                 <Trans>Optional controls most people never need</Trans>
               </span>
             </span>
@@ -252,7 +255,7 @@ export function AccountSettingsOverlay({
               ›
             </span>
           </summary>
-          <div className="border-t border-[#2B201E] px-4 pb-5">
+          <div className="border-t border-[var(--rk-n66)] px-4 pb-5">
             <ApprovalRulesSettings />
           </div>
         </details>
@@ -301,8 +304,8 @@ function ChangePasswordSection() {
   }
 
   return (
-    <section className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4">
-      <h3 className="text-[15px] font-medium text-[#EEECEC]">
+    <section className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4">
+      <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
         <Trans>Password</Trans>
       </h3>
       <div className="mt-3 grid gap-3">
@@ -326,7 +329,7 @@ function ChangePasswordSection() {
         />
       </div>
       {error ? (
-        <p role="alert" className="mt-3 text-[12.5px] text-[#EF4444]">
+        <p role="alert" className="mt-3 text-[12.5px] text-[var(--rk-a14)]">
           {error}
         </p>
       ) : null}
@@ -356,7 +359,7 @@ function SettingsPasswordInput({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="text-[12.5px] text-[#967E79]">
+    <label className="text-[12.5px] text-[var(--rk-n29)]">
       {label}
       <input
         aria-label={label}
@@ -365,7 +368,7 @@ function SettingsPasswordInput({
         minLength={8}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1.5 w-full rounded-[11px] border border-[#332725] bg-[#1C1514] px-3.5 py-2.5 text-[14px] text-[#EEECEC] outline-none focus:border-[#574845]"
+        className="mt-1.5 w-full rounded-[11px] border border-[var(--rk-n57)] bg-[var(--rk-n84)] px-3.5 py-2.5 text-[14px] text-[var(--rk-n08)] outline-none focus:border-[var(--rk-n41)]"
       />
     </label>
   );
@@ -472,12 +475,12 @@ function UiLocalePicker({
         aria-controls={listboxId}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex w-full items-center justify-between rounded-[11px] border border-[#2F2321] bg-[#140F0E] px-3.5 py-3 text-start text-[#EEECEC] outline-none focus-visible:border-[#564744]"
+        className="flex w-full items-center justify-between rounded-[11px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-3.5 py-3 text-start text-[var(--rk-n08)] outline-none focus-visible:border-[var(--rk-n42)]"
         onClick={() => setOpen((current) => !current)}
         onKeyDown={onTriggerKeyDown}
       >
         <span className="min-w-0 truncate">{UI_LOCALE_LABELS[value]}</span>
-        <span className="ml-3 shrink-0 text-[#967E79]" aria-hidden="true">
+        <span className="ml-3 shrink-0 text-[var(--rk-n29)]" aria-hidden="true">
           <ChevronDown size={16} strokeWidth={1.8} />
         </span>
       </button>
@@ -486,7 +489,7 @@ function UiLocalePicker({
           id={listboxId}
           role="listbox"
           aria-label={t`Language`}
-          className="rk-scroll absolute left-0 right-0 top-full z-20 mt-2 overflow-y-auto rounded-[11px] border border-[#2F2321] bg-[#140F0E] p-1 shadow-[0_20px_45px_rgba(0,0,0,.55)]"
+          className="rk-scroll absolute left-0 right-0 top-full z-20 mt-2 overflow-y-auto rounded-[11px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] p-1 shadow-[0_20px_45px_rgba(0,0,0,.55)]"
         >
           {UI_LOCALES.map((code, index) => (
             <button
@@ -498,8 +501,8 @@ function UiLocalePicker({
               role="option"
               aria-selected={code === value}
               tabIndex={index === highlightedIndex ? 0 : -1}
-              className={`w-full rounded-[8px] px-3 py-2 text-start text-[13.5px] text-[#EEECEC] outline-none hover:bg-[#201817] focus-visible:bg-[#201817] ${
-                code === value ? "bg-[#201817]" : ""
+              className={`w-full rounded-[8px] px-3 py-2 text-start text-[13.5px] text-[var(--rk-n08)] outline-none hover:bg-[var(--rk-n80)] focus-visible:bg-[var(--rk-n80)] ${
+                code === value ? "bg-[var(--rk-n80)]" : ""
               }`}
               onClick={() => choose(index)}
               onKeyDown={(event) => onOptionKeyDown(event, index)}

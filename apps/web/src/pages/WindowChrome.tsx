@@ -15,7 +15,7 @@ export function WindowChrome() {
     <div className="app-drag flex gap-[7px]">
       <button
         type="button"
-        className="app-no-drag h-3 w-3 rounded-full bg-[#FF5F57]"
+        className="app-no-drag h-3 w-3 rounded-full bg-[var(--rk-a10)]"
         aria-label={t`Close`}
         onClick={() => void desktop?.window.close()}
       />

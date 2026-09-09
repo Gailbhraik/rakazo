@@ -146,7 +146,7 @@ export const BotAvatar = memo(function BotAvatar({
             {[0, 1].map((eye) => (
               <span
                 key={eye}
-                className="block bg-white"
+                className="block bg-[var(--rk-main)]"
                 style={{
                   width: eyeW,
                   height: eyeH,
@@ -354,11 +354,11 @@ function PokemonAvatar({
 export function Wordmark({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
-      <div className="flex h-11 w-11 items-center justify-center gap-1.5 rounded-full bg-[#1C1514]">
-        <span className="h-4 w-[7px] rounded-full bg-[#F7F7F4]" />
-        <span className="h-4 w-[7px] rounded-full bg-[#F7F7F4]" />
+      <div className="flex h-11 w-11 items-center justify-center gap-1.5 rounded-full bg-[var(--rk-n84)]">
+        <span className="h-4 w-[7px] rounded-full bg-[var(--rk-n02)]" />
+        <span className="h-4 w-[7px] rounded-full bg-[var(--rk-n02)]" />
       </div>
-      <span className="font-[Aeonik,ui-sans-serif] text-[28px] tracking-tight text-[#211918]">
+      <span className="font-[Aeonik,ui-sans-serif] text-[28px] tracking-tight text-[var(--rk-n77)]">
         Rakazo
       </span>
     </div>

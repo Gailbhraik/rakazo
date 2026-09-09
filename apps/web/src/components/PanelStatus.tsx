@@ -10,10 +10,10 @@ import { useLingui } from "@lingui/react/macro";
  */
 
 const TONES = {
-  live: { dot: "bg-[#4ADE80]", text: "text-[#CFC9C8]", pulse: true },
-  pending: { dot: "bg-[#E5A83A]", text: "text-[#CFC9C8]", pulse: true },
-  idle: { dot: "bg-[#7B6561]", text: "text-[#967E79]", pulse: false },
-  fault: { dot: "bg-[#EF4444]", text: "text-[#F3A2AA]", pulse: false },
+  live: { dot: "bg-[#4ADE80]", text: "text-[var(--rk-n17)]", pulse: true },
+  pending: { dot: "bg-[#E5A83A]", text: "text-[var(--rk-n17)]", pulse: true },
+  idle: { dot: "bg-[var(--rk-n35)]", text: "text-[var(--rk-n29)]", pulse: false },
+  fault: { dot: "bg-[var(--rk-a14)]", text: "text-[var(--rk-a04)]", pulse: false },
 } as const;
 
 type Tone = keyof typeof TONES;

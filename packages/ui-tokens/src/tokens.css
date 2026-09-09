@@ -1,6 +1,11 @@
+@import "./palette.css";
+
+/* Jetons de rôle. La palette engendrée fournit l'échelle brute ; ces noms disent
+ * à quoi chaque valeur sert, et c'est eux que le code applicatif emploie.
+ * Le bloc clair ne redéfinit que ce qui doit changer : tout ce qui dérive de
+ * --rk-accent-h suit déjà la couleur choisie par l'utilisateur. */
+
 :root {
-  /* Neutres chauds : même luminosité qu'avant, teinte portée à 10° pour que le
-     rouge d'accent s'y pose sans virer au rose. */
   --rk-page: #060505;
   --rk-sidebar: #0d0a0a;
   --rk-main: #100c0b;
@@ -9,13 +14,15 @@
   --rk-hairline-strong: #262019;
   --rk-surface: #191311;
   --rk-surface-2: #201817;
+  --rk-scrollbar: #332725;
+  --rk-scrollbar-hover: #4a3a37;
   --rk-ink: #eeecec;
   --rk-body: #e2dfde;
   --rk-muted: #967e79;
   --rk-muted-2: #7c6763;
   --rk-cream: #f1f0ee;
   --rk-cream-ink: #1a1a1a;
-  --rk-accent: #e0393e;
+  --rk-accent: hsl(var(--rk-accent-h) var(--rk-accent-s) 55%);
   --rk-radius: 0.75rem;
   --background: 10 12% 4%;
   --foreground: 10 6% 93%;
@@ -24,7 +31,7 @@
   --popover: 10 10% 10%;
   --popover-foreground: 10 6% 93%;
   /* Les boutons primaires passent du blanc cassé au rouge de marque. */
-  --primary: 358 72% 55%;
+  --primary: var(--rk-accent-h) var(--rk-accent-s) 55%;
   --primary-foreground: 0 0% 100%;
   --secondary: 10 9% 12%;
   --secondary-foreground: 10 6% 93%;
@@ -37,6 +44,39 @@
   --destructive: 0 84% 60%;
   --border: 10 10% 13%;
   --input: 10 10% 15%;
-  --ring: 358 72% 55%;
+  --ring: var(--rk-accent-h) var(--rk-accent-s) 55%;
   --radius: 0.75rem;
+}
+
+:root[data-theme="light"] {
+  --rk-page: #faf9f8;
+  --rk-sidebar: #f3f1f0;
+  --rk-main: #ffffff;
+  --rk-panel: #faf9f8;
+  --rk-hairline: #e6e1df;
+  --rk-hairline-strong: #d8d2cf;
+  --rk-surface: #f1eeed;
+  --rk-surface-2: #e9e5e3;
+  --rk-scrollbar: #cdc4c1;
+  --rk-scrollbar-hover: #b0a4a0;
+  --rk-ink: #171211;
+  --rk-body: #241d1b;
+  --rk-muted: #6f5f5b;
+  --rk-muted-2: #8b7a75;
+  --rk-cream: #241d1b;
+  --rk-cream-ink: #f5f3f2;
+  --background: 20 20% 98%;
+  --foreground: 10 12% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 10 12% 10%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 10 12% 10%;
+  --secondary: 20 12% 94%;
+  --secondary-foreground: 10 12% 10%;
+  --muted: 20 12% 94%;
+  --muted-foreground: 10 8% 42%;
+  --accent: 20 12% 92%;
+  --accent-foreground: 10 12% 10%;
+  --border: 20 12% 89%;
+  --input: 20 12% 87%;
 }

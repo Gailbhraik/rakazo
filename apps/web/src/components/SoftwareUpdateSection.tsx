@@ -78,7 +78,7 @@ export function SoftwareUpdatePanel({
       </div>
       {check ? <CheckSummary check={check} /> : null}
       {error ? (
-        <p role="alert" className="text-[12.5px] text-[#EF4444]">
+        <p role="alert" className="text-[12.5px] text-[var(--rk-a14)]">
           {error}
         </p>
       ) : null}
@@ -128,12 +128,12 @@ export function SoftwareUpdateSection({ isDeploymentOwner }: { isDeploymentOwner
     return (
       <section
         data-testid="software-update-settings"
-        className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4"
+        className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4"
       >
-        <h3 className="text-[15px] font-medium text-[#EEECEC]">
+        <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
           <Trans>Software update</Trans>
         </h3>
-        <p role="alert" className="mt-3 text-[12.5px] text-[#EF4444]">
+        <p role="alert" className="mt-3 text-[12.5px] text-[var(--rk-a14)]">
           {error}
         </p>
       </section>
@@ -223,9 +223,9 @@ export function SoftwareUpdateSection({ isDeploymentOwner }: { isDeploymentOwner
   return (
     <section
       data-testid="software-update-settings"
-      className="mt-5 rounded-[14px] border border-[#2F2321] bg-[#140F0E] px-4 py-4"
+      className="mt-5 rounded-[14px] border border-[var(--rk-n62)] bg-[var(--rk-n93)] px-4 py-4"
     >
-      <h3 className="text-[15px] font-medium text-[#EEECEC]">
+      <h3 className="text-[15px] font-medium text-[var(--rk-n08)]">
         <Trans>Software update</Trans>
       </h3>
       <SoftwareUpdatePanel
@@ -243,26 +243,28 @@ export function SoftwareUpdateSection({ isDeploymentOwner }: { isDeploymentOwner
 function CheckSummary({ check }: { check: ServerUpdateCheck }) {
   if (check.status === "up-to-date") {
     return (
-      <p className="text-[12.5px] text-[#7B6561]">
+      <p className="text-[12.5px] text-[var(--rk-n35)]">
         <Trans>Up to date</Trans>
       </p>
     );
   }
   if (check.status === "available") {
     return (
-      <p className="text-[12.5px] text-[#D0C8C7]">
+      <p className="text-[12.5px] text-[var(--rk-n18)]">
         <Trans>Update available</Trans>
       </p>
     );
   }
   if (check.status === "dirty") {
     return (
-      <p className="text-[12.5px] text-[#EF4444]">
+      <p className="text-[12.5px] text-[var(--rk-a14)]">
         <Trans>Checkout has local changes. Clean it before updating.</Trans>
       </p>
     );
   }
   return (
-    <p className="text-[12.5px] text-[#EF4444]">{check.reason ?? <Trans>Unavailable</Trans>}</p>
+    <p className="text-[12.5px] text-[var(--rk-a14)]">
+      {check.reason ?? <Trans>Unavailable</Trans>}
+    </p>
   );
 }

@@ -6,11 +6,13 @@ import { I18nBootstrap } from "./components/I18nBootstrap";
 import { applyUiDirection } from "./lib/apply-ui-direction";
 import { blockPinchZoom } from "./lib/block-pinch-zoom";
 import { markAfterPaint, markOnce } from "./lib/performance";
+import { startTheme } from "./lib/theme";
 import { resolveUiLocale } from "./lib/ui-locale";
 import "./styles.css";
 
 markOnce("rk:renderer:module-evaluated");
 applyUiDirection(resolveUiLocale());
+startTheme();
 blockPinchZoom();
 
 function PerformanceProbe() {
