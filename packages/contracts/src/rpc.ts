@@ -39,10 +39,10 @@ import {
   MessagingLinkedIdentitySchema,
   MessagingStatusSchema,
   ModelCatalogEntrySchema,
-  ModelUsageSchema,
   ModelConnectInputSchema,
   ModelCredentialSchema,
   ModelOAuthBeginSchema,
+  ModelUsageSchema,
   ReorderBotsInput,
   RoutineSchema,
   ScratchpadItemSchema,
@@ -655,7 +655,16 @@ export const appContract = {
     query: oc.input(z.object({ q: z.string().max(200) })).output(SearchQueryOutputSchema),
   },
   runs: {
-    list: oc.input(z.object({ filter: z.enum(["active", "recent"]) })).output(RunsListOutputSchema),
+    list: oc
+      .input(
+        z.object({
+          filter: z.enum(["active", "recent"]),
+          limit: z.number().int().min(1).max(200).default(20),
+          botId: Id.optional(),
+          outcome: z.enum(["completed", "failed", "cancelled"]).optional(),
+        }),
+      )
+      .output(RunsListOutputSchema),
   },
   voice: {
     catalog: oc.output(z.array(VoiceCatalogEntrySchema)),

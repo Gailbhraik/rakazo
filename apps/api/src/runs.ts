@@ -34,19 +34,29 @@ export function activityNotificationsEnabled(
   return groupId !== null || notifyOnFinish;
 }
 
+export type RunsQuery = {
+  filter: "active" | "recent";
+  limit?: number;
+  botId?: string;
+  outcome?: "completed" | "failed" | "cancelled";
+};
+
 export async function listSpaceRuns(
   prisma: PrismaClient,
   actor: Actor,
-  filter: "active" | "recent",
-): Promise<RunActivityRow[]> {
+  query: RunsQuery,
+): Promise<{ runs: RunActivityRow[]; hasMore: boolean }> {
+  const { filter, botId, outcome } = query;
+  const limit = query.limit ?? RECENT_LIMIT;
   const rows = await prisma.run.findMany({
     where: {
       spaceId: actor.spaceId,
       userId: actor.userId,
       bot: { archivedAt: null },
+      ...(botId ? { botId } : {}),
       ...(filter === "active"
         ? { status: { in: [...ACTIVE_RUN_STATUSES] } }
-        : { status: { in: [...TERMINAL_STATUSES] } }),
+        : { status: { in: outcome ? [outcome] : [...TERMINAL_STATUSES] } }),
     },
     include: {
       bot: { select: { name: true, archivedAt: true, notifyOnFinish: true } },
@@ -63,10 +73,13 @@ export async function listSpaceRuns(
       filter === "active"
         ? [{ updatedAt: "desc" }, { id: "desc" }]
         : [{ completedAt: "desc" }, { updatedAt: "desc" }, { id: "desc" }],
-    take: filter === "recent" ? RECENT_LIMIT : undefined,
+    take: filter === "recent" ? limit + 1 : undefined,
   });
 
-  return rows.map((row) => ({
+  const hasMore = filter === "recent" && rows.length > limit;
+  if (hasMore) rows.pop();
+
+  const runs = rows.map((row) => ({
     runId: row.id,
     botId: row.botId,
     botName: row.bot.name,
@@ -86,4 +99,6 @@ export async function listSpaceRuns(
       : row.updatedAt
     ).toISOString(),
   }));
+
+  return { runs, hasMore };
 }

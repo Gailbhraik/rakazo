@@ -76,15 +76,15 @@ msgstr ""
 msgid "{botName}’s computer"
 msgstr "{botName} 的电脑"
 
-#: src/pages/ActivityList.tsx:142
+#: src/pages/ActivityList.tsx:198
 msgid "{days}d ago"
 msgstr "{days} 天前"
 
-#: src/pages/ActivityList.tsx:140
+#: src/pages/ActivityList.tsx:196
 msgid "{hours}h ago"
 msgstr "{hours} 小时前"
 
-#: src/pages/ActivityList.tsx:138
+#: src/pages/ActivityList.tsx:194
 msgid "{minutes}m ago"
 msgstr "{minutes} 分钟前"
 
@@ -112,7 +112,7 @@ msgstr "剩余 {remaining} · Bot 只看不操作"
 msgid "{size} B"
 msgstr "{size} B"
 
-#: src/pages/ActivityList.tsx:97
+#: src/pages/ActivityList.tsx:153
 msgid "{title}, {label}"
 msgstr "{title}，{label}"
 
@@ -282,6 +282,10 @@ msgstr "Agent 连接"
 #: src/pages/McpServersOverlay.tsx:431
 msgid "Agents:"
 msgstr "Agent："
+
+#: src/pages/ActivityList.tsx:26
+msgid "All"
+msgstr ""
 
 #. placeholder {0}: rule.matchValue
 #: src/components/ApprovalRulesSettings.tsx:20
@@ -590,7 +594,8 @@ msgid "Cancel reply"
 msgstr "取消回复"
 
 #: src/components/AskCard.tsx:21
-#: src/pages/ActivityList.tsx:163
+#: src/pages/ActivityList.tsx:25
+#: src/pages/ActivityList.tsx:219
 msgid "Cancelled"
 msgstr "已取消"
 
@@ -1436,7 +1441,8 @@ msgstr "默认使用 Docker：Bot 共用一台团队电脑。"
 msgid "Don’t have an account?"
 msgstr "还没有账户？"
 
-#: src/pages/ActivityList.tsx:159
+#: src/pages/ActivityList.tsx:23
+#: src/pages/ActivityList.tsx:215
 msgid "Done"
 msgstr "完成"
 
@@ -1553,7 +1559,8 @@ msgstr "从 CRM 导出本周名单并放到共享文件夹"
 msgid "Extra high"
 msgstr "极高"
 
-#: src/pages/ActivityList.tsx:161
+#: src/pages/ActivityList.tsx:24
+#: src/pages/ActivityList.tsx:217
 msgid "Failed"
 msgstr "失败"
 
@@ -1786,7 +1793,7 @@ msgstr "跳到最新"
 msgid "Jump to replied message"
 msgstr "跳到被回复的消息"
 
-#: src/pages/ActivityList.tsx:136
+#: src/pages/ActivityList.tsx:192
 msgid "just now"
 msgstr "刚刚"
 
@@ -1836,7 +1843,7 @@ msgstr "正在听…"
 msgid "Load earlier messages"
 msgstr "加载更早的消息"
 
-#: src/pages/ActivityList.tsx:60
+#: src/pages/ActivityList.tsx:81
 msgid "Loading activity…"
 msgstr "正在加载动态…"
 
@@ -2088,11 +2095,11 @@ msgstr "给这个群组命名"
 msgid "Name this routine"
 msgstr "给这个例行任务命名"
 
-#: src/pages/ActivityList.tsx:155
+#: src/pages/ActivityList.tsx:211
 msgid "Needs input"
 msgstr "需要输入"
 
-#: src/pages/ActivityList.tsx:157
+#: src/pages/ActivityList.tsx:213
 msgid "Needs takeover"
 msgstr "需要接管"
 
@@ -2218,6 +2225,10 @@ msgstr "无结果"
 msgid "No runs yet"
 msgstr "还没有运行记录"
 
+#: src/pages/ActivityList.tsx:128
+msgid "No task matches this filter."
+msgstr ""
+
 #: src/pages/RoutineEditor.tsx:88
 msgid "No trigger"
 msgstr "无触发器"
@@ -2243,7 +2254,7 @@ msgstr "不在插件目录中"
 msgid "Not now"
 msgstr "暂不"
 
-#: src/pages/ActivityList.tsx:72
+#: src/pages/ActivityList.tsx:93
 msgid "Now"
 msgstr "现在"
 
@@ -2436,7 +2447,7 @@ msgstr "提供方"
 msgid "Providers"
 msgstr "提供方"
 
-#: src/pages/ActivityList.tsx:149
+#: src/pages/ActivityList.tsx:205
 msgid "Queued"
 msgstr "排队中"
 
@@ -2448,7 +2459,7 @@ msgstr "朗读回复"
 msgid "Reasoning"
 msgstr ""
 
-#: src/pages/ActivityList.tsx:82
+#: src/pages/ActivityList.tsx:103
 msgid "Recent"
 msgstr "最近"
 
@@ -2671,7 +2682,7 @@ msgid "Run time must be in the future."
 msgstr "运行时间必须是将来的时间。"
 
 #: src/components/PanelStatus.tsx:25
-#: src/pages/ActivityList.tsx:153
+#: src/pages/ActivityList.tsx:209
 msgid "Running"
 msgstr "运行中"
 
@@ -2847,6 +2858,10 @@ msgstr "共享"
 msgid "Show computer"
 msgstr "显示电脑"
 
+#: src/pages/ActivityList.tsx:141
+msgid "Show more"
+msgstr ""
+
 #: src/pages/Auth.tsx:161
 msgid "Show password"
 msgstr "显示密码"
@@ -2941,7 +2956,7 @@ msgid "Start recording"
 msgstr "开始录制"
 
 #: src/components/PanelStatus.tsx:26
-#: src/pages/ActivityList.tsx:151
+#: src/pages/ActivityList.tsx:207
 msgid "Starting"
 msgstr "正在开始"
 

@@ -76,15 +76,15 @@ msgstr ""
 msgid "{botName}’s computer"
 msgstr "Computador do {botName}"
 
-#: src/pages/ActivityList.tsx:142
+#: src/pages/ActivityList.tsx:198
 msgid "{days}d ago"
 msgstr "{days}d atrás"
 
-#: src/pages/ActivityList.tsx:140
+#: src/pages/ActivityList.tsx:196
 msgid "{hours}h ago"
 msgstr "{hours}h atrás"
 
-#: src/pages/ActivityList.tsx:138
+#: src/pages/ActivityList.tsx:194
 msgid "{minutes}m ago"
 msgstr "{minutes}m atrás"
 
@@ -112,7 +112,7 @@ msgstr "{remaining} restantes · o bot está observando, não agindo"
 msgid "{size} B"
 msgstr "{size} B"
 
-#: src/pages/ActivityList.tsx:97
+#: src/pages/ActivityList.tsx:153
 msgid "{title}, {label}"
 msgstr "{title}, {label}"
 
@@ -282,6 +282,10 @@ msgstr ""
 #: src/pages/McpServersOverlay.tsx:431
 msgid "Agents:"
 msgstr "Agentes:"
+
+#: src/pages/ActivityList.tsx:26
+msgid "All"
+msgstr ""
 
 #. placeholder {0}: rule.matchValue
 #: src/components/ApprovalRulesSettings.tsx:20
@@ -590,7 +594,8 @@ msgid "Cancel reply"
 msgstr "cancelar resposta"
 
 #: src/components/AskCard.tsx:21
-#: src/pages/ActivityList.tsx:163
+#: src/pages/ActivityList.tsx:25
+#: src/pages/ActivityList.tsx:219
 msgid "Cancelled"
 msgstr "Cancelado"
 
@@ -1436,7 +1441,8 @@ msgstr "O Docker é o padrão: os bots usam um Computador de Equipe compartilhad
 msgid "Don’t have an account?"
 msgstr "Não tem uma conta?"
 
-#: src/pages/ActivityList.tsx:159
+#: src/pages/ActivityList.tsx:23
+#: src/pages/ActivityList.tsx:215
 msgid "Done"
 msgstr "Concluído"
 
@@ -1553,7 +1559,8 @@ msgstr "Exporte a lista desta semana do CRM e solte-a na pasta compartilhada"
 msgid "Extra high"
 msgstr "Extra alta"
 
-#: src/pages/ActivityList.tsx:161
+#: src/pages/ActivityList.tsx:24
+#: src/pages/ActivityList.tsx:217
 msgid "Failed"
 msgstr "Falha"
 
@@ -1786,7 +1793,7 @@ msgstr "Ir para a mensagem mais recente"
 msgid "Jump to replied message"
 msgstr "Ir para a mensagem respondida"
 
-#: src/pages/ActivityList.tsx:136
+#: src/pages/ActivityList.tsx:192
 msgid "just now"
 msgstr "agora mesmo"
 
@@ -1836,7 +1843,7 @@ msgstr "Ouvindo..."
 msgid "Load earlier messages"
 msgstr "Carregar mensagens anteriores..."
 
-#: src/pages/ActivityList.tsx:60
+#: src/pages/ActivityList.tsx:81
 msgid "Loading activity…"
 msgstr "Carregando minha atividade"
 
@@ -2088,11 +2095,11 @@ msgstr "Dar nome ao grupo"
 msgid "Name this routine"
 msgstr ""
 
-#: src/pages/ActivityList.tsx:155
+#: src/pages/ActivityList.tsx:211
 msgid "Needs input"
 msgstr "Precisa de entrada"
 
-#: src/pages/ActivityList.tsx:157
+#: src/pages/ActivityList.tsx:213
 msgid "Needs takeover"
 msgstr "Requer assumir o controle"
 
@@ -2218,6 +2225,10 @@ msgstr "Nenhum resultado"
 msgid "No runs yet"
 msgstr ""
 
+#: src/pages/ActivityList.tsx:128
+msgid "No task matches this filter."
+msgstr ""
+
 #: src/pages/RoutineEditor.tsx:88
 msgid "No trigger"
 msgstr ""
@@ -2243,7 +2254,7 @@ msgstr ""
 msgid "Not now"
 msgstr "Agora não"
 
-#: src/pages/ActivityList.tsx:72
+#: src/pages/ActivityList.tsx:93
 msgid "Now"
 msgstr "Agora"
 
@@ -2436,7 +2447,7 @@ msgstr "Provedor"
 msgid "Providers"
 msgstr "Provedores"
 
-#: src/pages/ActivityList.tsx:149
+#: src/pages/ActivityList.tsx:205
 msgid "Queued"
 msgstr "Na fila"
 
@@ -2448,7 +2459,7 @@ msgstr "Leia as respostas em voz alta"
 msgid "Reasoning"
 msgstr ""
 
-#: src/pages/ActivityList.tsx:82
+#: src/pages/ActivityList.tsx:103
 msgid "Recent"
 msgstr "Recente"
 
@@ -2671,7 +2682,7 @@ msgid "Run time must be in the future."
 msgstr ""
 
 #: src/components/PanelStatus.tsx:25
-#: src/pages/ActivityList.tsx:153
+#: src/pages/ActivityList.tsx:209
 msgid "Running"
 msgstr "Em execução"
 
@@ -2847,6 +2858,10 @@ msgstr "Compartilhado"
 msgid "Show computer"
 msgstr "Mostrar computador"
 
+#: src/pages/ActivityList.tsx:141
+msgid "Show more"
+msgstr ""
+
 #: src/pages/Auth.tsx:161
 msgid "Show password"
 msgstr ""
@@ -2941,7 +2956,7 @@ msgid "Start recording"
 msgstr "Começar a gravar"
 
 #: src/components/PanelStatus.tsx:26
-#: src/pages/ActivityList.tsx:151
+#: src/pages/ActivityList.tsx:207
 msgid "Starting"
 msgstr "Iniciando"
 

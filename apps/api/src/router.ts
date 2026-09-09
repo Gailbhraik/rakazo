@@ -3550,9 +3550,9 @@ export function createRouter(deps: RouterDeps) {
       })),
     },
     runs: {
-      list: authed.runs.list.handler(async ({ context, input }) => ({
-        runs: await listSpaceRuns(deps.prisma, context.actor, input.filter),
-      })),
+      list: authed.runs.list.handler(async ({ context, input }) =>
+        listSpaceRuns(deps.prisma, context.actor, input),
+      ),
     },
     voice: {
       catalog: authed.voice.catalog.handler(async () => listVoiceCatalog()),

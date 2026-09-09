@@ -76,15 +76,15 @@ msgstr "{0}'s screen"
 msgid "{botName}’s computer"
 msgstr "{botName}’s computer"
 
-#: src/pages/ActivityList.tsx:142
+#: src/pages/ActivityList.tsx:198
 msgid "{days}d ago"
 msgstr "{days}d ago"
 
-#: src/pages/ActivityList.tsx:140
+#: src/pages/ActivityList.tsx:196
 msgid "{hours}h ago"
 msgstr "{hours}h ago"
 
-#: src/pages/ActivityList.tsx:138
+#: src/pages/ActivityList.tsx:194
 msgid "{minutes}m ago"
 msgstr "{minutes}m ago"
 
@@ -112,7 +112,7 @@ msgstr "{remaining} left · bot is watching, not acting"
 msgid "{size} B"
 msgstr "{size} B"
 
-#: src/pages/ActivityList.tsx:97
+#: src/pages/ActivityList.tsx:153
 msgid "{title}, {label}"
 msgstr "{title}, {label}"
 
@@ -282,6 +282,10 @@ msgstr "Agent connections"
 #: src/pages/McpServersOverlay.tsx:431
 msgid "Agents:"
 msgstr "Agents:"
+
+#: src/pages/ActivityList.tsx:26
+msgid "All"
+msgstr "All"
 
 #. placeholder {0}: rule.matchValue
 #: src/components/ApprovalRulesSettings.tsx:20
@@ -590,7 +594,8 @@ msgid "Cancel reply"
 msgstr "Cancel reply"
 
 #: src/components/AskCard.tsx:21
-#: src/pages/ActivityList.tsx:163
+#: src/pages/ActivityList.tsx:25
+#: src/pages/ActivityList.tsx:219
 msgid "Cancelled"
 msgstr "Cancelled"
 
@@ -1436,7 +1441,8 @@ msgstr "Docker is the default: bots use a shared Team Computer."
 msgid "Don’t have an account?"
 msgstr "Don’t have an account?"
 
-#: src/pages/ActivityList.tsx:159
+#: src/pages/ActivityList.tsx:23
+#: src/pages/ActivityList.tsx:215
 msgid "Done"
 msgstr "Done"
 
@@ -1553,7 +1559,8 @@ msgstr "Export this week's list from the CRM and drop it in the shared folder"
 msgid "Extra high"
 msgstr "Extra high"
 
-#: src/pages/ActivityList.tsx:161
+#: src/pages/ActivityList.tsx:24
+#: src/pages/ActivityList.tsx:217
 msgid "Failed"
 msgstr "Failed"
 
@@ -1786,7 +1793,7 @@ msgstr "Jump to latest"
 msgid "Jump to replied message"
 msgstr "Jump to replied message"
 
-#: src/pages/ActivityList.tsx:136
+#: src/pages/ActivityList.tsx:192
 msgid "just now"
 msgstr "just now"
 
@@ -1836,7 +1843,7 @@ msgstr "Listening…"
 msgid "Load earlier messages"
 msgstr "Load earlier messages"
 
-#: src/pages/ActivityList.tsx:60
+#: src/pages/ActivityList.tsx:81
 msgid "Loading activity…"
 msgstr "Loading activity…"
 
@@ -2088,11 +2095,11 @@ msgstr "Name this group"
 msgid "Name this routine"
 msgstr "Name this routine"
 
-#: src/pages/ActivityList.tsx:155
+#: src/pages/ActivityList.tsx:211
 msgid "Needs input"
 msgstr "Needs input"
 
-#: src/pages/ActivityList.tsx:157
+#: src/pages/ActivityList.tsx:213
 msgid "Needs takeover"
 msgstr "Needs takeover"
 
@@ -2218,6 +2225,10 @@ msgstr "No results"
 msgid "No runs yet"
 msgstr "No runs yet"
 
+#: src/pages/ActivityList.tsx:128
+msgid "No task matches this filter."
+msgstr "No task matches this filter."
+
 #: src/pages/RoutineEditor.tsx:88
 msgid "No trigger"
 msgstr "No trigger"
@@ -2243,7 +2254,7 @@ msgstr "Not in the plugin catalog"
 msgid "Not now"
 msgstr "Not now"
 
-#: src/pages/ActivityList.tsx:72
+#: src/pages/ActivityList.tsx:93
 msgid "Now"
 msgstr "Now"
 
@@ -2436,7 +2447,7 @@ msgstr "Provider"
 msgid "Providers"
 msgstr "Providers"
 
-#: src/pages/ActivityList.tsx:149
+#: src/pages/ActivityList.tsx:205
 msgid "Queued"
 msgstr "Queued"
 
@@ -2448,7 +2459,7 @@ msgstr "Read replies aloud"
 msgid "Reasoning"
 msgstr "Reasoning"
 
-#: src/pages/ActivityList.tsx:82
+#: src/pages/ActivityList.tsx:103
 msgid "Recent"
 msgstr "Recent"
 
@@ -2671,7 +2682,7 @@ msgid "Run time must be in the future."
 msgstr "Run time must be in the future."
 
 #: src/components/PanelStatus.tsx:25
-#: src/pages/ActivityList.tsx:153
+#: src/pages/ActivityList.tsx:209
 msgid "Running"
 msgstr "Running"
 
@@ -2847,6 +2858,10 @@ msgstr "Shared"
 msgid "Show computer"
 msgstr "Show computer"
 
+#: src/pages/ActivityList.tsx:141
+msgid "Show more"
+msgstr "Show more"
+
 #: src/pages/Auth.tsx:161
 msgid "Show password"
 msgstr "Show password"
@@ -2941,7 +2956,7 @@ msgid "Start recording"
 msgstr "Start recording"
 
 #: src/components/PanelStatus.tsx:26
-#: src/pages/ActivityList.tsx:151
+#: src/pages/ActivityList.tsx:207
 msgid "Starting"
 msgstr "Starting"
 

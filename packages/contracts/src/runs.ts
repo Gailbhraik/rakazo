@@ -29,5 +29,7 @@ export type RunActivityRow = z.infer<typeof RunActivityRowSchema>;
 
 export const RunsListOutputSchema = z.object({
   runs: z.array(RunActivityRowSchema),
+  /** Vrai quand la limite a tronqué la liste : sans quoi « voir plus » ne sait pas s'effacer. */
+  hasMore: z.boolean().default(false),
 });
 export type RunsListOutput = z.infer<typeof RunsListOutputSchema>;

@@ -13,6 +13,19 @@ function statusColor(status: RunActivityRow["status"]): string {
   return "#8B5CF6";
 }
 
+/** Une page vaut 30 lignes : assez pour couvrir plusieurs jours d'un coup. */
+const RECENT_PAGE = 30;
+
+type Outcome = "all" | "completed" | "failed" | "cancelled";
+const OUTCOMES: Outcome[] = ["all", "completed", "failed", "cancelled"];
+
+function outcomeLabel(value: Outcome): string {
+  if (value === "completed") return t`Done`;
+  if (value === "failed") return t`Failed`;
+  if (value === "cancelled") return t`Cancelled`;
+  return t`All`;
+}
+
 type ActivityListProps = {
   onOpenRun: (run: RunActivityRow) => void;
 };
@@ -21,6 +34,9 @@ export function ActivityList({ onOpenRun }: ActivityListProps) {
   const [activeRuns, setActiveRuns] = useState<RunActivityRow[]>([]);
   const [recentRuns, setRecentRuns] = useState<RunActivityRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [outcome, setOutcome] = useState<Outcome>("all");
+  const [limit, setLimit] = useState(RECENT_PAGE);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,12 +45,17 @@ export function ActivityList({ onOpenRun }: ActivityListProps) {
     const tick = async () => {
       try {
         const [active, recent] = await Promise.all([
-          rpc.runs.list({ filter: "active" }),
-          rpc.runs.list({ filter: "recent" }),
+          rpc.runs.list({ filter: "active", limit: RECENT_PAGE }),
+          rpc.runs.list({
+            filter: "recent",
+            limit,
+            ...(outcome === "all" ? {} : { outcome }),
+          }),
         ]);
         if (cancelled) return;
         setActiveRuns(active.runs);
         setRecentRuns(recent.runs);
+        setHasMore(recent.hasMore);
       } catch {
         // Keep the last good snapshot on transient RPC failures.
         if (cancelled) return;
@@ -52,7 +73,7 @@ export function ActivityList({ onOpenRun }: ActivityListProps) {
       cancelled = true;
       if (timer !== undefined) window.clearTimeout(timer);
     };
-  }, []);
+  }, [limit, outcome]);
 
   if (loading) {
     return (
@@ -62,7 +83,7 @@ export function ActivityList({ onOpenRun }: ActivityListProps) {
     );
   }
 
-  if (activeRuns.length === 0 && recentRuns.length === 0) return null;
+  if (activeRuns.length === 0 && recentRuns.length === 0 && outcome === "all") return null;
 
   return (
     <div className="mb-2 border-b border-[var(--rk-n70)] pb-2">
@@ -76,16 +97,51 @@ export function ActivityList({ onOpenRun }: ActivityListProps) {
           ))}
         </section>
       ) : null}
-      {recentRuns.length > 0 ? (
-        <section className={activeRuns.length > 0 ? "mt-2" : undefined}>
-          <div className="px-2.5 pb-1 pt-1 text-[12.5px] font-medium text-[var(--rk-n35)]">
+      <section className={activeRuns.length > 0 ? "mt-2" : undefined}>
+        <div className="flex items-center justify-between gap-2 px-2.5 pb-1 pt-1">
+          <span className="text-[12.5px] font-medium text-[var(--rk-n35)]">
             <Trans>Recent</Trans>
+          </span>
+          <div className="flex gap-1">
+            {OUTCOMES.map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={outcome === value}
+                onClick={() => {
+                  setOutcome(value);
+                  setLimit(RECENT_PAGE);
+                }}
+                className={`rounded-full px-2 py-0.5 text-[11.5px] ${
+                  outcome === value
+                    ? "bg-[var(--rk-a30)] text-[var(--rk-n08)]"
+                    : "text-[var(--rk-n35)] hover:text-[var(--rk-n18)]"
+                }`}
+              >
+                {outcomeLabel(value)}
+              </button>
+            ))}
           </div>
-          {recentRuns.map((run) => (
+        </div>
+        {recentRuns.length === 0 ? (
+          <div className="px-2.5 py-2 text-[12.5px] text-[var(--rk-n35)]">
+            <Trans>No task matches this filter.</Trans>
+          </div>
+        ) : (
+          recentRuns.map((run) => (
             <ActivityRow key={run.runId} run={run} onOpen={() => onOpenRun(run)} />
-          ))}
-        </section>
-      ) : null}
+          ))
+        )}
+        {hasMore ? (
+          <button
+            type="button"
+            onClick={() => setLimit((current) => current + RECENT_PAGE)}
+            className="mt-1 w-full rounded-lg px-2.5 py-1.5 text-[12.5px] text-[var(--rk-n29)] hover:bg-[var(--rk-n90)] hover:text-[var(--rk-n08)]"
+          >
+            <Trans>Show more</Trans>
+          </button>
+        ) : null}
+      </section>
     </div>
   );
 }
