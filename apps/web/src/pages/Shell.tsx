@@ -4196,7 +4196,11 @@ const Transcript = memo(function Transcript({
             <div
               key={message.id}
               data-message-id={message.id}
-              className={peerReceipt ? "relative py-0.5" : "group/message relative pt-9 hover:z-20"}
+              className={
+                peerReceipt
+                  ? "relative mx-auto w-full max-w-[860px] py-0.5"
+                  : "group/message relative mx-auto w-full max-w-[860px] pt-9 hover:z-20"
+              }
             >
               {peerReceipt ? null : (
                 <MessageHoverActions message={message} onReply={onReply} onReact={onReact} />
@@ -5286,7 +5290,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-start">
               <div
-                className="max-w-[74%] rounded-[20px] bg-[#201817] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#E3DFDE]"
+                className="max-w-[78%] rounded-[20px] bg-[#201817] px-[18px] py-3 text-[15.5px] leading-[1.5] text-[#E3DFDE]"
                 dir="auto"
               >
                 <ChatMarkdown streaming>{block.text}</ChatMarkdown>
@@ -5461,7 +5465,7 @@ const MessageView = memo(function MessageView({
           return (
             <div key={i} className="flex justify-end">
               <div
-                className="max-w-[70%] whitespace-pre-wrap rounded-[20px] bg-[#F1EFEF] px-[18px] py-3 text-[15.5px] leading-[1.45] text-[#1E1716]"
+                className="max-w-[78%] whitespace-pre-wrap rounded-[20px] bg-[#F1EFEF] px-[18px] py-3 text-[15.5px] leading-[1.45] text-[#1E1716]"
                 dir="auto"
               >
                 {block.text}
