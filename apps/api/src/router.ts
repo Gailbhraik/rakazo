@@ -34,12 +34,13 @@ import {
   displayBotWorkspacePath,
   type EncryptedSecretStore,
   enqueueTakeoverContinuation,
+  estimateCost,
   expireComputerControl,
   hasActiveComputerControl,
   isAutoReviewCheckerConfigured,
   isSandboxGoneError,
   isScratchpadStatus,
-  estimateCost,
+  listOpenRouterHosts,
   listPiCatalog,
   listScratchpadItems,
   McpOAuthBroker,
@@ -53,6 +54,8 @@ import {
   probeOpenAiCompatibleModels,
   provisionComputer,
   type RemoteConnectorDependencies,
+  readProviderBalance,
+  recentOpenRouterModels,
   releaseComputerExecutionLease,
   replaceComputer,
   resolveAutoReviewChecker,
@@ -496,6 +499,20 @@ export function createRouter(deps: RouterDeps) {
       }),
     },
     models: {
+      hosts: authed.models.hosts.handler(async ({ input }) => {
+        try {
+          return await listOpenRouterHosts(input.modelId);
+        } catch {
+          throw new ORPCError("BAD_GATEWAY", { message: "Hébergeurs OpenRouter indisponibles." });
+        }
+      }),
+      recent: authed.models.recent.handler(async () => {
+        try {
+          return await recentOpenRouterModels();
+        } catch {
+          throw new ORPCError("BAD_GATEWAY", { message: "Catalogue OpenRouter indisponible." });
+        }
+      }),
       list: authed.models.list.handler(async () => [...listPiCatalog(), scriptedCatalogEntry]),
       credentials: authed.models.credentials.handler(async ({ context }) => {
         const rows = await deps.prisma.userModelCredential.findMany({
@@ -772,6 +789,34 @@ export function createRouter(deps: RouterDeps) {
             throw new ORPCError("BAD_REQUEST", { message: "Unknown model for that provider" });
           }
         }
+        let openrouterHost = input.openrouterHost;
+        if (openrouterHost) {
+          const me = await meDto(deps, context.actor);
+          const provider =
+            (input.modelProvider !== undefined ? input.modelProvider : existing.modelProvider) ??
+            me.defaultProvider;
+          const modelId =
+            (input.modelId !== undefined ? input.modelId : existing.modelId) ?? me.defaultModel;
+          if (provider !== "openrouter" || !modelId)
+            throw new ORPCError("BAD_REQUEST", { message: "Choisis un modèle OpenRouter." });
+          let hosts: Awaited<ReturnType<typeof listOpenRouterHosts>>;
+          try {
+            hosts = await listOpenRouterHosts(modelId);
+          } catch {
+            throw new ORPCError("BAD_GATEWAY", {
+              message: "Impossible de vérifier cet hébergeur.",
+            });
+          }
+          if (!hosts.some((host) => host.id === openrouterHost))
+            throw new ORPCError("BAD_REQUEST", {
+              message: "Cet hébergeur ne propose pas ce modèle.",
+            });
+        } else if (
+          openrouterHost === undefined &&
+          input.modelProvider !== undefined &&
+          (input.modelProvider !== existing.modelProvider || input.modelId !== existing.modelId)
+        )
+          openrouterHost = null;
         const thinkingLevel = input.thinkingLevel;
         if (input.thinkingLevel) {
           const provider =
@@ -810,6 +855,7 @@ export function createRouter(deps: RouterDeps) {
             ...(input.modelProvider !== undefined
               ? { modelProvider: input.modelProvider, modelId: input.modelId ?? null }
               : {}),
+            ...(openrouterHost !== undefined ? { openrouterHost } : {}),
             ...(input.thinkingLevel !== undefined ? { thinkingLevel } : {}),
           },
         });
@@ -3420,6 +3466,41 @@ export function createRouter(deps: RouterDeps) {
       }),
     },
     usage: {
+      balances: authed.usage.balances.handler(async ({ context }) => {
+        const credentials = await deps.prisma.userModelCredential.findMany({
+          where: { userId: context.actor.userId },
+          orderBy: newestModelCredentialOrder,
+          select: { provider: true, secretId: true },
+        });
+        const providers = [
+          ...new Map(credentials.toReversed().map((row) => [row.provider, row])).values(),
+        ];
+        return Promise.all(
+          providers.map(async (row) => {
+            const fallback = {
+              provider: row.provider,
+              status: "unavailable" as const,
+              amounts: [],
+              checkedAt: new Date().toISOString(),
+            };
+            if (!["openrouter", "deepseek"].includes(row.provider))
+              return { ...fallback, status: "unsupported" as const };
+            try {
+              const secret = await deps.prisma.secret.findFirst({
+                where: { id: row.secretId, userId: context.actor.userId, spaceId: null },
+                select: { ciphertext: true },
+              });
+              if (!secret) return fallback;
+              return await readProviderBalance(
+                row.provider,
+                deps.secrets.load(secret.ciphertext, row.secretId),
+              );
+            } catch {
+              return fallback;
+            }
+          }),
+        );
+      }),
       list: authed.usage.list.handler(async ({ context }) => {
         const rows = await deps.prisma.usageRecord.findMany({
           where: { spaceId: context.actor.spaceId, userId: context.actor.userId },
@@ -3446,28 +3527,30 @@ export function createRouter(deps: RouterDeps) {
           _max: { createdAt: true },
         });
         const catalog = [...listPiCatalog(), scriptedCatalogEntry];
-        return rows
-          .map((row) => {
-            const inputTokens = row._sum.inputTokens ?? 0;
-            const outputTokens = row._sum.outputTokens ?? 0;
-            const entry = catalog.find(
-              (candidate) => candidate.provider === row.provider && candidate.id === row.model,
-            );
-            return {
-              provider: row.provider,
-              providerName: entry?.providerName,
-              model: row.model,
-              label: entry?.label ?? row.model,
-              runs: row._count._all,
-              inputTokens,
-              outputTokens,
-              estimatedCost:
-                estimateCost(row.provider, row.model, inputTokens, outputTokens) ?? null,
-              lastUsedAt: (row._max.createdAt ?? new Date(0)).toISOString(),
-            };
-          })
-          // Le plus consommateur en tête : c'est la ligne qu'on vient chercher.
-          .sort((a, b) => b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens));
+        return (
+          rows
+            .map((row) => {
+              const inputTokens = row._sum.inputTokens ?? 0;
+              const outputTokens = row._sum.outputTokens ?? 0;
+              const entry = catalog.find(
+                (candidate) => candidate.provider === row.provider && candidate.id === row.model,
+              );
+              return {
+                provider: row.provider,
+                providerName: entry?.providerName,
+                model: row.model,
+                label: entry?.label ?? row.model,
+                runs: row._count._all,
+                inputTokens,
+                outputTokens,
+                estimatedCost:
+                  estimateCost(row.provider, row.model, inputTokens, outputTokens) ?? null,
+                lastUsedAt: (row._max.createdAt ?? new Date(0)).toISOString(),
+              };
+            })
+            // Le plus consommateur en tête : c'est la ligne qu'on vient chercher.
+            .sort((a, b) => b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens))
+        );
       }),
       summary: authed.usage.summary.handler(async ({ context }) => {
         const result = await deps.prisma.usageRecord.aggregate({

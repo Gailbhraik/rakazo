@@ -40,6 +40,7 @@ function mapBot(
     autoSpeak?: boolean;
     modelProvider?: string | null;
     modelId?: string | null;
+    openrouterHost?: string | null;
     thinkingLevel?: string | null;
     webhookSecretId?: string | null;
   },
@@ -76,6 +77,7 @@ function mapBot(
     modelProvider: bot.modelProvider ?? null,
     modelId: bot.modelId ?? null,
     thinkingLevel: (bot.thinkingLevel as Bot["thinkingLevel"]) ?? null,
+    openrouterHost: bot.openrouterHost ?? null,
     webhookConfigured: Boolean(bot.webhookSecretId),
   };
 }
@@ -295,7 +297,10 @@ export function createRepos(prisma: PrismaClient) {
             });
             if (messages.length === 0) break;
           }
-          return mapBot(bot, preview, bot.runs[0]?.status ?? "idle");
+          return {
+            ...mapBot(bot, preview, bot.runs[0]?.status ?? "idle"),
+            lastActivityAt: bot.thread?.messages[0]?.createdAt.toISOString() ?? null,
+          };
         }),
       );
     },
@@ -330,6 +335,7 @@ export function createRepos(prisma: PrismaClient) {
         spawnKey?: string;
         modelProvider?: string | null;
         modelId?: string | null;
+        openrouterHost?: string | null;
         thinkingLevel?: string | null;
         initialMessage?: {
           role: "user" | "bot" | "system";

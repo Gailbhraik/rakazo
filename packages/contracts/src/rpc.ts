@@ -158,6 +158,40 @@ export const appContract = {
     apply: oc.input(ServerUpdateRequestSchema).output(ServerUpdateRunSchema),
   },
   models: {
+    hosts: oc
+      .input(
+        z.object({
+          modelId: z
+            .string()
+            .min(1)
+            .max(200)
+            .regex(/^[a-zA-Z0-9_~.:-]+\/[a-zA-Z0-9_~.:-]+$/),
+        }),
+      )
+      .output(z.array(z.object({ id: z.string(), name: z.string() }))),
+    recent: oc.output(
+      z.object({
+        fetchedAt: z.string(),
+        stale: z.boolean(),
+        models: z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            created: z.number(),
+            description: z.string(),
+            context: z.number().nullable(),
+            maxOutput: z.number().nullable(),
+            inputPrice: z.number().nullable(),
+            outputPrice: z.number().nullable(),
+            cachePrice: z.number().nullable(),
+            modalities: z.array(z.string()),
+            tools: z.boolean(),
+            reasoning: z.boolean(),
+            variablePricing: z.boolean(),
+          }),
+        ),
+      }),
+    ),
     list: oc.output(z.array(ModelCatalogEntrySchema)),
     credentials: oc.output(z.array(ModelCredentialSchema)),
     connect: oc.input(ModelConnectInputSchema).output(ModelCredentialSchema),
@@ -632,6 +666,22 @@ export const appContract = {
     get: oc.input(threadTarget.and(z.object({ artifactId: Id }))).output(ArtifactWithContentSchema),
   },
   usage: {
+    balances: oc.output(
+      z.array(
+        z.object({
+          provider: z.string(),
+          status: z.enum(["available", "unavailable", "unsupported"]),
+          amounts: z.array(
+            z.object({
+              currency: z.string(),
+              remaining: z.number(),
+              scope: z.enum(["account", "key"]),
+            }),
+          ),
+          checkedAt: z.string(),
+        }),
+      ),
+    ),
     list: oc.output(z.array(UsageRecordSchema)),
     byModel: oc.output(z.array(ModelUsageSchema)),
     summary: oc.output(

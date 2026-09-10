@@ -535,7 +535,12 @@ export function createRunExecutor(deps: ExecutorDeps) {
               userId: scope.userId,
               spaceId: scope.spaceId,
             },
-            select: { modelProvider: true, modelId: true, thinkingLevel: true },
+            select: {
+              modelProvider: true,
+              modelId: true,
+              thinkingLevel: true,
+              openrouterHost: true,
+            },
           })
         : null;
       const hasOverride = Boolean(override?.modelProvider && override.modelId);
@@ -576,6 +581,10 @@ export function createRunExecutor(deps: ExecutorDeps) {
         id,
         apiKey: resolved.oauth ? undefined : resolved.apiKey,
         baseUrl: resolved.baseUrl,
+        openrouterHost:
+          provider === "openrouter" && !(hasOverride && !useOverride)
+            ? override?.openrouterHost
+            : null,
         thinkingLevel:
           // Apply bot thinking with a successful override or Space default.
           // Drop it only when an override existed but its credential was missing.
@@ -2802,6 +2811,10 @@ export function createRunExecutor(deps: ExecutorDeps) {
                 id: runModelId,
                 apiKey: resolved.oauth ? undefined : resolved.apiKey,
                 baseUrl: resolved.baseUrl,
+                openrouterHost:
+                  runModelProvider === "openrouter" && !(hasModelOverride && !useModelOverride)
+                    ? bot.openrouterHost
+                    : null,
                 thinkingLevel:
                   hasModelOverride && !useModelOverride
                     ? null

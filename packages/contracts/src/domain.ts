@@ -60,8 +60,10 @@ export const BotSchema = z.object({
   autoSpeak: z.boolean(),
   modelProvider: z.string().nullable(),
   modelId: z.string().nullable(),
+  openrouterHost: z.string().nullable().optional(),
   thinkingLevel: ThinkingLevelSchema.nullable(),
   webhookConfigured: z.boolean(),
+  lastActivityAt: z.string().nullable().optional(),
 });
 export type Bot = z.infer<typeof BotSchema>;
 
@@ -237,6 +239,11 @@ export const UpdateBotInput = z
     autoSpeak: z.boolean().optional(),
     modelProvider: z.string().trim().min(1).max(80).nullable().optional(),
     modelId: z.string().trim().min(1).max(200).nullable().optional(),
+    openrouterHost: z
+      .string()
+      .regex(/^[a-zA-Z0-9_./-]{1,120}$/)
+      .nullable()
+      .optional(),
     thinkingLevel: ThinkingLevelSchema.nullable().optional(),
   })
   .superRefine((value, ctx) => {

@@ -20,6 +20,7 @@ import type {
 } from "@rakazo/adapter-kit";
 import { isToolPauseResult } from "./approval-effect.js";
 import { builtinAgentTools, DELEGATION_TOOL_NAMES } from "./builtin-tools.js";
+import { withOpenRouterHost } from "./openrouter-hosts.js";
 import { PiRuntimeCredentialStore, toOAuthCredential } from "./pi-credentials.js";
 import { registerExtraModels } from "./pi-extra-models.js";
 import { registerLocalProvider } from "./pi-local-provider.js";
@@ -167,7 +168,15 @@ export class PiAgentRuntime implements AgentRuntime {
           sessionId: `${request.threadId}:${request.botId}`,
           steeringMode: "all",
           streamFn: (m, ctx, options) =>
-            models.streamSimple(m, ctx, reliableStreamOptions(m, options)),
+            models.streamSimple(
+              m,
+              ctx,
+              withOpenRouterHost(
+                reliableStreamOptions(m, options),
+                m.provider,
+                request.model.openrouterHost,
+              ),
+            ),
           getApiKey: async () => apiKey,
           transformContext: async (messages) => pruneComputerScreenshotContext(messages),
           prepareNextTurnWithContext: async () => {
@@ -746,7 +755,15 @@ async function executeSubagent(host: ToolHost, executionId: string, args: Record
   const nestedHost: ToolHost = { ...host, depth: 1 };
   const nested = new Agent({
     streamFn: (m, ctx, options) =>
-      host.models.streamSimple(m, ctx, reliableStreamOptions(m, options)),
+      host.models.streamSimple(
+        m,
+        ctx,
+        withOpenRouterHost(
+          reliableStreamOptions(m, options),
+          m.provider,
+          host.request.model.openrouterHost,
+        ),
+      ),
     getApiKey: async () => host.apiKey,
     transformContext: async (messages) => pruneComputerScreenshotContext(messages),
     initialState: {

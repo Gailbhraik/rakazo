@@ -359,6 +359,7 @@ model Bot {
   autoSpeak         Boolean           @default(false)
   modelProvider     String?
   modelId           String?
+  openrouterHost    String?
   thinkingLevel     String?
   webhookSecretId   String?
   routines          Routine[]
@@ -1127,3 +1128,4 @@ model AgentConnection {
   @@index([targetBotId, status])
   @@map("agent_connections")
 }
+

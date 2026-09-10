@@ -331,6 +331,7 @@ export interface AgentRunRequest {
     apiKey?: string;
     baseUrl?: string;
     /** Preferred thinking effort for reasoning models; clamped to the model’s supported set. */
+    openrouterHost?: string | null;
     thinkingLevel?: "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max" | null;
     /** In-process OAuth credential from the encrypted store for this run. */
     oauth?: {
