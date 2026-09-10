@@ -1,4 +1,4 @@
-@import "./palette.css";
+@import "./material.css";
 
 /* Jetons de rôle. La palette engendrée fournit l'échelle brute ; ces noms disent
  * à quoi chaque valeur sert, et c'est eux que le code applicatif emploie.
@@ -6,77 +6,94 @@
  * --rk-accent-h suit déjà la couleur choisie par l'utilisateur. */
 
 :root {
-  --rk-page: #060505;
-  --rk-sidebar: #0d0a0a;
-  --rk-main: #100c0b;
-  --rk-panel: #0c0909;
-  --rk-hairline: #1c1514;
-  --rk-hairline-strong: #262019;
-  --rk-surface: #191311;
-  --rk-surface-2: #201817;
-  --rk-scrollbar: #332725;
-  --rk-scrollbar-hover: #4a3a37;
-  --rk-ink: #eeecec;
-  --rk-body: #e2dfde;
-  --rk-muted: #967e79;
-  --rk-muted-2: #7c6763;
-  --rk-cream: #f1f0ee;
-  --rk-cream-ink: #1a1a1a;
+  --rk-page: #050507;
+  --rk-sidebar: #0b0b0d;
+  --rk-main: #0d0d0f;
+  --rk-panel: #0a0a0c;
+  --rk-hairline: #161618;
+  --rk-hairline-strong: #212123;
+  --rk-surface: #141416;
+  --rk-surface-2: #1a1a1c;
+  --rk-scrollbar: #29292b;
+  --rk-scrollbar-hover: #3d3d3f;
+  --rk-ink: #ececee;
+  --rk-body: #e0e0e2;
+  --rk-muted: #838385;
+  --rk-muted-2: #6b6b6d;
+  --rk-cream: #f0f0f2;
+  --rk-cream-ink: #1a1a1c;
   --rk-accent: hsl(var(--rk-accent-h) var(--rk-accent-s) 55%);
   --rk-radius: 0.75rem;
-  --background: 10 12% 4%;
-  --foreground: 10 6% 93%;
-  --card: 10 10% 8%;
-  --card-foreground: 10 6% 93%;
-  --popover: 10 10% 10%;
-  --popover-foreground: 10 6% 93%;
+  --background: 240 4% 4%;
+  --foreground: 240 4% 93%;
+  --card: 240 4% 8%;
+  --card-foreground: 240 4% 93%;
+  --popover: 240 4% 10%;
+  --popover-foreground: 240 4% 93%;
   /* Les boutons primaires passent du blanc cassé au rouge de marque. */
   --primary: var(--rk-accent-h) var(--rk-accent-s) 55%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 10 9% 12%;
-  --secondary-foreground: 10 6% 93%;
-  --muted: 10 9% 12%;
-  --muted-foreground: 10 8% 54%;
+  --secondary: 240 4% 12%;
+  --secondary-foreground: 240 4% 93%;
+  --muted: 240 4% 12%;
+  --muted-foreground: 240 4% 54%;
   /* `accent` est un fond de survol dans ce système, pas la couleur de marque :
      le teindre en rouge peindrait chaque survol en aplat. */
-  --accent: 10 9% 14%;
-  --accent-foreground: 10 6% 93%;
+  --accent: 240 4% 14%;
+  --accent-foreground: 240 4% 93%;
   --destructive: 0 84% 60%;
-  --border: 10 10% 13%;
-  --input: 10 10% 15%;
+  --border: 240 4% 13%;
+  --input: 240 4% 15%;
   --ring: var(--rk-accent-h) var(--rk-accent-s) 55%;
   --radius: 0.75rem;
 }
 
 :root[data-theme="light"] {
-  --rk-page: #faf9f8;
-  --rk-sidebar: #f3f1f0;
+  --rk-page: #f9f9fb;
+  --rk-sidebar: #f1f1f3;
   --rk-main: #ffffff;
-  --rk-panel: #faf9f8;
-  --rk-hairline: #e6e1df;
-  --rk-hairline-strong: #d8d2cf;
-  --rk-surface: #f1eeed;
-  --rk-surface-2: #e9e5e3;
-  --rk-scrollbar: #cdc4c1;
-  --rk-scrollbar-hover: #b0a4a0;
-  --rk-ink: #171211;
-  --rk-body: #241d1b;
-  --rk-muted: #6f5f5b;
-  --rk-muted-2: #8b7a75;
-  --rk-cream: #241d1b;
-  --rk-cream-ink: #f5f3f2;
-  --background: 20 20% 98%;
-  --foreground: 10 12% 10%;
-  --card: 0 0% 100%;
-  --card-foreground: 10 12% 10%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 10 12% 10%;
-  --secondary: 20 12% 94%;
-  --secondary-foreground: 10 12% 10%;
-  --muted: 20 12% 94%;
-  --muted-foreground: 10 8% 42%;
-  --accent: 20 12% 92%;
-  --accent-foreground: 10 12% 10%;
-  --border: 20 12% 89%;
-  --input: 20 12% 87%;
+  --rk-panel: #f9f9fb;
+  --rk-hairline: #e2e2e4;
+  --rk-hairline-strong: #d3d3d5;
+  --rk-surface: #efeff1;
+  --rk-surface-2: #e6e6e8;
+  --rk-scrollbar: #c6c6c8;
+  --rk-scrollbar-hover: #a6a6a8;
+  --rk-ink: #131315;
+  --rk-body: #1e1e20;
+  --rk-muted: #626264;
+  --rk-muted-2: #7d7d7f;
+  --rk-cream: #1e1e20;
+  --rk-cream-ink: #f3f3f5;
+  --background: 240 4% 98%;
+  --foreground: 240 4% 10%;
+  --card: 240 4% 100%;
+  --card-foreground: 240 4% 10%;
+  --popover: 240 4% 100%;
+  --popover-foreground: 240 4% 10%;
+  --secondary: 240 4% 94%;
+  --secondary-foreground: 240 4% 10%;
+  --muted: 240 4% 94%;
+  --muted-foreground: 240 4% 42%;
+  --accent: 240 4% 92%;
+  --accent-foreground: 240 4% 10%;
+  --border: 240 4% 89%;
+  --input: 240 4% 87%;
+}
+
+:root {
+  --rk-glass: #242428ed;
+  --rk-main: #1c1c1e;
+  --rk-panel: #242426;
+  --rk-page: #161618;
+  --rk-shadow: 0 16px 48px #00000026, 0 1px 3px #0000001a;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --rk-glass: #f2f3f7ed;
+  --rk-main: #ffffff;
+  --rk-panel: #fafafc;
+  --rk-page: #eceef2;
+  --rk-shadow: 0 16px 48px #24243b0c, 0 1px 3px #24243b0a;
+  color-scheme: light;
 }

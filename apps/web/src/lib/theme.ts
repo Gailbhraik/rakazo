@@ -16,7 +16,7 @@ export type ThemeChoice = {
 };
 
 const STORAGE_KEY = "rk-theme";
-export const DEFAULT_THEME: ThemeChoice = { mode: "dark", accentHue: 358 };
+export const DEFAULT_THEME: ThemeChoice = { mode: "system", accentHue: 215 };
 
 /** Teintes proposées, réparties sur le cercle pour rester distinctes. */
 export const ACCENT_HUES = [358, 22, 45, 140, 190, 215, 265, 320];
@@ -64,7 +64,7 @@ export function applyTheme(
   // La barre d'adresse mobile et le fond de la page doivent suivre, sans quoi
   // un liseré sombre subsiste en haut de l'écran en thème clair.
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute("content", light ? "#faf9f8" : "#060505");
+  if (meta) meta.setAttribute("content", light ? "#eceef2" : "#161618");
 }
 
 /** Applique le thème mémorisé, et suit le système tant que « system » est choisi. */
