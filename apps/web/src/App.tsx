@@ -26,6 +26,12 @@ const WelcomePage = lazy(() =>
   import("./pages/Welcome").then((module) => ({ default: module.WelcomePage })),
 );
 
+const HomePage = lazy(() =>
+  import("./pages/Home").then((module) => ({ default: module.HomePage })),
+);
+const ModelNewsPage = lazy(() =>
+  import("./pages/ModelNews").then((module) => ({ default: module.ModelNewsPage })),
+);
 export function App() {
   const session = authClient.useSession();
   const gate = sessionGate(session);
@@ -56,14 +62,15 @@ export function App() {
   }
 
   const user = session.data?.user;
+  const landing = window.matchMedia("(max-width: 767px)").matches ? "/home" : "/app";
   return (
     <div className="h-full" data-rakazo-app-state="ready">
       <Suspense fallback={<div className="h-full bg-[var(--rk-n101)]" />}>
         <Routes>
-          <Route path="/" element={user ? <Navigate to="/app" replace /> : <WelcomePage />} />
+          <Route path="/" element={user ? <Navigate to={landing} replace /> : <WelcomePage />} />
           <Route
             path="/sign-in"
-            element={user ? <Navigate to="/app" replace /> : <AuthPage key="in" mode="in" />}
+            element={user ? <Navigate to={landing} replace /> : <AuthPage key="in" mode="in" />}
           />
           <Route
             path="/sign-up"
@@ -72,7 +79,7 @@ export function App() {
           <Route
             path="/forgot-password"
             element={
-              user ? <Navigate to="/app" replace /> : <AuthPage key="forgot" mode="forgot" />
+              user ? <Navigate to={landing} replace /> : <AuthPage key="forgot" mode="forgot" />
             }
           />
           <Route path="/reset-password" element={<PasswordResetPage />} />
@@ -84,7 +91,25 @@ export function App() {
             path="/mcp/oauth/callback"
             element={user ? <McpOAuthCallbackPage /> : <Navigate to="/sign-in" replace />}
           />
-          <Route path="/app" element={user ? <ShellPage /> : <Navigate to="/sign-in" replace />} />
+          <Route
+            path="/models/new"
+            element={user ? <ModelNewsPage /> : <Navigate to="/sign-in" replace />}
+          />
+          <Route path="/home" element={user ? <HomePage /> : <Navigate to="/sign-in" replace />} />
+          <Route
+            path="/app"
+            element={
+              user ? (
+                landing === "/home" ? (
+                  <Navigate to="/home" replace />
+                ) : (
+                  <ShellPage />
+                )
+              ) : (
+                <Navigate to="/sign-in" replace />
+              )
+            }
+          />
           <Route
             path="/app/g/:groupId"
             element={user ? <ShellPage /> : <Navigate to="/sign-in" replace />}

@@ -128,7 +128,9 @@ import {
   ComputersUnavailableHint,
   computersAreUnavailable,
 } from "../components/ComputersUnavailableHint";
+import { DevNotebookPanel } from "../components/DevNotebookPanel";
 import { MessageHoverMetadata } from "../components/MessageHoverMetadata";
+import { OpenRouterHostPicker } from "../components/OpenRouterHostPicker";
 import { PanelStatus } from "../components/PanelStatus";
 import { ToolActivityDisclosure, ToolSteps } from "../components/ToolActivityDisclosure";
 import { SkillDraftCard } from "../components/teach/SkillDraftCard";
@@ -300,6 +302,7 @@ export function ShellPage() {
   searchParamsRef.current = searchParams;
   const session = authClient.useSession();
   const userId = session.data?.user.id;
+  const [devNotebookOpen, setDevNotebookOpen] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [bots, setBots] = useState<Bot[]>([]);
   const botsRef = useRef(bots);
@@ -2390,7 +2393,7 @@ export function ShellPage() {
     <div
       data-testid="shell-root"
       data-ready={shellReady}
-      className="relative flex h-full min-w-0 overflow-hidden bg-[var(--rk-n101)] text-[var(--rk-n15)]"
+      className="rk-desktop relative flex h-full min-w-0 overflow-hidden bg-[var(--rk-n101)] text-[var(--rk-n15)]"
     >
       {bootstrapMe !== undefined ? (
         <HostComputerPrompt initialMe={bootstrapMe ?? undefined} />
@@ -2404,7 +2407,7 @@ export function ShellPage() {
         />
       ) : null}
       <aside
-        className={`absolute inset-y-0 start-0 z-40 flex w-[calc(100%-48px)] max-w-[316px] shrink-0 flex-col border-e border-[var(--rk-n84)] bg-[var(--rk-n98)] transition-transform md:static md:z-auto md:w-[316px] md:translate-x-0 ${
+        className={`rk-sidebar absolute inset-y-0 start-0 z-40 flex w-[calc(100%-48px)] max-w-[316px] shrink-0 flex-col border-e border-[var(--rk-n84)] bg-[var(--rk-n98)] transition-transform md:static md:z-auto md:w-[316px] md:translate-x-0 ${
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full rtl:translate-x-full"
         }`}
       >
@@ -3045,10 +3048,19 @@ export function ShellPage() {
       <main
         aria-hidden={mobileSidebarOpen || undefined}
         inert={mobileSidebarOpen}
-        className="flex min-w-0 flex-1 flex-col bg-[var(--rk-n96)]"
+        className="rk-main flex min-w-0 flex-1 flex-col bg-[var(--rk-n96)]"
       >
-        <div className="app-drag flex items-center justify-between border-b border-[var(--rk-n89)] px-3 py-[17px] md:px-[22px]">
+        <div className="rk-toolbar app-drag flex items-center justify-between border-b border-[var(--rk-n89)] px-3 py-[17px] md:px-[22px]">
           <div className="flex min-w-0 items-center gap-2">
+            <button
+              type="button"
+              aria-label="Accueil"
+              title="Accueil"
+              onClick={() => navigate("/home")}
+              className="app-no-drag rounded-lg px-2 py-2 text-sm text-[var(--rk-muted)] hover:bg-[var(--rk-surface)]"
+            >
+              Accueil
+            </button>
             <button
               type="button"
               aria-label={t`Open navigation`}
@@ -3090,6 +3102,16 @@ export function ShellPage() {
             </button>
           </div>
           <div className="flex items-center gap-1">
+            {userId && (active || inGroup) ? (
+              <button
+                type="button"
+                className="app-no-drag rounded-lg px-2 py-1 text-sm hover:bg-[var(--rk-n77)]"
+                aria-expanded={devNotebookOpen}
+                onClick={() => setDevNotebookOpen((value) => !value)}
+              >
+                Carnet dev
+              </button>
+            ) : null}
             {!inGroup && active ? (
               <button
                 type="button"
@@ -3128,6 +3150,12 @@ export function ShellPage() {
             ) : null}
           </div>
         </div>
+        {devNotebookOpen && userId && (active || inGroup) ? (
+          <DevNotebookPanel
+            key={`${userId}:${groupId ?? active?.id}`}
+            storageKey={`rakazo:dev-notebook:${userId}:${groupId ? "group" : "bot"}:${groupId ?? active?.id}`}
+          />
+        ) : null}
         <Transcript
           key={activeSnapshot?.threadId}
           scrollRef={messageScroll}
@@ -4753,7 +4781,7 @@ const Composer = memo(function Composer({
       ) : null}
       <div
         data-testid="composer-bar"
-        className="flex items-center gap-3.5 rounded-full border border-[var(--rk-n70)] bg-[var(--rk-n90)] py-[9px] pe-2.5 ps-3"
+        className="rk-composer flex items-center gap-3.5 rounded-full border border-[var(--rk-n70)] bg-[var(--rk-n90)] py-[9px] pe-2.5 ps-3"
       >
         <input
           ref={fileInputRef}
@@ -5719,6 +5747,7 @@ function BotSettings({
     voiceId?: string | null;
     modelProvider?: string | null;
     modelId?: string | null;
+    openrouterHost?: string | null;
     thinkingLevel?: ThinkingLevel | null;
     pokemon?: number | null;
   }) => Promise<void>;
@@ -5727,6 +5756,7 @@ function BotSettings({
   onComputerChanged: () => Promise<void>;
 }) {
   const { t } = useLingui();
+  const [openrouterHost, setOpenrouterHost] = useState(bot.openrouterHost ?? "");
   const [name, setName] = useState(bot.name);
   const [title, setTitle] = useState(bot.title);
   const [description, setDescription] = useState(bot.description);
@@ -5894,6 +5924,7 @@ function BotSettings({
             value={modelKey}
             onChange={(event) => {
               setModelKey(event.target.value);
+              setOpenrouterHost("");
               setThinkingLevel("");
             }}
             className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
@@ -5914,6 +5945,13 @@ function BotSettings({
             ))}
           </select>
         </label>
+        {effectiveProvider === "openrouter" && effectiveModelId ? (
+          <OpenRouterHostPicker
+            modelId={effectiveModelId}
+            value={openrouterHost}
+            onChange={setOpenrouterHost}
+          />
+        ) : null}
         {thinkingOptions.length ? (
           <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
             <Trans>Thinking</Trans>
@@ -6003,8 +6041,9 @@ function BotSettings({
               memoryScope,
               autoSpeak,
               voiceId: voiceId || null,
-              modelProvider: selected?.provider ?? null,
-              modelId: selected?.modelId ?? null,
+              modelProvider: selected?.provider ?? (openrouterHost ? effectiveProvider : null),
+              modelId: selected?.modelId ?? (openrouterHost ? effectiveModelId : null),
+              openrouterHost: effectiveProvider === "openrouter" ? openrouterHost || null : null,
               // Only clear thinking when catalog metadata is available; otherwise
               // preserve the stored override if models.list failed or is still loading.
               ...(modelMetaReady
