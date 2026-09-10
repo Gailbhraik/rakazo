@@ -172,7 +172,13 @@ export function resolveScreenPublishTarget(input: {
   screenHost?: string;
 }): { host: string; port: string } | undefined {
   if (input.screenNetwork === "internal" || input.screenNetwork === "isolated") {
-    const address = input.networkMode ? input.networks?.[input.networkMode]?.IPAddress : undefined;
+    // Podman rapporte `NetworkMode: "bridge"` là où Docker rapporte le nom du
+    // réseau, alors que `Networks` reste indexé par ce nom : la recherche par
+    // nom échoue donc toujours sous Podman. On retombe sur le premier réseau
+    // qui porte une adresse, comme le fait déjà resolveComputerControlEndpoint.
+    const address =
+      (input.networkMode ? input.networks?.[input.networkMode]?.IPAddress : undefined) ||
+      Object.values(input.networks ?? {}).find((network) => network?.IPAddress)?.IPAddress;
     if (address) return { host: address, port: input.containerPort };
     return undefined;
   }
