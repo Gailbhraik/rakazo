@@ -19,6 +19,29 @@ import { openAICompletionsApi } from "@earendil-works/pi-ai/api/openai-completio
  */
 const EXTRA_OPENROUTER_MODELS: Model<"openai-completions">[] = [
   {
+    // OpenRouter live model metadata, 2026-09-10. Costs are standard per-million rates.
+    id: "deepseek/deepseek-v4.1-flash",
+    name: "DeepSeek: DeepSeek V4.1 Flash",
+    api: "openai-completions",
+    baseUrl: "https://openrouter.ai/api/v1",
+    provider: "openrouter",
+    reasoning: true,
+    thinkingLevelMap: {
+      off: "none",
+      minimal: "low",
+      low: "low",
+      medium: "high",
+      high: "high",
+      xhigh: "max",
+      max: "max",
+    },
+    input: ["text", "image"],
+    cost: { input: 0.3, output: 1.2, cacheRead: 0.006, cacheWrite: 0 },
+    contextWindow: 1_048_576,
+    maxTokens: 384_000,
+    compat: { supportsDeveloperRole: false, thinkingFormat: "openrouter" },
+  },
+  {
     // Released after pi-ai 0.84.4. Metadata mirrors its 1.2 Contributor sibling,
     // whose pricing and context window OpenRouter reports as identical.
     id: "meta/muse-spark-1.3-contributor",
@@ -81,6 +104,10 @@ function extendProvider(
   providerId: string,
   extras: readonly Model<"openai-completions">[],
 ): void {
+  // Une collection réduite — un double de test qui n'expose que ce que le tour
+  // sous test emploie — n'a aucun fournisseur à étendre. C'est le même cas de
+  // figure qu'un fournisseur absent, et il se traite pareil : sans rien faire.
+  if (typeof models.getProvider !== "function") return;
   const provider = models.getProvider(providerId);
   if (!provider) return;
   const current = provider.getModels();
