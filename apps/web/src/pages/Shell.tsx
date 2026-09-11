@@ -228,6 +228,11 @@ const FavoriteModelsOverlay = lazy(() =>
     default: module.FavoriteModelsOverlay,
   })),
 );
+const SystemMonitorOverlay = lazy(() =>
+  import("./SystemMonitorOverlay").then((module) => ({
+    default: module.SystemMonitorOverlay,
+  })),
+);
 const MemorySettingsOverlay = lazy(() =>
   import("./MemorySettingsOverlay").then((module) => ({
     default: module.MemorySettingsOverlay,
@@ -337,6 +342,7 @@ export function ShellPage() {
     peerBotName: string;
   } | null>(null);
   const [favoriteModelsOpen, setFavoriteModelsOpen] = useState(false);
+  const [systemMonitorOpen, setSystemMonitorOpen] = useState(false);
   const [renamingSection, setRenamingSection] = useState<{ id: string; name: string } | null>(null);
   const [dropSectionKey, setDropSectionKey] = useState<string | null>(null);
   // Ctrl/⌘+M ouvre les favoris : l'intérêt d'un raccourci de modèle est de ne
@@ -2973,6 +2979,19 @@ export function ShellPage() {
                 type="button"
                 onClick={() => {
                   setMenuOpen(false);
+                  setSystemMonitorOpen(true);
+                }}
+                className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
+              >
+                <Gauge size={16} strokeWidth={1.7} className="text-[var(--rk-n25)]" />
+                <span className="flex-1 text-start text-[14.5px] text-[var(--rk-n08)]">
+                  <Trans>System monitor</Trans>
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
                   setMemorySettingsOpen(true);
                 }}
                 className="flex w-full items-center gap-3 rounded-[11px] px-3 py-2.5 hover:bg-[var(--rk-n65)]"
@@ -3885,6 +3904,12 @@ export function ShellPage() {
             onClose={() => setFavoriteModelsOpen(false)}
             onModelChanged={() => void refreshBots(true)}
           />
+        ) : null}
+      </Suspense>
+
+      <Suspense fallback={null}>
+        {systemMonitorOpen ? (
+          <SystemMonitorOverlay onClose={() => setSystemMonitorOpen(false)} />
         ) : null}
       </Suspense>
 
