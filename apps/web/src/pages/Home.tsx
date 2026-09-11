@@ -1,6 +1,15 @@
 import type { Bot, Group } from "@rakazo/contracts";
 import { BotAvatar } from "@rakazo/ui-web";
-import { ArrowUpRight, Cpu, MessageCircle, Puzzle, RefreshCw, Settings, Star } from "lucide-react";
+import {
+  ArrowUpRight,
+  Cpu,
+  Gauge,
+  MessageCircle,
+  Puzzle,
+  RefreshCw,
+  Settings,
+  Star,
+} from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BuiButton, BuiCard } from "../components/beautiful-ui/primitives";
@@ -18,6 +27,9 @@ const Favorites = lazy(() =>
 const Plugins = lazy(() => import("./PluginsOverlay").then((m) => ({ default: m.PluginsOverlay })));
 const Mcp = lazy(() =>
   import("./McpServersOverlay").then((m) => ({ default: m.McpServersOverlay })),
+);
+const Monitor = lazy(() =>
+  import("./SystemMonitorOverlay").then((m) => ({ default: m.SystemMonitorOverlay })),
 );
 type Balance = Awaited<ReturnType<typeof rpc.usage.balances>>[number];
 const names: Record<string, string> = {
@@ -38,7 +50,9 @@ export function HomePage() {
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [error, setError] = useState("");
   const [balanceError, setBalanceError] = useState("");
-  const [panel, setPanel] = useState<"models" | "favorites" | "plugins" | "mcp" | null>(null);
+  const [panel, setPanel] = useState<
+    "models" | "favorites" | "plugins" | "mcp" | "monitor" | null
+  >(null);
   const [query, setQuery] = useState("");
   const [revision, setRevision] = useState(0);
   useEffect(() => {
@@ -216,6 +230,12 @@ export function HomePage() {
                 description: "Outils connectés",
                 Icon: Settings,
               },
+              {
+                id: "monitor" as const,
+                label: "Supervision",
+                description: "État de la machine",
+                Icon: Gauge,
+              },
             ].map(({ id, label, description, Icon }) => (
               <button type="button" key={id} className="rk-home-tile" onClick={() => setPanel(id)}>
                 <Icon size={22} className="mb-4 text-[var(--rk-accent)]" />
@@ -302,6 +322,7 @@ export function HomePage() {
           {panel === "favorites" && <Favorites onClose={close} />}
           {panel === "plugins" && <Plugins onClose={close} onOpenMcp={() => setPanel("mcp")} />}
           {panel === "mcp" && <Mcp onClose={close} />}
+          {panel === "monitor" && <Monitor onClose={close} />}
         </div>
       </Suspense>
     </div>
