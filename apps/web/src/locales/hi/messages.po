@@ -50,11 +50,6 @@ msgstr "{0} {unitLabel}"
 msgid "{0} connection"
 msgstr "{0} कनेक्शन"
 
-#. placeholder {0}: formatBytes(entry.free)
-#: src/pages/SystemMonitorOverlay.tsx:426
-msgid "{0} free"
-msgstr ""
-
 #. placeholder {0}: format(size / 1024)
 #: src/components/ArtifactFileCard.tsx:270
 msgid "{0} KB"
@@ -102,10 +97,6 @@ msgstr "{name} विफल रहा"
 #: src/lib/browser-notifications.ts:98
 msgid "{name} finished"
 msgstr "{name} पूरा हुआ"
-
-#: src/pages/SystemMonitorOverlay.tsx:234
-msgid "{name} is not responding."
-msgstr ""
 
 #. js-lingui-explicit-id
 #: src/lib/browser-notifications.ts:93
@@ -710,7 +701,7 @@ msgstr "साफ़ किया जा रहा है…"
 #: src/pages/PeerMessagesOverlay.tsx:209
 #: src/pages/PokemonPickerOverlay.tsx:67
 #: src/pages/RoutineEditor.tsx:263
-#: src/pages/SystemMonitorOverlay.tsx:259
+#: src/pages/SystemMonitorOverlay.tsx:105
 #: src/pages/WindowChrome.tsx:19
 msgid "Close"
 msgstr "बंद करें"
@@ -919,10 +910,6 @@ msgstr "कनेक्ट हो रहा है…"
 #: src/pages/PluginsOverlay.tsx:142
 msgid "Connection to {0} is still pending. You can close this and check again."
 msgstr "{0} से कनेक्शन अभी लंबित है। आप इसे बंद करके बाद में जांच सकते हैं।"
-
-#: src/pages/SystemMonitorOverlay.tsx:461
-msgid "Containers"
-msgstr ""
 
 #: src/pages/Onboarding.tsx:494
 #: src/pages/Onboarding.tsx:549
@@ -1238,15 +1225,6 @@ msgstr ""
 msgid "Couldn't update messaging settings"
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:471
-msgid "CPU"
-msgstr ""
-
-#. placeholder {0}: now.temps.apu
-#: src/pages/SystemMonitorOverlay.tsx:231
-msgid "CPU package at {0}°C."
-msgstr ""
-
 #: src/pages/Shell.tsx:2447
 #: src/pages/Shell.tsx:5746
 #: src/pages/Shell.tsx:6296
@@ -1431,12 +1409,6 @@ msgstr "डिस्कनेक्ट करें"
 msgid "Disconnecting…"
 msgstr "डिस्कनेक्ट हो रहा है…"
 
-#. placeholder {0}: entry.percent
-#. placeholder {1}: formatBytes(entry.free)
-#: src/pages/SystemMonitorOverlay.tsx:227
-msgid "Disk {name} is {0}% full — {1} left."
-msgstr ""
-
 #: src/components/teach/TeachComputerOverlay.tsx:251
 msgid "Dismiss"
 msgstr ""
@@ -1613,11 +1585,6 @@ msgstr "विफल।"
 msgid "Failure handling"
 msgstr "विफलता प्रबंधन"
 
-#. placeholder {0}: now.fan === null ? "—" : `${now.fan} rpm`
-#: src/pages/SystemMonitorOverlay.tsx:393
-msgid "fan {0}"
-msgstr ""
-
 #: src/pages/FavoriteModelsOverlay.tsx:129
 #: src/pages/Shell.tsx:2972
 msgid "Favorite models"
@@ -1674,10 +1641,6 @@ msgstr ""
 
 #: src/pages/RoutineEditor.tsx:45
 msgid "Git event"
-msgstr ""
-
-#: src/pages/SystemMonitorOverlay.tsx:355
-msgid "Graphics"
 msgstr ""
 
 #: src/pages/MessagingSettingsOverlay.tsx:198
@@ -1877,11 +1840,6 @@ msgstr ""
 msgid "Listening…"
 msgstr "सुना जा रहा है…"
 
-#. placeholder {0}: now.load.join(" · ")
-#: src/pages/SystemMonitorOverlay.tsx:317
-msgid "load {0}"
-msgstr ""
-
 #: src/pages/Shell.tsx:4256
 msgid "Load earlier messages"
 msgstr "पुराने संदेश लोड करें"
@@ -1982,15 +1940,8 @@ msgstr "सदस्य ({GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX} चुनें
 
 #: src/pages/MemorySettingsOverlay.tsx:134
 #: src/pages/Shell.tsx:3001
-#: src/pages/SystemMonitorOverlay.tsx:337
-#: src/pages/SystemMonitorOverlay.tsx:474
 msgid "Memory"
 msgstr "मेमोरी"
-
-#. placeholder {0}: now.memory.percent
-#: src/pages/SystemMonitorOverlay.tsx:230
-msgid "Memory at {0}%."
-msgstr ""
 
 #: src/pages/Shell.tsx:5999
 msgid "Memory scope"
@@ -2129,7 +2080,6 @@ msgstr "यहां ले जाएं"
 #: src/pages/Shell.tsx:5906
 #: src/pages/Shell.tsx:6191
 #: src/pages/Shell.tsx:6273
-#: src/pages/SystemMonitorOverlay.tsx:468
 msgid "Name"
 msgstr "नाम"
 
@@ -2153,10 +2103,6 @@ msgstr "इनपुट चाहिए"
 #: src/pages/ActivityList.tsx:213
 msgid "Needs takeover"
 msgstr "नियंत्रण लेना ज़रूरी"
-
-#: src/pages/SystemMonitorOverlay.tsx:411
-msgid "Network"
-msgstr ""
 
 #: src/pages/Shell.tsx:2461
 #: src/pages/Shell.tsx:5693
@@ -2268,7 +2214,7 @@ msgstr "कोई मॉडल कैटलॉग उपलब्ध नही�
 msgid "No model has run yet."
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:271
+#: src/pages/SystemMonitorOverlay.tsx:116
 msgid "No monitoring service on this host."
 msgstr ""
 
@@ -2342,14 +2288,6 @@ msgstr "OAuth उन प्रोवाइडर्स के लिए उप�
 msgid "On a schedule"
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:402
-msgid "on AC"
-msgstr ""
-
-#: src/pages/SystemMonitorOverlay.tsx:402
-msgid "on battery"
-msgstr ""
-
 #. placeholder {0}: preset.time
 #: src/pages/RoutineSchedule.tsx:96
 msgid "on the 1st at {0}"
@@ -2364,6 +2302,10 @@ msgstr "खोलें"
 #. placeholder {0}: group.title
 #: src/pages/Shell.tsx:2603
 msgid "Open {0}"
+msgstr ""
+
+#: src/pages/SystemMonitorOverlay.tsx:101
+msgid "Open in a tab"
 msgstr ""
 
 #: src/pages/Shell.tsx:3322
@@ -2496,10 +2438,6 @@ msgstr "प्ले हो रहा है…"
 msgid "POST to"
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:397
-msgid "Power"
-msgstr ""
-
 #. placeholder {0}: props.name
 #: src/components/ArtifactFileCard.tsx:68
 msgid "Preview {0}"
@@ -2508,10 +2446,6 @@ msgstr "{0} का प्रीव्यू"
 #: src/pages/Shell.tsx:5648
 msgid "Private"
 msgstr "निजी"
-
-#: src/pages/SystemMonitorOverlay.tsx:313
-msgid "Processor"
-msgstr ""
 
 #: src/pages/MemorySettingsOverlay.tsx:194
 msgid "Provider"
@@ -2526,19 +2460,17 @@ msgstr "प्रोवाइडर्स"
 msgid "Queued"
 msgstr "कतार में"
 
+#: src/pages/SystemMonitorOverlay.tsx:131
+msgid "Reaching the monitoring service…"
+msgstr ""
+
 #: src/pages/Shell.tsx:6031
 msgid "Read replies aloud"
 msgstr "उत्तर पढ़कर सुनाएं"
 
-#. placeholder {0}: new Date(now.at * 1000).toLocaleTimeString()
-#. placeholder {1}: formatUptime(now.uptime)
-#: src/pages/SystemMonitorOverlay.tsx:306
-msgid "Reading {0} · up {1}"
-msgstr ""
-
 #. placeholder {0}: base.current
-#: src/pages/SystemMonitorOverlay.tsx:274
-msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0>."
+#: src/pages/SystemMonitorOverlay.tsx:119
+msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0> — see infra/monitoring in the repository."
 msgstr ""
 
 #: src/pages/FavoriteModelsOverlay.tsx:188
@@ -2776,11 +2708,6 @@ msgstr "चल रहा है"
 msgid "Running · Stop"
 msgstr "चल रहा है · रोकें"
 
-#. placeholder {0}: now.battery.capacity ?? "?"
-#: src/pages/SystemMonitorOverlay.tsx:222
-msgid "Running on battery ({0}%) — the host will shut down when it empties."
-msgstr ""
-
 #: src/pages/RoutineEditor.tsx:303
 msgid "Running…"
 msgstr "चल रहा है…"
@@ -2915,10 +2842,6 @@ msgstr "सर्वर का नाम"
 #: src/pages/Onboarding.tsx:267
 msgid "Server URL"
 msgstr "सर्वर URL"
-
-#: src/pages/SystemMonitorOverlay.tsx:433
-msgid "Services"
-msgstr ""
 
 #: src/pages/Shell.tsx:3137
 msgid "Set up voice to call"
@@ -3096,10 +3019,6 @@ msgstr ""
 msgid "Stopped."
 msgstr "रोक दिया गया।"
 
-#: src/pages/SystemMonitorOverlay.tsx:422
-msgid "Storage {name}"
-msgstr ""
-
 #: src/pages/McpServersOverlay.tsx:336
 msgid "Stored encrypted"
 msgstr "एन्क्रिप्टेड रूप में संग्रहीत"
@@ -3122,12 +3041,6 @@ msgstr ""
 msgid "Suspended"
 msgstr ""
 
-#. placeholder {0}: formatBytes(now.memory.swap_used)
-#. placeholder {1}: formatBytes(now.memory.swap_total)
-#: src/pages/SystemMonitorOverlay.tsx:347
-msgid "swap {0} / {1}"
-msgstr ""
-
 #: src/pages/ModelSettingsOverlay.tsx:704
 msgid "Switching…"
 msgstr "बदला जा रहा है…"
@@ -3137,12 +3050,9 @@ msgid "System"
 msgstr ""
 
 #: src/pages/Shell.tsx:2988
-#: src/pages/SystemMonitorOverlay.tsx:252
+#: src/pages/SystemMonitorOverlay.tsx:92
+#: src/pages/SystemMonitorOverlay.tsx:138
 msgid "System monitor"
-msgstr ""
-
-#: src/pages/SystemMonitorOverlay.tsx:285
-msgid "Taking the first reading…"
 msgstr ""
 
 #: src/components/teach/TeachComputerOverlay.tsx:259
@@ -3164,10 +3074,6 @@ msgstr "टीम कंप्यूटर"
 
 #: src/pages/RoutineEditor.tsx:46
 msgid "Teams message"
-msgstr ""
-
-#: src/pages/SystemMonitorOverlay.tsx:380
-msgid "Temperatures"
 msgstr ""
 
 #: src/components/teach/SkillDraftCard.tsx:170
@@ -3302,10 +3208,6 @@ msgstr ""
 msgid "Unpin"
 msgstr "पिन हटाएं"
 
-#: src/pages/SystemMonitorOverlay.tsx:449
-msgid "unreachable"
-msgstr ""
-
 #. placeholder {0}: pending.file.name
 #: src/pages/Shell.tsx:2027
 msgid "Unsupported file type: {0}"
@@ -3380,12 +3282,6 @@ msgstr "पुष्टि की जा रही है…"
 #: src/pages/VoiceSettingsOverlay.tsx:266
 msgid "Voice"
 msgstr "आवाज़"
-
-#. placeholder {0}: formatBytes(now.gpu.vram_used)
-#. placeholder {1}: formatBytes(now.gpu.vram_total)
-#: src/pages/SystemMonitorOverlay.tsx:370
-msgid "VRAM {0} / {1}"
-msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx:580
 #: src/pages/ModelSettingsOverlay.tsx:602

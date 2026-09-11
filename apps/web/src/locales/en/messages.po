@@ -50,11 +50,6 @@ msgstr "{0} {unitLabel}"
 msgid "{0} connection"
 msgstr "{0} connection"
 
-#. placeholder {0}: formatBytes(entry.free)
-#: src/pages/SystemMonitorOverlay.tsx:426
-msgid "{0} free"
-msgstr "{0} free"
-
 #. placeholder {0}: format(size / 1024)
 #: src/components/ArtifactFileCard.tsx:270
 msgid "{0} KB"
@@ -102,10 +97,6 @@ msgstr "{name} failed"
 #: src/lib/browser-notifications.ts:98
 msgid "{name} finished"
 msgstr "{name} finished"
-
-#: src/pages/SystemMonitorOverlay.tsx:234
-msgid "{name} is not responding."
-msgstr "{name} is not responding."
 
 #. js-lingui-explicit-id
 #: src/lib/browser-notifications.ts:93
@@ -710,7 +701,7 @@ msgstr "Clearing…"
 #: src/pages/PeerMessagesOverlay.tsx:209
 #: src/pages/PokemonPickerOverlay.tsx:67
 #: src/pages/RoutineEditor.tsx:263
-#: src/pages/SystemMonitorOverlay.tsx:259
+#: src/pages/SystemMonitorOverlay.tsx:105
 #: src/pages/WindowChrome.tsx:19
 msgid "Close"
 msgstr "Close"
@@ -919,10 +910,6 @@ msgstr "Connecting…"
 #: src/pages/PluginsOverlay.tsx:142
 msgid "Connection to {0} is still pending. You can close this and check again."
 msgstr "Connection to {0} is still pending. You can close this and check again."
-
-#: src/pages/SystemMonitorOverlay.tsx:461
-msgid "Containers"
-msgstr "Containers"
 
 #: src/pages/Onboarding.tsx:494
 #: src/pages/Onboarding.tsx:549
@@ -1238,15 +1225,6 @@ msgstr "Couldn't update avatars"
 msgid "Couldn't update messaging settings"
 msgstr "Couldn't update messaging settings"
 
-#: src/pages/SystemMonitorOverlay.tsx:471
-msgid "CPU"
-msgstr "CPU"
-
-#. placeholder {0}: now.temps.apu
-#: src/pages/SystemMonitorOverlay.tsx:231
-msgid "CPU package at {0}°C."
-msgstr "CPU package at {0}°C."
-
 #: src/pages/Shell.tsx:2447
 #: src/pages/Shell.tsx:5746
 #: src/pages/Shell.tsx:6296
@@ -1431,12 +1409,6 @@ msgstr "Disconnect"
 msgid "Disconnecting…"
 msgstr "Disconnecting…"
 
-#. placeholder {0}: entry.percent
-#. placeholder {1}: formatBytes(entry.free)
-#: src/pages/SystemMonitorOverlay.tsx:227
-msgid "Disk {name} is {0}% full — {1} left."
-msgstr "Disk {name} is {0}% full — {1} left."
-
 #: src/components/teach/TeachComputerOverlay.tsx:251
 msgid "Dismiss"
 msgstr "Dismiss"
@@ -1613,11 +1585,6 @@ msgstr "Failed."
 msgid "Failure handling"
 msgstr "Failure handling"
 
-#. placeholder {0}: now.fan === null ? "—" : `${now.fan} rpm`
-#: src/pages/SystemMonitorOverlay.tsx:393
-msgid "fan {0}"
-msgstr "fan {0}"
-
 #: src/pages/FavoriteModelsOverlay.tsx:129
 #: src/pages/Shell.tsx:2972
 msgid "Favorite models"
@@ -1675,10 +1642,6 @@ msgstr "Generations I–V only: later sprites are not animated."
 #: src/pages/RoutineEditor.tsx:45
 msgid "Git event"
 msgstr "Git event"
-
-#: src/pages/SystemMonitorOverlay.tsx:355
-msgid "Graphics"
-msgstr "Graphics"
 
 #: src/pages/MessagingSettingsOverlay.tsx:198
 #: src/pages/Shell.tsx:3117
@@ -1877,11 +1840,6 @@ msgstr "Link a chat app"
 msgid "Listening…"
 msgstr "Listening…"
 
-#. placeholder {0}: now.load.join(" · ")
-#: src/pages/SystemMonitorOverlay.tsx:317
-msgid "load {0}"
-msgstr "load {0}"
-
 #: src/pages/Shell.tsx:4256
 msgid "Load earlier messages"
 msgstr "Load earlier messages"
@@ -1982,15 +1940,8 @@ msgstr "Members (pick {GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX})"
 
 #: src/pages/MemorySettingsOverlay.tsx:134
 #: src/pages/Shell.tsx:3001
-#: src/pages/SystemMonitorOverlay.tsx:337
-#: src/pages/SystemMonitorOverlay.tsx:474
 msgid "Memory"
 msgstr "Memory"
-
-#. placeholder {0}: now.memory.percent
-#: src/pages/SystemMonitorOverlay.tsx:230
-msgid "Memory at {0}%."
-msgstr "Memory at {0}%."
 
 #: src/pages/Shell.tsx:5999
 msgid "Memory scope"
@@ -2129,7 +2080,6 @@ msgstr "Move to"
 #: src/pages/Shell.tsx:5906
 #: src/pages/Shell.tsx:6191
 #: src/pages/Shell.tsx:6273
-#: src/pages/SystemMonitorOverlay.tsx:468
 msgid "Name"
 msgstr "Name"
 
@@ -2153,10 +2103,6 @@ msgstr "Needs input"
 #: src/pages/ActivityList.tsx:213
 msgid "Needs takeover"
 msgstr "Needs takeover"
-
-#: src/pages/SystemMonitorOverlay.tsx:411
-msgid "Network"
-msgstr "Network"
 
 #: src/pages/Shell.tsx:2461
 #: src/pages/Shell.tsx:5693
@@ -2268,7 +2214,7 @@ msgstr "No model catalog is available."
 msgid "No model has run yet."
 msgstr "No model has run yet."
 
-#: src/pages/SystemMonitorOverlay.tsx:271
+#: src/pages/SystemMonitorOverlay.tsx:116
 msgid "No monitoring service on this host."
 msgstr "No monitoring service on this host."
 
@@ -2342,14 +2288,6 @@ msgstr "OAuth will be available for providers that support browser authorization
 msgid "On a schedule"
 msgstr "On a schedule"
 
-#: src/pages/SystemMonitorOverlay.tsx:402
-msgid "on AC"
-msgstr "on AC"
-
-#: src/pages/SystemMonitorOverlay.tsx:402
-msgid "on battery"
-msgstr "on battery"
-
 #. placeholder {0}: preset.time
 #: src/pages/RoutineSchedule.tsx:96
 msgid "on the 1st at {0}"
@@ -2365,6 +2303,10 @@ msgstr "Open"
 #: src/pages/Shell.tsx:2603
 msgid "Open {0}"
 msgstr "Open {0}"
+
+#: src/pages/SystemMonitorOverlay.tsx:101
+msgid "Open in a tab"
+msgstr "Open in a tab"
 
 #: src/pages/Shell.tsx:3322
 msgid "Open in full window"
@@ -2496,10 +2438,6 @@ msgstr "Playing…"
 msgid "POST to"
 msgstr "POST to"
 
-#: src/pages/SystemMonitorOverlay.tsx:397
-msgid "Power"
-msgstr "Power"
-
 #. placeholder {0}: props.name
 #: src/components/ArtifactFileCard.tsx:68
 msgid "Preview {0}"
@@ -2508,10 +2446,6 @@ msgstr "Preview {0}"
 #: src/pages/Shell.tsx:5648
 msgid "Private"
 msgstr "Private"
-
-#: src/pages/SystemMonitorOverlay.tsx:313
-msgid "Processor"
-msgstr "Processor"
 
 #: src/pages/MemorySettingsOverlay.tsx:194
 msgid "Provider"
@@ -2526,20 +2460,18 @@ msgstr "Providers"
 msgid "Queued"
 msgstr "Queued"
 
+#: src/pages/SystemMonitorOverlay.tsx:131
+msgid "Reaching the monitoring service…"
+msgstr "Reaching the monitoring service…"
+
 #: src/pages/Shell.tsx:6031
 msgid "Read replies aloud"
 msgstr "Read replies aloud"
 
-#. placeholder {0}: new Date(now.at * 1000).toLocaleTimeString()
-#. placeholder {1}: formatUptime(now.uptime)
-#: src/pages/SystemMonitorOverlay.tsx:306
-msgid "Reading {0} · up {1}"
-msgstr "Reading {0} · up {1}"
-
 #. placeholder {0}: base.current
-#: src/pages/SystemMonitorOverlay.tsx:274
-msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0>."
-msgstr "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0>."
+#: src/pages/SystemMonitorOverlay.tsx:119
+msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0> — see infra/monitoring in the repository."
+msgstr "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0> — see infra/monitoring in the repository."
 
 #: src/pages/FavoriteModelsOverlay.tsx:188
 msgid "Reasoning"
@@ -2776,11 +2708,6 @@ msgstr "Running"
 msgid "Running · Stop"
 msgstr "Running · Stop"
 
-#. placeholder {0}: now.battery.capacity ?? "?"
-#: src/pages/SystemMonitorOverlay.tsx:222
-msgid "Running on battery ({0}%) — the host will shut down when it empties."
-msgstr "Running on battery ({0}%) — the host will shut down when it empties."
-
 #: src/pages/RoutineEditor.tsx:303
 msgid "Running…"
 msgstr "Running…"
@@ -2915,10 +2842,6 @@ msgstr "Server name"
 #: src/pages/Onboarding.tsx:267
 msgid "Server URL"
 msgstr "Server URL"
-
-#: src/pages/SystemMonitorOverlay.tsx:433
-msgid "Services"
-msgstr "Services"
 
 #: src/pages/Shell.tsx:3137
 msgid "Set up voice to call"
@@ -3096,10 +3019,6 @@ msgstr "Stopped"
 msgid "Stopped."
 msgstr "Stopped."
 
-#: src/pages/SystemMonitorOverlay.tsx:422
-msgid "Storage {name}"
-msgstr "Storage {name}"
-
 #: src/pages/McpServersOverlay.tsx:336
 msgid "Stored encrypted"
 msgstr "Stored encrypted"
@@ -3122,12 +3041,6 @@ msgstr "Submitted"
 msgid "Suspended"
 msgstr "Suspended"
 
-#. placeholder {0}: formatBytes(now.memory.swap_used)
-#. placeholder {1}: formatBytes(now.memory.swap_total)
-#: src/pages/SystemMonitorOverlay.tsx:347
-msgid "swap {0} / {1}"
-msgstr "swap {0} / {1}"
-
 #: src/pages/ModelSettingsOverlay.tsx:704
 msgid "Switching…"
 msgstr "Switching…"
@@ -3137,13 +3050,10 @@ msgid "System"
 msgstr "System"
 
 #: src/pages/Shell.tsx:2988
-#: src/pages/SystemMonitorOverlay.tsx:252
+#: src/pages/SystemMonitorOverlay.tsx:92
+#: src/pages/SystemMonitorOverlay.tsx:138
 msgid "System monitor"
 msgstr "System monitor"
-
-#: src/pages/SystemMonitorOverlay.tsx:285
-msgid "Taking the first reading…"
-msgstr "Taking the first reading…"
 
 #: src/components/teach/TeachComputerOverlay.tsx:259
 #: src/components/teach/TeachComputerOverlay.tsx:278
@@ -3165,10 +3075,6 @@ msgstr "Team Computer"
 #: src/pages/RoutineEditor.tsx:46
 msgid "Teams message"
 msgstr "Teams message"
-
-#: src/pages/SystemMonitorOverlay.tsx:380
-msgid "Temperatures"
-msgstr "Temperatures"
 
 #: src/components/teach/SkillDraftCard.tsx:170
 msgid "Test"
@@ -3302,10 +3208,6 @@ msgstr "Unlink"
 msgid "Unpin"
 msgstr "Unpin"
 
-#: src/pages/SystemMonitorOverlay.tsx:449
-msgid "unreachable"
-msgstr "unreachable"
-
 #. placeholder {0}: pending.file.name
 #: src/pages/Shell.tsx:2027
 msgid "Unsupported file type: {0}"
@@ -3380,12 +3282,6 @@ msgstr "Verifying…"
 #: src/pages/VoiceSettingsOverlay.tsx:266
 msgid "Voice"
 msgstr "Voice"
-
-#. placeholder {0}: formatBytes(now.gpu.vram_used)
-#. placeholder {1}: formatBytes(now.gpu.vram_total)
-#: src/pages/SystemMonitorOverlay.tsx:370
-msgid "VRAM {0} / {1}"
-msgstr "VRAM {0} / {1}"
 
 #: src/pages/ModelSettingsOverlay.tsx:580
 #: src/pages/ModelSettingsOverlay.tsx:602

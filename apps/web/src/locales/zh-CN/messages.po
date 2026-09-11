@@ -50,11 +50,6 @@ msgstr "{0} {unitLabel}"
 msgid "{0} connection"
 msgstr "{0} 连接"
 
-#. placeholder {0}: formatBytes(entry.free)
-#: src/pages/SystemMonitorOverlay.tsx:426
-msgid "{0} free"
-msgstr ""
-
 #. placeholder {0}: format(size / 1024)
 #: src/components/ArtifactFileCard.tsx:270
 msgid "{0} KB"
@@ -102,10 +97,6 @@ msgstr "{name} 失败"
 #: src/lib/browser-notifications.ts:98
 msgid "{name} finished"
 msgstr "{name} 已完成"
-
-#: src/pages/SystemMonitorOverlay.tsx:234
-msgid "{name} is not responding."
-msgstr ""
 
 #. js-lingui-explicit-id
 #: src/lib/browser-notifications.ts:93
@@ -710,7 +701,7 @@ msgstr "正在清空…"
 #: src/pages/PeerMessagesOverlay.tsx:209
 #: src/pages/PokemonPickerOverlay.tsx:67
 #: src/pages/RoutineEditor.tsx:263
-#: src/pages/SystemMonitorOverlay.tsx:259
+#: src/pages/SystemMonitorOverlay.tsx:105
 #: src/pages/WindowChrome.tsx:19
 msgid "Close"
 msgstr "关闭"
@@ -919,10 +910,6 @@ msgstr "正在连接…"
 #: src/pages/PluginsOverlay.tsx:142
 msgid "Connection to {0} is still pending. You can close this and check again."
 msgstr "与 {0} 的连接仍在等待。可以关闭此窗口稍后再看。"
-
-#: src/pages/SystemMonitorOverlay.tsx:461
-msgid "Containers"
-msgstr ""
 
 #: src/pages/Onboarding.tsx:494
 #: src/pages/Onboarding.tsx:549
@@ -1238,15 +1225,6 @@ msgstr "无法更新头像"
 msgid "Couldn't update messaging settings"
 msgstr "无法更新消息设置"
 
-#: src/pages/SystemMonitorOverlay.tsx:471
-msgid "CPU"
-msgstr ""
-
-#. placeholder {0}: now.temps.apu
-#: src/pages/SystemMonitorOverlay.tsx:231
-msgid "CPU package at {0}°C."
-msgstr ""
-
 #: src/pages/Shell.tsx:2447
 #: src/pages/Shell.tsx:5746
 #: src/pages/Shell.tsx:6296
@@ -1431,12 +1409,6 @@ msgstr "断开"
 msgid "Disconnecting…"
 msgstr "正在断开…"
 
-#. placeholder {0}: entry.percent
-#. placeholder {1}: formatBytes(entry.free)
-#: src/pages/SystemMonitorOverlay.tsx:227
-msgid "Disk {name} is {0}% full — {1} left."
-msgstr ""
-
 #: src/components/teach/TeachComputerOverlay.tsx:251
 msgid "Dismiss"
 msgstr ""
@@ -1613,11 +1585,6 @@ msgstr "失败。"
 msgid "Failure handling"
 msgstr "失败处理"
 
-#. placeholder {0}: now.fan === null ? "—" : `${now.fan} rpm`
-#: src/pages/SystemMonitorOverlay.tsx:393
-msgid "fan {0}"
-msgstr ""
-
 #: src/pages/FavoriteModelsOverlay.tsx:129
 #: src/pages/Shell.tsx:2972
 msgid "Favorite models"
@@ -1675,10 +1642,6 @@ msgstr ""
 #: src/pages/RoutineEditor.tsx:45
 msgid "Git event"
 msgstr "Git 事件"
-
-#: src/pages/SystemMonitorOverlay.tsx:355
-msgid "Graphics"
-msgstr ""
 
 #: src/pages/MessagingSettingsOverlay.tsx:198
 #: src/pages/Shell.tsx:3117
@@ -1877,11 +1840,6 @@ msgstr "关联聊天应用"
 msgid "Listening…"
 msgstr "正在听…"
 
-#. placeholder {0}: now.load.join(" · ")
-#: src/pages/SystemMonitorOverlay.tsx:317
-msgid "load {0}"
-msgstr ""
-
 #: src/pages/Shell.tsx:4256
 msgid "Load earlier messages"
 msgstr "加载更早的消息"
@@ -1982,15 +1940,8 @@ msgstr "成员（选择 {GROUP_MEMBER_MIN}–{GROUP_MEMBER_MAX} 个）"
 
 #: src/pages/MemorySettingsOverlay.tsx:134
 #: src/pages/Shell.tsx:3001
-#: src/pages/SystemMonitorOverlay.tsx:337
-#: src/pages/SystemMonitorOverlay.tsx:474
 msgid "Memory"
 msgstr "记忆"
-
-#. placeholder {0}: now.memory.percent
-#: src/pages/SystemMonitorOverlay.tsx:230
-msgid "Memory at {0}%."
-msgstr ""
 
 #: src/pages/Shell.tsx:5999
 msgid "Memory scope"
@@ -2129,7 +2080,6 @@ msgstr "移动到"
 #: src/pages/Shell.tsx:5906
 #: src/pages/Shell.tsx:6191
 #: src/pages/Shell.tsx:6273
-#: src/pages/SystemMonitorOverlay.tsx:468
 msgid "Name"
 msgstr "名称"
 
@@ -2153,10 +2103,6 @@ msgstr "需要输入"
 #: src/pages/ActivityList.tsx:213
 msgid "Needs takeover"
 msgstr "需要接管"
-
-#: src/pages/SystemMonitorOverlay.tsx:411
-msgid "Network"
-msgstr ""
 
 #: src/pages/Shell.tsx:2461
 #: src/pages/Shell.tsx:5693
@@ -2268,7 +2214,7 @@ msgstr "没有可用的模型目录。"
 msgid "No model has run yet."
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:271
+#: src/pages/SystemMonitorOverlay.tsx:116
 msgid "No monitoring service on this host."
 msgstr ""
 
@@ -2342,14 +2288,6 @@ msgstr "支持浏览器授权的提供方可以使用 OAuth。静态请求头现
 msgid "On a schedule"
 msgstr "按计划"
 
-#: src/pages/SystemMonitorOverlay.tsx:402
-msgid "on AC"
-msgstr ""
-
-#: src/pages/SystemMonitorOverlay.tsx:402
-msgid "on battery"
-msgstr ""
-
 #. placeholder {0}: preset.time
 #: src/pages/RoutineSchedule.tsx:96
 msgid "on the 1st at {0}"
@@ -2365,6 +2303,10 @@ msgstr "打开"
 #: src/pages/Shell.tsx:2603
 msgid "Open {0}"
 msgstr "打开 {0}"
+
+#: src/pages/SystemMonitorOverlay.tsx:101
+msgid "Open in a tab"
+msgstr ""
 
 #: src/pages/Shell.tsx:3322
 msgid "Open in full window"
@@ -2496,10 +2438,6 @@ msgstr "播放中…"
 msgid "POST to"
 msgstr "POST 到"
 
-#: src/pages/SystemMonitorOverlay.tsx:397
-msgid "Power"
-msgstr ""
-
 #. placeholder {0}: props.name
 #: src/components/ArtifactFileCard.tsx:68
 msgid "Preview {0}"
@@ -2508,10 +2446,6 @@ msgstr "预览 {0}"
 #: src/pages/Shell.tsx:5648
 msgid "Private"
 msgstr "私有"
-
-#: src/pages/SystemMonitorOverlay.tsx:313
-msgid "Processor"
-msgstr ""
 
 #: src/pages/MemorySettingsOverlay.tsx:194
 msgid "Provider"
@@ -2526,19 +2460,17 @@ msgstr "提供方"
 msgid "Queued"
 msgstr "排队中"
 
+#: src/pages/SystemMonitorOverlay.tsx:131
+msgid "Reaching the monitoring service…"
+msgstr ""
+
 #: src/pages/Shell.tsx:6031
 msgid "Read replies aloud"
 msgstr "朗读回复"
 
-#. placeholder {0}: new Date(now.at * 1000).toLocaleTimeString()
-#. placeholder {1}: formatUptime(now.uptime)
-#: src/pages/SystemMonitorOverlay.tsx:306
-msgid "Reading {0} · up {1}"
-msgstr ""
-
 #. placeholder {0}: base.current
-#: src/pages/SystemMonitorOverlay.tsx:274
-msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0>."
+#: src/pages/SystemMonitorOverlay.tsx:119
+msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0> — see infra/monitoring in the repository."
 msgstr ""
 
 #: src/pages/FavoriteModelsOverlay.tsx:188
@@ -2776,11 +2708,6 @@ msgstr "运行中"
 msgid "Running · Stop"
 msgstr "运行中 · 停止"
 
-#. placeholder {0}: now.battery.capacity ?? "?"
-#: src/pages/SystemMonitorOverlay.tsx:222
-msgid "Running on battery ({0}%) — the host will shut down when it empties."
-msgstr ""
-
 #: src/pages/RoutineEditor.tsx:303
 msgid "Running…"
 msgstr "正在运行…"
@@ -2915,10 +2842,6 @@ msgstr "服务器名称"
 #: src/pages/Onboarding.tsx:267
 msgid "Server URL"
 msgstr "服务器 URL"
-
-#: src/pages/SystemMonitorOverlay.tsx:433
-msgid "Services"
-msgstr ""
 
 #: src/pages/Shell.tsx:3137
 msgid "Set up voice to call"
@@ -3096,10 +3019,6 @@ msgstr ""
 msgid "Stopped."
 msgstr "已停止。"
 
-#: src/pages/SystemMonitorOverlay.tsx:422
-msgid "Storage {name}"
-msgstr ""
-
 #: src/pages/McpServersOverlay.tsx:336
 msgid "Stored encrypted"
 msgstr "已加密存储"
@@ -3122,12 +3041,6 @@ msgstr "已提交"
 msgid "Suspended"
 msgstr ""
 
-#. placeholder {0}: formatBytes(now.memory.swap_used)
-#. placeholder {1}: formatBytes(now.memory.swap_total)
-#: src/pages/SystemMonitorOverlay.tsx:347
-msgid "swap {0} / {1}"
-msgstr ""
-
 #: src/pages/ModelSettingsOverlay.tsx:704
 msgid "Switching…"
 msgstr "正在切换…"
@@ -3137,12 +3050,9 @@ msgid "System"
 msgstr ""
 
 #: src/pages/Shell.tsx:2988
-#: src/pages/SystemMonitorOverlay.tsx:252
+#: src/pages/SystemMonitorOverlay.tsx:92
+#: src/pages/SystemMonitorOverlay.tsx:138
 msgid "System monitor"
-msgstr ""
-
-#: src/pages/SystemMonitorOverlay.tsx:285
-msgid "Taking the first reading…"
 msgstr ""
 
 #: src/components/teach/TeachComputerOverlay.tsx:259
@@ -3165,10 +3075,6 @@ msgstr "团队电脑"
 #: src/pages/RoutineEditor.tsx:46
 msgid "Teams message"
 msgstr "Teams 消息"
-
-#: src/pages/SystemMonitorOverlay.tsx:380
-msgid "Temperatures"
-msgstr ""
 
 #: src/components/teach/SkillDraftCard.tsx:170
 msgid "Test"
@@ -3302,10 +3208,6 @@ msgstr "取消关联"
 msgid "Unpin"
 msgstr "取消置顶"
 
-#: src/pages/SystemMonitorOverlay.tsx:449
-msgid "unreachable"
-msgstr ""
-
 #. placeholder {0}: pending.file.name
 #: src/pages/Shell.tsx:2027
 msgid "Unsupported file type: {0}"
@@ -3380,12 +3282,6 @@ msgstr "正在校验…"
 #: src/pages/VoiceSettingsOverlay.tsx:266
 msgid "Voice"
 msgstr "语音"
-
-#. placeholder {0}: formatBytes(now.gpu.vram_used)
-#. placeholder {1}: formatBytes(now.gpu.vram_total)
-#: src/pages/SystemMonitorOverlay.tsx:370
-msgid "VRAM {0} / {1}"
-msgstr ""
 
 #: src/pages/ModelSettingsOverlay.tsx:580
 #: src/pages/ModelSettingsOverlay.tsx:602
