@@ -10,6 +10,10 @@
 # doivent rester cohérentes avec son `node_modules`. Si une dépendance nouvelle
 # apparaît, il faudra reconstruire l'image — le script le dira plutôt que de
 # produire un bundle bancal.
+#
+# Les sources de `packages/contracts` sont montées aussi : l'interface appelle
+# l'API à travers ces contrats, et un bundle construit contre ceux de l'image
+# ignorerait toute procédure ou option ajoutée depuis dans cet arbre.
 set -euo pipefail
 
 SRC=/home/deck/rakazo-src
@@ -30,6 +34,7 @@ podman run --rm --user 0 \
   -v "$WEB/vite.config.ts":/app/apps/web/vite.config.ts:ro \
   -v "$WEB/lingui.config.ts":/app/apps/web/lingui.config.ts:ro \
   -v "$WEB/tsconfig.json":/app/apps/web/tsconfig.json:ro \
+  -v "$SRC/packages/contracts/src":/app/packages/contracts/src:ro \
   -v "$OUT":/app/apps/web/dist:rw \
   -e NODE_ENV=production \
   --entrypoint sh \

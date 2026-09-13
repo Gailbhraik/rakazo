@@ -2,6 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { ExternalLink, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
+import { monitorBase } from "../lib/monitor";
 
 /**
  * Pages rendues par le service de supervision de l'hôte, montrées dans l'interface.
@@ -20,28 +21,6 @@ import { useEffect, useRef, useState } from "react";
  * Le service est optionnel : une instance qui ne l'a pas installé lit ce qui
  * lui manque, plutôt que de contempler un cadre vide.
  */
-
-/** Port du service de supervision, sur l'hôte qui sert déjà l'interface. */
-const MONITOR_PORT = 8444;
-
-/**
- * Adresse du service, déduite de l'origine courante.
- *
- * Une valeur figée à la compilation ne conviendrait pas : le même bundle sert
- * l'accès local et l'accès distant, sous deux noms d'hôte différents.
- * `localStorage` permet de pointer ailleurs quand la supervision ne tourne pas
- * sur la même machine que l'interface.
- */
-function monitorBase(): string {
-  try {
-    const override = localStorage.getItem("rk.monitor.base");
-    if (override) return override.replace(/\/+$/, "");
-  } catch {
-    // Navigation privée, stockage refusé : on retombe sur la déduction.
-  }
-  const { protocol, hostname } = window.location;
-  return `${protocol}//${hostname}:${MONITOR_PORT}`;
-}
 
 type Reachability = "checking" | "up" | "absent";
 

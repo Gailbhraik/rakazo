@@ -676,7 +676,7 @@ msgstr "Choose an avatar"
 msgid "Choose which connected model Ashitaka uses."
 msgstr "Choose which connected model Ashitaka uses."
 
-#: src/pages/SystemMonitorOverlay.tsx:188
+#: src/pages/SystemMonitorOverlay.tsx:167
 msgid "Claude usage"
 msgstr "Claude usage"
 
@@ -705,7 +705,7 @@ msgstr "Clearing…"
 #: src/pages/PeerMessagesOverlay.tsx:209
 #: src/pages/PokemonPickerOverlay.tsx:67
 #: src/pages/RoutineEditor.tsx:263
-#: src/pages/SystemMonitorOverlay.tsx:124
+#: src/pages/SystemMonitorOverlay.tsx:103
 #: src/pages/WindowChrome.tsx:19
 msgid "Close"
 msgstr "Close"
@@ -2053,7 +2053,7 @@ msgstr "Models from server"
 msgid "Models missing from the catalog are excluded from the total."
 msgstr "Models missing from the catalog are excluded from the total."
 
-#: src/pages/SystemMonitorOverlay.tsx:143
+#: src/pages/SystemMonitorOverlay.tsx:122
 msgid "Monitoring"
 msgstr "Monitoring"
 
@@ -2222,8 +2222,8 @@ msgstr "No model catalog is available."
 msgid "No model has run yet."
 msgstr "No model has run yet."
 
-#: src/pages/SystemMonitorOverlay.tsx:162
-#: src/pages/SystemMonitorOverlay.tsx:192
+#: src/pages/SystemMonitorOverlay.tsx:141
+#: src/pages/SystemMonitorOverlay.tsx:171
 msgid "No monitoring service on this host."
 msgstr "No monitoring service on this host."
 
@@ -2313,7 +2313,7 @@ msgstr "Open"
 msgid "Open {0}"
 msgstr "Open {0}"
 
-#: src/pages/SystemMonitorOverlay.tsx:120
+#: src/pages/SystemMonitorOverlay.tsx:99
 msgid "Open in a tab"
 msgstr "Open in a tab"
 
@@ -2469,7 +2469,7 @@ msgstr "Providers"
 msgid "Queued"
 msgstr "Queued"
 
-#: src/pages/SystemMonitorOverlay.tsx:136
+#: src/pages/SystemMonitorOverlay.tsx:115
 msgid "Reaching the monitoring service…"
 msgstr "Reaching the monitoring service…"
 
@@ -2477,7 +2477,7 @@ msgstr "Reaching the monitoring service…"
 msgid "Read replies aloud"
 msgstr "Read replies aloud"
 
-#: src/pages/SystemMonitorOverlay.tsx:165
+#: src/pages/SystemMonitorOverlay.tsx:144
 msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. See infra/monitoring in the repository."
 msgstr "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. See infra/monitoring in the repository."
 
@@ -3058,7 +3058,7 @@ msgid "System"
 msgstr "System"
 
 #: src/pages/Shell.tsx:2988
-#: src/pages/SystemMonitorOverlay.tsx:158
+#: src/pages/SystemMonitorOverlay.tsx:137
 msgid "System monitor"
 msgstr "System monitor"
 
@@ -3262,7 +3262,7 @@ msgstr "Updating…"
 msgid "Usage"
 msgstr "Usage"
 
-#: src/pages/SystemMonitorOverlay.tsx:195
+#: src/pages/SystemMonitorOverlay.tsx:174
 msgid "Usage is read from the Claude Code transcripts stored on the host, which the containers cannot see on their own. See infra/monitoring in the repository."
 msgstr "Usage is read from the Claude Code transcripts stored on the host, which the containers cannot see on their own. See infra/monitoring in the repository."
 

@@ -3518,10 +3518,14 @@ export function createRouter(deps: RouterDeps) {
           createdAt: row.createdAt.toISOString(),
         }));
       }),
-      byModel: authed.usage.byModel.handler(async ({ context }) => {
+      byModel: authed.usage.byModel.handler(async ({ context, input }) => {
         const rows = await deps.prisma.usageRecord.groupBy({
           by: ["provider", "model"],
-          where: { spaceId: context.actor.spaceId, userId: context.actor.userId },
+          where: {
+            spaceId: context.actor.spaceId,
+            userId: context.actor.userId,
+            ...(input?.since ? { createdAt: { gte: new Date(input.since) } } : {}),
+          },
           _sum: { inputTokens: true, outputTokens: true },
           _count: { _all: true },
           _max: { createdAt: true },

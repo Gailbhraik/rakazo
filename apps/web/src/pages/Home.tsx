@@ -14,6 +14,12 @@ import {
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { BuiButton, BuiCard } from "../components/beautiful-ui/primitives";
+import {
+  HostStatusStrip,
+  RecentRunsCard,
+  UpcomingRoutinesCard,
+  WeeklySpendCard,
+} from "../components/HomeInsights";
 import { WeatherWidget } from "../components/WeatherWidget";
 
 import { authClient } from "../lib/auth";
@@ -131,7 +137,17 @@ export function HomePage() {
             <RefreshCw size={18} />
           </button>
         </header>
+        <HostStatusStrip onOpen={() => setPanel("monitor")} />
         <WeatherWidget />
+        <section aria-labelledby="today-title" className="mb-8">
+          <h2 id="today-title" className="mb-3 text-lg font-semibold">
+            En ce moment
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <RecentRunsCard key={`runs-${revision}`} />
+            <UpcomingRoutinesCard bots={bots} />
+          </div>
+        </section>
         <section aria-labelledby="credits-title" className="mb-8">
           <h2 id="credits-title" className="mb-3 text-lg font-semibold">
             Crédits API
@@ -201,6 +217,7 @@ export function HomePage() {
                   )}
                 </BuiCard>
               ))}
+              <WeeklySpendCard key={`spend-${revision}`} />
             </div>
           )}
         </section>

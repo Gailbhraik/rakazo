@@ -683,7 +683,13 @@ export const appContract = {
       ),
     ),
     list: oc.output(z.array(UsageRecordSchema)),
-    byModel: oc.output(z.array(ModelUsageSchema)),
+    // `since` borne l'agrégat dans le temps. Sans lui, c'est tout l'historique :
+    // le tableau de consommation garde son comportement, et l'accueil obtient la
+    // dépense d'une période au même prix de catalogue — `usage.list` ne s'y
+    // prête pas, puisqu'il s'arrête aux cent derniers enregistrements.
+    byModel: oc
+      .input(z.object({ since: z.string().datetime().optional() }).optional())
+      .output(z.array(ModelUsageSchema)),
     summary: oc.output(
       z.object({
         inputTokens: z.number(),

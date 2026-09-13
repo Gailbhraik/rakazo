@@ -676,7 +676,7 @@ msgstr ""
 msgid "Choose which connected model Ashitaka uses."
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:188
+#: src/pages/SystemMonitorOverlay.tsx:167
 msgid "Claude usage"
 msgstr ""
 
@@ -705,7 +705,7 @@ msgstr "साफ़ किया जा रहा है…"
 #: src/pages/PeerMessagesOverlay.tsx:209
 #: src/pages/PokemonPickerOverlay.tsx:67
 #: src/pages/RoutineEditor.tsx:263
-#: src/pages/SystemMonitorOverlay.tsx:124
+#: src/pages/SystemMonitorOverlay.tsx:103
 #: src/pages/WindowChrome.tsx:19
 msgid "Close"
 msgstr "बंद करें"
@@ -2053,7 +2053,7 @@ msgstr "सर्वर से मॉडल"
 msgid "Models missing from the catalog are excluded from the total."
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:143
+#: src/pages/SystemMonitorOverlay.tsx:122
 msgid "Monitoring"
 msgstr ""
 
@@ -2222,8 +2222,8 @@ msgstr "कोई मॉडल कैटलॉग उपलब्ध नही�
 msgid "No model has run yet."
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:162
-#: src/pages/SystemMonitorOverlay.tsx:192
+#: src/pages/SystemMonitorOverlay.tsx:141
+#: src/pages/SystemMonitorOverlay.tsx:171
 msgid "No monitoring service on this host."
 msgstr ""
 
@@ -2313,7 +2313,7 @@ msgstr "खोलें"
 msgid "Open {0}"
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:120
+#: src/pages/SystemMonitorOverlay.tsx:99
 msgid "Open in a tab"
 msgstr ""
 
@@ -2469,7 +2469,7 @@ msgstr "प्रोवाइडर्स"
 msgid "Queued"
 msgstr "कतार में"
 
-#: src/pages/SystemMonitorOverlay.tsx:136
+#: src/pages/SystemMonitorOverlay.tsx:115
 msgid "Reaching the monitoring service…"
 msgstr ""
 
@@ -2477,7 +2477,7 @@ msgstr ""
 msgid "Read replies aloud"
 msgstr "उत्तर पढ़कर सुनाएं"
 
-#: src/pages/SystemMonitorOverlay.tsx:165
+#: src/pages/SystemMonitorOverlay.tsx:144
 msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. See infra/monitoring in the repository."
 msgstr ""
 
@@ -3058,7 +3058,7 @@ msgid "System"
 msgstr ""
 
 #: src/pages/Shell.tsx:2988
-#: src/pages/SystemMonitorOverlay.tsx:158
+#: src/pages/SystemMonitorOverlay.tsx:137
 msgid "System monitor"
 msgstr ""
 
@@ -3262,7 +3262,7 @@ msgstr "अपडेट हो रहा है…"
 msgid "Usage"
 msgstr "उपयोग"
 
-#: src/pages/SystemMonitorOverlay.tsx:195
+#: src/pages/SystemMonitorOverlay.tsx:174
 msgid "Usage is read from the Claude Code transcripts stored on the host, which the containers cannot see on their own. See infra/monitoring in the repository."
 msgstr ""
 
