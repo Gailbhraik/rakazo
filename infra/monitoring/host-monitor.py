@@ -1299,7 +1299,7 @@ PORTFOLIO_PAGE = (
   <span class="status" id="status">chargement…</span>
 </div>
 <div class="meta">
-  Prix d'achat en
+  Afficher en
   <span class="seg"><button type="button" id="curEUR">€</button><button type="button" id="curUSD">$</button></span>
   <span id="quoteInfo"></span>
 </div>
@@ -1312,7 +1312,7 @@ PORTFOLIO_PAGE = (
     </div>
     <div class="row2">
       <label>Quantité<input id="fQty" inputmode="decimal" required placeholder="10"></label>
-      <label id="lPru">Prix d'achat<input id="fPru" inputmode="decimal" required placeholder="180,00"></label>
+      <label id="lPru">Prix d'achat ($)<input id="fPru" inputmode="decimal" required placeholder="180,00"></label>
     </div>
     <div class="actions">
       <button class="primary" type="submit">Enregistrer</button>
@@ -1330,16 +1330,25 @@ PORTFOLIO_PAGE = (
 const API = "/api/portfolio";
 const SYMBOL_RE = /^[A-Z0-9][A-Z0-9.\-]{0,14}$/;
 let positions = [];
-let currency = "EUR";         // devise des prix d'achat, commune à tous les appareils
-let live = {};                // symbole -> cours, en mémoire seulement
-let quoteMeta = null;         // { at, rate, rateDate } du dernier rafraîchissement
+// Tout est ENREGISTRÉ en dollars — prix d'achat comme cours, ceux du Nasdaq.
+// `currency` n'est qu'un choix d'AFFICHAGE : en euros, `conv` convertit au taux du
+// jour, et c'est la seule conversion de la page. Une version précédente faisait de
+// ce réglage la devise de saisie et convertissait les cours sans les prix d'achat :
+// saisis en dollars, ceux-ci passaient pour des euros.
+let currency = "EUR";         // devise d'affichage, commune à tous les appareils
+let live = {};                // symbole -> cours en dollars, en mémoire seulement
+let usdEur = null;            // taux BCE du dernier rafraîchissement
+let rateDate = null;
 let quoteError = "";
 let editing = null;           // id de la position ouverte, ou "new"
 let busy = false;
 
 const $ = (id) => document.getElementById(id);
 const qtyFmt = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 6 });
-const money = (v) => new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(v);
+// Sans taux connu, l'affichage reste en dollars plutôt que de mélanger deux devises.
+const shown = () => (currency === "EUR" && usdEur ? "EUR" : "USD");
+const conv = (usd) => (shown() === "EUR" ? usd * usdEur : usd);
+const money = (v) => new Intl.NumberFormat("fr-FR", { style: "currency", currency: shown() }).format(v);
 const signed = (v) => (v > 0 ? "+" : "") + money(v);
 const pct = (v, digits) => (v > 0 ? "+" : "") + v.toFixed(digits).replace(".", ",") + " %";
 
@@ -1406,19 +1415,17 @@ async function commit(change) {
   throw new Error("le portefeuille change trop vite ailleurs, réessaie");
 }
 
-// Les cours ne sont jamais enregistrés : récupérés à la demande, gardés en
-// mémoire, affichés avec leur heure. Le cours manuel reste le repli.
+// Les cours ne sont jamais enregistrés : récupérés à la demande en dollars, avec
+// le taux du jour, gardés en mémoire et affichés avec leur heure.
 async function refreshQuotes() {
   const symbols = [...new Set(positions.map((p) => p.symbol).filter(Boolean))];
-  if (!symbols.length) { live = {}; quoteMeta = null; quoteError = ""; render(); return; }
+  if (!symbols.length) { live = {}; quoteError = ""; render(); return; }
   try {
-    const r = await fetch("/api/quotes?currency=" + currency + "&symbols=" + encodeURIComponent(symbols.join(",")), { cache: "no-store" });
+    const r = await fetch("/api/quotes?symbols=" + encodeURIComponent(symbols.join(",")), { cache: "no-store" });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || "cours indisponibles (" + r.status + ")");
-    // Une réponse pour une autre devise que celle affichée entre-temps est ignorée.
-    if (d.currency !== currency) return;
     live = d.quotes || {};
-    quoteMeta = { at: Date.now(), rate: d.rate, rateDate: d.rateDate };
+    if (d.rate) { usdEur = d.rate; rateDate = d.rateDate; }
     quoteError = "";
   } catch (e) {
     quoteError = e.message;
@@ -1439,22 +1446,25 @@ function quoteLabel(q) {
 
 // Sans cours disponible, la ligne est valorisée à son prix d'achat — plus-value
 // nulle — et le dit, plutôt que de disparaître des totaux sans explication.
+// Renvoie des montants DÉJÀ convertis dans la devise affichée.
 function effective(p) {
   const q = p.symbol ? live[p.symbol] : null;
-  if (q && !q.error && q.price > 0) return { price: q.price, prev: q.prevClose, q, ok: true };
-  return { price: p.pru, prev: null, q, ok: false };
+  const pru = conv(p.pru);
+  if (q && !q.error && q.price > 0) {
+    return { price: conv(q.price), prev: q.prevClose ? conv(q.prevClose) : null, pru, q, ok: true };
+  }
+  return { price: pru, prev: null, pru, q, ok: false };
 }
 
 function render() {
   $("curEUR").className = currency === "EUR" ? "on" : "";
   $("curUSD").className = currency === "USD" ? "on" : "";
-  $("lPru").firstChild.textContent = "Prix d'achat (" + (currency === "EUR" ? "€" : "$") + ")";
 
   let value = 0, invested = 0, day = 0, dayKnown = false;
   for (const p of positions) {
     const e = effective(p);
     value += p.qty * e.price;
-    invested += p.qty * p.pru;
+    invested += p.qty * e.pru;
     if (e.prev) { day += p.qty * (e.price - e.prev); dayKnown = true; }
   }
   const pl = value - invested;
@@ -1468,8 +1478,10 @@ function render() {
 
   let info = "";
   if (quoteError) info = "Cours : " + quoteError;
-  else if (quoteMeta && currency === "EUR" && quoteMeta.rate) {
-    info = "1 $ = " + quoteMeta.rate.toFixed(4).replace(".", ",") + " € (BCE, " + quoteMeta.rateDate + ")";
+  else if (currency === "EUR" && usdEur) {
+    info = "1 $ = " + usdEur.toFixed(4).replace(".", ",") + " € (BCE, " + rateDate + ")";
+  } else if (currency === "EUR" && !usdEur && positions.length) {
+    info = "taux de change en attente — montants en dollars";
   }
   $("quoteInfo").textContent = info;
   $("quoteInfo").style.color = quoteError ? "var(--warn)" : "";
@@ -1486,7 +1498,7 @@ function render() {
   const rows = positions.map((p) => ({ p, e: effective(p) }))
     .sort((a, b) => b.p.qty * b.e.price - a.p.qty * a.e.price);
   for (const { p, e } of rows) {
-    const v = p.qty * e.price, cost = p.qty * p.pru, diff = v - cost;
+    const v = p.qty * e.price, cost = p.qty * e.pru, diff = v - cost;
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "pos card";
@@ -1502,7 +1514,7 @@ function render() {
     btn.append(
       name,
       cell("value", money(v)),
-      cell("detail", qtyFmt.format(p.qty) + " × " + money(e.price) + " · achat " + money(p.pru)),
+      cell("detail", qtyFmt.format(p.qty) + " × " + money(e.price) + " · achat " + money(e.pru)),
       cell("pl " + (diff > 0 ? "up" : diff < 0 ? "down" : ""),
            signed(diff) + (cost > 0 ? " (" + pct((diff / cost) * 100, 1) + ")" : "")),
       cell("src" + (srcErr ? " err" : ""), src),
@@ -1597,12 +1609,11 @@ $("deleteBtn").addEventListener("click", () => {
   run("Suppression", (state) => { state.positions = state.positions.filter((x) => x.id !== id); return state; });
 });
 
-// Changer la devise ne convertit PAS les prix d'achat saisis : on déclare dans
-// quelle devise ils ont été tapés. Les cours, eux, suivent.
+// Changer la devise d'affichage ne touche à aucun montant enregistré : tout reste
+// en dollars, seule la conversion à l'écran change. Nul besoin de recoter.
 async function setCurrency(c) {
   if (c === currency || busy) return;
-  const ok = await run("Changement de devise", (state) => { state.currency = c; return state; });
-  if (ok) { live = {}; render(); refreshQuotes(); }
+  await run("Changement de devise", (state) => { state.currency = c; return state; });
 }
 $("curEUR").addEventListener("click", () => setCurrency("EUR"));
 $("curUSD").addEventListener("click", () => setCurrency("USD"));
@@ -1611,9 +1622,7 @@ async function refresh() {
   if (busy || editing || document.hidden) return;
   try {
     const s = await fetchState();
-    const currencyChanged = s.currency !== currency;
     positions = s.positions; currency = s.currency;
-    if (currencyChanged) live = {};
     render();
     await refreshQuotes();
     say("À jour");
@@ -1733,8 +1742,14 @@ def _usd_to_eur():
 
 
 def _quotes_payload(query):
+    """Cours en DOLLARS, toujours, accompagnés du taux USD → EUR du jour.
+
+    La conversion se fait côté page, en un seul endroit et avec ce seul taux,
+    pour le cours comme pour le prix d'achat. Une version précédente convertissait
+    ici le cours mais laissait la page afficher le prix d'achat tel quel : saisi en
+    dollars, il passait pour des euros, et Adobe à +11 % s'affichait en perte.
+    """
     params = urllib.parse.parse_qs(query)
-    currency = "USD" if (params.get("currency") or ["EUR"])[0].upper() == "USD" else "EUR"
     symbols = []
     for raw in ",".join(params.get("symbols") or []).split(","):
         sym = raw.strip().upper()
@@ -1744,23 +1759,16 @@ def _quotes_payload(query):
     key = _finnhub_key()
     if not key:
         return 503, {"error": "clé Finnhub absente du Deck"}
-    rate = date = None
-    if currency == "EUR":
-        rate, date = _usd_to_eur()
-        if not rate:
-            return 502, {"error": "taux de change indisponible"}
+    # Un taux indisponible n'empêche pas de coter : la page affichera en dollars
+    # et le signalera.
+    rate, date = _usd_to_eur()
     quotes = {}
     # Un seul rafraîchissement à la fois : deux appareils ouverts ensemble ne
     # doublent pas les appels, le second profite du cache du premier.
     with _quotes_lock:
         for sym in symbols:
-            q = _quote(sym, key)
-            if rate and "price" in q:
-                q["price"] = q["price"] * rate
-                if q.get("prevClose"):
-                    q["prevClose"] = q["prevClose"] * rate
-            quotes[sym] = q
-    return 200, {"currency": currency, "rate": rate, "rateDate": date, "quotes": quotes}
+            quotes[sym] = _quote(sym, key)
+    return 200, {"currency": "USD", "rate": rate, "rateDate": date, "quotes": quotes}
 
 
 def _portfolio_read():
