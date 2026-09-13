@@ -20,7 +20,7 @@ import time
 import urllib.error
 import urllib.request
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("DECK_MONITOR_PORT", "9200"))
@@ -409,6 +409,43 @@ def _payload():
 
 CLAUDE_HOME = os.path.expanduser(os.environ.get("CLAUDE_HOME", "~/.claude"))
 
+# Les transcriptions du PC arrivent ici, recopiées par
+# `infra/monitoring/sync-claude-pc.sh`. On ne les lit pas sur le PC lui-même :
+# il est souvent éteint, alors que le Deck sert cette page en continu.
+CLAUDE_SYNC_ROOT = os.path.expanduser(os.environ.get("CLAUDE_SYNC_ROOT", "~/.claude-sync"))
+
+# Chaque machine et le répertoire où lire ses transcriptions. Le nom est celui
+# que la page affiche ; l'ordre est celui des lignes du tableau par machine.
+CLAUDE_SOURCES = (
+    ("Deck", os.path.join(CLAUDE_HOME, "projects")),
+    ("PC", os.path.join(CLAUDE_SYNC_ROOT, "pc", "projects")),
+)
+
+
+def _claude_machine(path):
+    """Machine d'origine d'une transcription, d'après le répertoire qui la contient."""
+    for name, root in CLAUDE_SOURCES:
+        if path.startswith(root + os.sep):
+            return name
+    return "?"
+
+
+def _claude_last_sync(name):
+    """Dernière synchronisation d'une machine recopiée, ou None pour le Deck.
+
+    Le script de synchronisation réécrit ce témoin à chaque passage, même sans
+    fichier neuf : il date donc le dernier contact avec le PC, pas sa dernière
+    session — ce qui distingue « PC éteint depuis trois jours » de « rien de neuf ».
+    """
+    if name == "Deck":
+        return None
+    marker = os.path.join(CLAUDE_SYNC_ROOT, name.lower(), ".last-sync")
+    try:
+        with open(marker) as fh:
+            return fh.read().strip() or None
+    except OSError:
+        return None
+
 # Tarifs de l'API, en dollars par million de tokens (entrée, sortie).
 CLAUDE_PRICES = {
     "claude-fable-5-1": (10.0, 50.0),
@@ -544,17 +581,19 @@ def _claude_scan_file(path):
 
 
 def _claude_rows():
-    """Toutes les requêtes relevées, par session."""
-    root = os.path.join(CLAUDE_HOME, "projects")
+    """Toutes les requêtes relevées, par session, toutes machines confondues."""
     sessions = {}
     with _claude_lock:
         present = set()
-        for dirpath, _, names in os.walk(root):
-            for name in names:
-                if name.endswith(".jsonl"):
-                    path = os.path.join(dirpath, name)
-                    present.add(path)
-                    _claude_scan_file(path)
+        for _, root in CLAUDE_SOURCES:
+            # Un répertoire absent — le PC jamais synchronisé — ne produit
+            # simplement aucune session : `os.walk` n'y lève pas d'erreur.
+            for dirpath, _, names in os.walk(root):
+                for name in names:
+                    if name.endswith(".jsonl"):
+                        path = os.path.join(dirpath, name)
+                        present.add(path)
+                        _claude_scan_file(path)
         for stale in set(_claude_files) - present:
             del _claude_files[stale]
         for path, state in _claude_files.items():
@@ -607,7 +646,8 @@ def _claude_payload():
             "home": CLAUDE_HOME,
         }
 
-    today = datetime.now().astimezone().date().isoformat()
+    today_date = datetime.now().astimezone().date()
+    today = today_date.isoformat()
     by_day = {}
     for row in everything:
         day = _claude_day(row)
@@ -615,7 +655,29 @@ def _claude_payload():
             by_day.setdefault(day, []).append(row)
     days = sorted(by_day)
     recent_days = days[-30:]
-    week = set(days[-7:])
+    # Sept jours du calendrier, aujourd'hui compris. Les sept derniers jours
+    # *actifs* — ce que retenait `days[-7:]` — couvraient trois semaines dès que
+    # l'usage s'espaçait, sous une tuile qui annonce « sept derniers jours ».
+    week = {(today_date - timedelta(days=n)).isoformat() for n in range(7)}
+
+    by_machine = {}
+    session_count = {}
+    for path, rows in sessions.items():
+        machine = _claude_machine(path)
+        by_machine.setdefault(machine, []).extend(rows)
+        if rows:
+            session_count[machine] = session_count.get(machine, 0) + 1
+    machines = [
+        {
+            "machine": name,
+            "sessions": session_count.get(name, 0),
+            "lastSync": _claude_last_sync(name),
+            "today": _claude_bucket([r for r in by_machine.get(name, []) if _claude_day(r) == today]),
+            "week": _claude_bucket([r for r in by_machine.get(name, []) if _claude_day(r) in week]),
+            "all": _claude_bucket(by_machine.get(name, [])),
+        }
+        for name, _ in CLAUDE_SOURCES
+    ]
 
     by_model = {}
     for row in everything:
@@ -632,6 +694,7 @@ def _claude_payload():
                 # Ni titre ni texte : la page est servie sur le tailnet, et le
                 # sujet d'une conversation n'a pas à y transiter. Le répertoire
                 # de travail suffit à reconnaître une session.
+                "machine": _claude_machine(path),
                 "project": os.path.basename(os.path.dirname(path)),
                 "session": os.path.basename(path)[:-6][:8],
                 "first": stamps[0] if stamps else None,
@@ -647,6 +710,7 @@ def _claude_payload():
         "ready": True,
         "home": CLAUDE_HOME,
         "sessions": len(session_rows),
+        "machines": machines,
         "today": _claude_bucket(by_day.get(today, [])),
         "week": _claude_bucket([r for r in everything if _claude_day(r) in week]),
         "all": _claude_bucket(everything),
@@ -908,6 +972,9 @@ CLAUDE_PAGE = (
     + CSS
     + r"""
   .days { display: grid; gap: 6px; margin-top: 4px; }
+  .live { color: var(--muted); font-size: 12px; }
+  .stale { color: var(--bad); font-size: 12px; }
+  .muted { color: var(--muted); font-size: 12px; }
   .day { display: grid; grid-template-columns: 4.6em 1fr 4.6em; align-items: center; gap: 9px; font-size: 12.5px; }
   .day > span { color: var(--muted); font-variant-numeric: tabular-nums; }
   .day > span.cost { text-align: right; color: var(--ink); }
@@ -928,10 +995,12 @@ CLAUDE_PAGE = (
 </header>
 <div id="out"></div>
 <div class="note">
-  Relevés calculés depuis les transcriptions de Claude Code de cette machine
-  (<code id="home"></code>), dédupliquées par requête. Deux limites :
-  <b>seules les sessions de ce Deck sont comptées</b> — pas celles menées depuis
-  l'application mobile ou claude.ai — et les montants sont un
+  Relevés calculés depuis les transcriptions de Claude Code, dédupliquées par
+  requête : celles de ce Deck (<code id="home"></code>), y compris la session
+  pilotée depuis le téléphone, et celles du PC, recopiées à chaque
+  synchronisation — les chiffres du PC ne sont donc à jour qu'à la date indiquée.
+  Deux limites : <b>les conversations de l'application Claude ou de claude.ai ne
+  sont pas comptées</b>, faute de transcription locale, et les montants sont un
   <b>équivalent au tarif de l'API</b>, pas une facture : un abonnement ne
   facture pas au token. Pour le quota réel :
   <a href="https://claude.ai/settings/usage" target="_blank" rel="noreferrer">claude.ai/settings/usage</a>.
@@ -1013,6 +1082,34 @@ function render(d) {
         + (d.sessions > 1 ? "s" : "") + "</div>")
     + "</div>");
 
+  // Répartition par machine. L'état dit d'où vient la fraîcheur du chiffre :
+  // le Deck est lu en direct, le PC seulement à sa dernière synchronisation —
+  // un PC éteint depuis trois jours afficherait sinon un total figé sans le dire.
+  if (d.machines && d.machines.length) {
+    const state = (m) => {
+      if (m.machine === "Deck") return '<span class="live">en direct</span>';
+      if (!m.lastSync) return '<span class="stale">jamais synchronisé</span>';
+      const minutes = Math.round((Date.now() - new Date(m.lastSync).getTime()) / 60000);
+      const ago = minutes < 1 ? "à l'instant"
+        : minutes < 60 ? "il y a " + minutes + " min"
+        : minutes < 1440 ? "il y a " + Math.round(minutes / 60) + " h"
+        : "il y a " + Math.round(minutes / 1440) + " j";
+      return '<span class="' + (minutes > 1440 ? "stale" : "live") + '">synchronisé ' + ago + "</span>";
+    };
+    const rows = d.machines.map((m) =>
+      "<tr><td><b>" + esc(m.machine) + "</b><br>" + state(m) + "</td>"
+      + '<td class="num">' + F.money(m.today.cost) + "</td>"
+      + '<td class="num">' + F.money(m.week.cost) + "</td>"
+      + '<td class="num">' + F.money(m.all.cost)
+      + '<br><span class="muted">' + F.int(m.sessions) + " session"
+      + (m.sessions > 1 ? "s" : "") + "</span></td></tr>").join("");
+    parts.push('<div class="grid" style="margin-top:12px"><div class="card wide">'
+      + '<h2>Par machine</h2><div class="scroll"><table><thead><tr><th>Machine</th>'
+      + '<th class="num">Aujourd\'hui</th><th class="num">7 jours</th>'
+      + '<th class="num">Total</th></tr></thead><tbody>'
+      + rows + "</tbody></table></div></div></div>");
+  }
+
   if (d.days.length > 1) {
     const top = Math.max(...d.days.map((x) => x.cost)) || 1;
     const today = new Date().toISOString().slice(0, 10);
@@ -1039,14 +1136,14 @@ function render(d) {
     + models + "</tbody></table></div></div></div>");
 
   const sessions = d.recentSessions.map((s) =>
-    "<tr><td>" + esc(s.project) + "</td><td>" + esc(s.session)
+    "<tr><td>" + esc(s.machine) + "</td><td>" + esc(s.project) + "</td><td>" + esc(s.session)
     + "</td><td>" + F.when(s.first) + " → " + F.when(s.last)
     + '</td><td class="num">' + F.int(s.requests)
     + '</td><td class="num">' + F.tokens(s.tokens)
     + '</td><td class="num">' + F.money(s.cost) + "</td></tr>").join("");
   parts.push('<div class="grid" style="margin-top:12px"><div class="card wide">'
     + '<h2>Sessions récentes</h2><div class="scroll"><table><thead><tr>'
-    + "<th>Projet</th><th>Session</th><th>Plage</th>"
+    + "<th>Machine</th><th>Projet</th><th>Session</th><th>Plage</th>"
     + '<th class="num">Req.</th><th class="num">Tokens</th>'
     + '<th class="num">Équiv. API</th></tr></thead><tbody>'
     + sessions + "</tbody></table></div></div></div>");
