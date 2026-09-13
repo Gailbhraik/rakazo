@@ -20,6 +20,7 @@ import time
 import urllib.error
 import urllib.request
 from collections import deque
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = int(os.environ.get("DECK_MONITOR_PORT", "9200"))
@@ -390,15 +391,294 @@ def _payload():
     }
 
 
+# --- consommation Claude Code -----------------------------------------------
+#
+# Claude Code écrit une transcription par session dans `~/.claude/projects`,
+# et chaque message d'assistant y porte son relevé `usage`. C'est la seule
+# source locale : le pourcentage de quota d'abonnement, lui, vit chez
+# Anthropic et n'est pas mis en cache sur la machine.
+#
+# Deux pièges, tous deux vérifiés sur les fichiers de ce Deck :
+#
+# 1. Une même requête apparaît sur plusieurs lignes — une par bloc de contenu,
+#    numérotées par `apiBlockIndex` — et **toutes répètent le même `usage`**.
+#    Sommer les lignes comptait ici 369 relevés pour 42 requêtes réelles, soit
+#    presque trois fois la consommation. On déduplique donc par `requestId`.
+# 2. Les horodatages sont en UTC. Regrouper par jour sans repasser en heure
+#    locale rangerait une soirée d'été dans la journée précédente.
+
+CLAUDE_HOME = os.path.expanduser(os.environ.get("CLAUDE_HOME", "~/.claude"))
+
+# Tarifs de l'API, en dollars par million de tokens (entrée, sortie).
+CLAUDE_PRICES = {
+    "claude-fable-5-1": (10.0, 50.0),
+    "claude-fable-5": (10.0, 50.0),
+    "claude-mythos-5-1": (10.0, 50.0),
+    "claude-mythos-5": (10.0, 50.0),
+    "claude-opus-5": (5.0, 25.0),
+    "claude-opus-4-8": (5.0, 25.0),
+    "claude-opus-4-7": (5.0, 25.0),
+    "claude-opus-4-6": (5.0, 25.0),
+    "claude-sonnet-5": (2.0, 10.0),
+    "claude-sonnet-4-6": (3.0, 15.0),
+    "claude-haiku-4-5": (1.0, 5.0),
+}
+
+# Une écriture de cache coûte 1,25 × l'entrée en TTL cinq minutes mais 2 × en
+# TTL une heure, et une lecture 0,1 ×. Les deux TTL restent séparés : les
+# confondre gonflerait l'écriture de soixante pour cent, et Claude Code écrit
+# précisément en TTL une heure.
+CACHE_WRITE_5M = 1.25
+CACHE_WRITE_1H = 2.0
+CACHE_READ = 0.1
+
+_claude_lock = threading.Lock()
+_claude_files = {}  # chemin -> {mtime, size, offset, seen, rows}
+
+
+def _claude_price(model):
+    """Tarif du modèle, en tolérant un suffixe de date (`…-4-5-20251001`)."""
+    if model in CLAUDE_PRICES:
+        return CLAUDE_PRICES[model]
+    best = None
+    for known in CLAUDE_PRICES:
+        if model and model.startswith(known) and (best is None or len(known) > len(best)):
+            best = known
+    return CLAUDE_PRICES[best] if best else None
+
+
+def _claude_cost(row):
+    """Coût équivalent au tarif API, ou None si le modèle est inconnu."""
+    price = _claude_price(row["model"])
+    if price is None:
+        return None
+    per_in, per_out = price
+    return (
+        row["input"] * per_in
+        + row["output"] * per_out
+        + row["write5m"] * per_in * CACHE_WRITE_5M
+        + row["write1h"] * per_in * CACHE_WRITE_1H
+        + row["read"] * per_in * CACHE_READ
+    ) / 1e6
+
+
+def _claude_parse(line, seen):
+    """Un relevé par requête, ou None si la ligne n'en porte pas de nouveau."""
+    try:
+        entry = json.loads(line)
+    except Exception:
+        return None
+    if entry.get("type") != "assistant":
+        return None
+    message = entry.get("message") or {}
+    usage = message.get("usage")
+    if not isinstance(usage, dict):
+        return None
+    # `requestId` identifie l'appel facturé ; les deux replis servent aux
+    # transcriptions anciennes qui ne le portaient pas encore.
+    key = entry.get("requestId") or message.get("id") or entry.get("uuid")
+    if key is None or key in seen:
+        return None
+    seen.add(key)
+    creation = usage.get("cache_creation") or {}
+    write_5m = creation.get("ephemeral_5m_input_tokens")
+    write_1h = creation.get("ephemeral_1h_input_tokens")
+    unknown_ttl = 0
+    if write_5m is None and write_1h is None:
+        # Sans la ventilation par TTL on ne peut pas savoir laquelle des deux
+        # a été payée. On retient le tarif cinq minutes, le moins cher, et on
+        # remonte le volume concerné pour que la page puisse le dire.
+        unknown_ttl = usage.get("cache_creation_input_tokens") or 0
+        write_5m, write_1h = unknown_ttl, 0
+    return {
+        "ts": entry.get("timestamp"),
+        "model": message.get("model"),
+        "input": usage.get("input_tokens") or 0,
+        "output": usage.get("output_tokens") or 0,
+        "write5m": write_5m or 0,
+        "write1h": write_1h or 0,
+        "read": usage.get("cache_read_input_tokens") or 0,
+        "unknown_ttl": unknown_ttl,
+    }
+
+
+def _claude_scan_file(path):
+    """Relit ce qui s'est ajouté depuis le dernier passage, et rien de plus.
+
+    La session en cours grossit en continu : relire le fichier entier à chaque
+    affichage serait du gaspillage. On garde donc la position atteinte, et on
+    s'arrête au dernier saut de ligne — la dernière ligne d'un fichier en cours
+    d'écriture peut être tronquée.
+    """
+    try:
+        stat = os.stat(path)
+    except OSError:
+        _claude_files.pop(path, None)
+        return
+    state = _claude_files.get(path)
+    if state is None or stat.st_size < state["size"]:
+        # Fichier neuf, ou réécrit plus court que ce qu'on avait lu : on repart
+        # du début plutôt que de reprendre à une position qui n'a plus de sens.
+        state = {"size": 0, "offset": 0, "seen": set(), "rows": []}
+        _claude_files[path] = state
+    elif stat.st_size == state["size"] and stat.st_mtime == state["mtime"]:
+        return
+    state["mtime"] = stat.st_mtime
+    state["size"] = stat.st_size
+    try:
+        with open(path, "rb") as fh:
+            fh.seek(state["offset"])
+            chunk = fh.read()
+    except OSError:
+        return
+    cut = chunk.rfind(b"\n")
+    if cut < 0:
+        return
+    state["offset"] += cut + 1
+    for raw in chunk[:cut].split(b"\n"):
+        if not raw.strip():
+            continue
+        row = _claude_parse(raw.decode("utf-8", "replace"), state["seen"])
+        if row is not None:
+            state["rows"].append(row)
+
+
+def _claude_rows():
+    """Toutes les requêtes relevées, par session."""
+    root = os.path.join(CLAUDE_HOME, "projects")
+    sessions = {}
+    with _claude_lock:
+        present = set()
+        for dirpath, _, names in os.walk(root):
+            for name in names:
+                if name.endswith(".jsonl"):
+                    path = os.path.join(dirpath, name)
+                    present.add(path)
+                    _claude_scan_file(path)
+        for stale in set(_claude_files) - present:
+            del _claude_files[stale]
+        for path, state in _claude_files.items():
+            sessions[path] = list(state["rows"])
+    return sessions
+
+
+def _claude_bucket(rows):
+    """Cumule un lot de requêtes en un poste affichable."""
+    bucket = {
+        "requests": 0,
+        "input": 0,
+        "output": 0,
+        "write5m": 0,
+        "write1h": 0,
+        "read": 0,
+        "cost": 0.0,
+        "priced": 0,
+    }
+    for row in rows:
+        bucket["requests"] += 1
+        for field in ("input", "output", "write5m", "write1h", "read"):
+            bucket[field] += row[field]
+        cost = _claude_cost(row)
+        if cost is not None:
+            bucket["cost"] += cost
+            bucket["priced"] += 1
+    bucket["tokens"] = (
+        bucket["input"] + bucket["output"] + bucket["write5m"] + bucket["write1h"] + bucket["read"]
+    )
+    return bucket
+
+
+def _claude_day(row):
+    """Journée locale de la requête — les horodatages sont en UTC."""
+    if not row["ts"]:
+        return None
+    try:
+        return datetime.fromisoformat(row["ts"]).astimezone().date().isoformat()
+    except ValueError:
+        return None
+
+
+def _claude_payload():
+    sessions = _claude_rows()
+    everything = [row for rows in sessions.values() for row in rows]
+    if not everything:
+        return {
+            "ready": False,
+            "home": CLAUDE_HOME,
+        }
+
+    today = datetime.now().astimezone().date().isoformat()
+    by_day = {}
+    for row in everything:
+        day = _claude_day(row)
+        if day:
+            by_day.setdefault(day, []).append(row)
+    days = sorted(by_day)
+    recent_days = days[-30:]
+    week = set(days[-7:])
+
+    by_model = {}
+    for row in everything:
+        by_model.setdefault(row["model"] or "inconnu", []).append(row)
+
+    session_rows = []
+    for path, rows in sessions.items():
+        if not rows:
+            continue
+        stamps = sorted(r["ts"] for r in rows if r["ts"])
+        bucket = _claude_bucket(rows)
+        session_rows.append(
+            {
+                # Ni titre ni texte : la page est servie sur le tailnet, et le
+                # sujet d'une conversation n'a pas à y transiter. Le répertoire
+                # de travail suffit à reconnaître une session.
+                "project": os.path.basename(os.path.dirname(path)),
+                "session": os.path.basename(path)[:-6][:8],
+                "first": stamps[0] if stamps else None,
+                "last": stamps[-1] if stamps else None,
+                "requests": bucket["requests"],
+                "tokens": bucket["tokens"],
+                "cost": bucket["cost"],
+            }
+        )
+    session_rows.sort(key=lambda s: s["last"] or "", reverse=True)
+
+    return {
+        "ready": True,
+        "home": CLAUDE_HOME,
+        "sessions": len(session_rows),
+        "today": _claude_bucket(by_day.get(today, [])),
+        "week": _claude_bucket([r for r in everything if _claude_day(r) in week]),
+        "all": _claude_bucket(everything),
+        "days": [
+            {"day": day, **_claude_bucket(by_day[day])}
+            for day in recent_days
+        ],
+        "models": sorted(
+            (
+                {"model": model, **_claude_bucket(rows)}
+                for model, rows in by_model.items()
+            ),
+            key=lambda m: -m["cost"],
+        ),
+        "recentSessions": session_rows[:12],
+        "unpriced": sorted(
+            {
+                row["model"] or "inconnu"
+                for row in everything
+                if _claude_price(row["model"]) is None
+            }
+        ),
+        "unknownTtlTokens": sum(row["unknown_ttl"] for row in everything),
+        "host": os.uname().nodename,
+    }
+
+
 # --- service HTTP -----------------------------------------------------------
 
-PAGE = r"""<!doctype html>
-<html lang="fr">
-<head>
-<meta charset="utf-8">
-<title>Steam Deck — supervision</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<style>
+# Palette et primitives partagées par les deux pages du service. Une seule
+# définition : deux copies dériveraient à la première retouche.
+CSS = r"""
   :root {
     --bg: #0e0e10; --card: #17171a; --line: #24242a; --ink: #ececee;
     --muted: #8a8a92; --accent: #e0393e; --ok: #3fb950; --warn: #d29922;
@@ -414,12 +694,6 @@ PAGE = r"""<!doctype html>
   h1 { font-size: 17px; margin: 0; letter-spacing: -0.01em; }
   .host { color: var(--muted); font-size: 13px; }
   .stamp { margin-left: auto; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
-  .alerts { display: grid; gap: 8px; margin-bottom: 14px; }
-  .alert {
-    border: 1px solid var(--line); border-left: 3px solid var(--warn);
-    background: #1c1a14; border-radius: 8px; padding: 9px 12px; font-size: 13px;
-  }
-  .alert.bad { border-left-color: var(--bad); background: #1e1415; }
   .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 13px 14px; }
   .card h2 {
@@ -431,10 +705,6 @@ PAGE = r"""<!doctype html>
   .sub { color: var(--muted); font-size: 12.5px; margin-top: 3px; font-variant-numeric: tabular-nums; }
   .bar { height: 5px; background: #26262c; border-radius: 3px; overflow: hidden; margin-top: 9px; }
   .bar > i { display: block; height: 100%; background: var(--accent); transition: width .4s; }
-  svg.spark { display: block; width: 100%; height: 34px; margin-top: 8px; }
-  .cores { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; margin-top: 9px; }
-  .cores > i { display: block; height: 26px; background: #26262c; border-radius: 2px; position: relative; }
-  .cores > i > b { position: absolute; bottom: 0; left: 0; right: 0; background: var(--accent); border-radius: 2px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); }
   th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -444,9 +714,37 @@ PAGE = r"""<!doctype html>
   .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .scroll table { min-width: 420px; }
   tr:last-child td { border-bottom: 0; }
+  .wide { grid-column: 1 / -1; }
+  .note {
+    border: 1px solid var(--line); border-left: 3px solid var(--muted);
+    background: #14141a; border-radius: 8px; padding: 9px 12px;
+    font-size: 12.5px; color: var(--muted); margin-top: 14px;
+  }
+  .note a { color: var(--ink); }
+"""
+
+PAGE = (
+    r"""<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Steam Deck — supervision</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>"""
+    + CSS
+    + r"""
+  .alerts { display: grid; gap: 8px; margin-bottom: 14px; }
+  .alert {
+    border: 1px solid var(--line); border-left: 3px solid var(--warn);
+    background: #1c1a14; border-radius: 8px; padding: 9px 12px; font-size: 13px;
+  }
+  .alert.bad { border-left-color: var(--bad); background: #1e1415; }
+  svg.spark { display: block; width: 100%; height: 34px; margin-top: 8px; }
+  .cores { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; margin-top: 9px; }
+  .cores > i { display: block; height: 26px; background: #26262c; border-radius: 2px; position: relative; }
+  .cores > i > b { position: absolute; bottom: 0; left: 0; right: 0; background: var(--accent); border-radius: 2px; }
   .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
   .dot.ok { background: var(--ok); } .dot.bad { background: var(--bad); }
-  .wide { grid-column: 1 / -1; }
   .offline { color: var(--bad); }
 </style>
 </head>
@@ -597,6 +895,193 @@ setInterval(tick, 2000);
 </body>
 </html>
 """
+)
+
+CLAUDE_PAGE = (
+    r"""<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Consommation Claude</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>"""
+    + CSS
+    + r"""
+  .days { display: grid; gap: 6px; margin-top: 4px; }
+  .day { display: grid; grid-template-columns: 4.6em 1fr 4.6em; align-items: center; gap: 9px; font-size: 12.5px; }
+  .day > span { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .day > span.cost { text-align: right; color: var(--ink); }
+  .day > i { display: block; height: 8px; background: #26262c; border-radius: 2px; overflow: hidden; }
+  .day > i > b { display: block; height: 100%; background: var(--accent); }
+  .day.now > span { color: var(--ink); }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-top: 10px; font-size: 12.5px; }
+  .split > span { color: var(--muted); }
+  .split > b { font-weight: 500; font-variant-numeric: tabular-nums; text-align: right; }
+  .empty { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Consommation Claude</h1>
+  <span class="host" id="host"></span>
+  <span class="stamp" id="stamp">lecture…</span>
+</header>
+<div id="out"></div>
+<div class="note">
+  Relevés calculés depuis les transcriptions de Claude Code de cette machine
+  (<code id="home"></code>), dédupliquées par requête. Deux limites :
+  <b>seules les sessions de ce Deck sont comptées</b> — pas celles menées depuis
+  l'application mobile ou claude.ai — et les montants sont un
+  <b>équivalent au tarif de l'API</b>, pas une facture : un abonnement ne
+  facture pas au token. Pour le quota réel :
+  <a href="https://claude.ai/settings/usage" target="_blank" rel="noreferrer">claude.ai/settings/usage</a>.
+</div>
+<script>
+const F = {
+  money(v) {
+    if (v === null || v === undefined) return "—";
+    if (v > 0 && v < 0.01) return "< 0,01 $";
+    return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "USD" }).format(v);
+  },
+  tokens(n) {
+    if (!n) return "0";
+    if (n >= 1e6) return (n / 1e6).toFixed(2).replace(".", ",") + " M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(".", ",") + " k";
+    return String(n);
+  },
+  int(n) { return new Intl.NumberFormat("fr-FR").format(n || 0); },
+  day(iso) {
+    const [y, m, d] = iso.split("-");
+    return d + "/" + m;
+  },
+  clock(iso) {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  },
+  when(iso) {
+    if (!iso) return "—";
+    const at = new Date(iso);
+    const today = new Date().toDateString() === at.toDateString();
+    return today ? F.clock(iso) : at.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" });
+  },
+};
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"]/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+}
+
+function tile(title, bucket, extra) {
+  return '<div class="card"><h2>' + title + "</h2>"
+    + '<div class="big">' + F.money(bucket.cost) + "</div>"
+    + '<div class="sub">' + F.tokens(bucket.tokens) + " tokens · "
+    + F.int(bucket.requests) + " req.</div>"
+    + (extra || "") + "</div>";
+}
+
+function render(d) {
+  document.getElementById("host").textContent = d.host || "";
+  document.getElementById("home").textContent = d.home || "";
+  document.getElementById("stamp").textContent =
+    "à " + new Date().toLocaleTimeString("fr-FR");
+  const out = document.getElementById("out");
+
+  if (!d.ready) {
+    out.innerHTML = '<div class="card"><p class="empty">Aucune transcription de '
+      + "Claude Code sur cette machine pour l'instant. Une session enregistre son "
+      + "relevé au premier échange.</p></div>";
+    return;
+  }
+
+  const parts = [];
+
+  // Les quatre postes de la journée : l'écriture de cache et la lecture pèsent
+  // souvent plus que la sortie, ce que le seul total masquerait.
+  const t = d.today;
+  const split = '<div class="split">'
+    + "<span>entrée</span><b>" + F.tokens(t.input) + "</b>"
+    + "<span>sortie</span><b>" + F.tokens(t.output) + "</b>"
+    + "<span>cache écrit</span><b>" + F.tokens(t.write5m + t.write1h) + "</b>"
+    + "<span>cache lu</span><b>" + F.tokens(t.read) + "</b>"
+    + "</div>";
+
+  parts.push('<div class="grid">'
+    + tile("Aujourd'hui", d.today, split)
+    + tile("Sept derniers jours", d.week)
+    + tile("Depuis le début", d.all,
+        '<div class="sub">' + F.int(d.sessions) + " session"
+        + (d.sessions > 1 ? "s" : "") + "</div>")
+    + "</div>");
+
+  if (d.days.length > 1) {
+    const top = Math.max(...d.days.map((x) => x.cost)) || 1;
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = d.days.slice(-14).map((x) =>
+      '<div class="day' + (x.day === today ? " now" : "") + '">'
+      + "<span>" + F.day(x.day) + "</span>"
+      + '<i><b style="width:' + ((x.cost / top) * 100).toFixed(1) + '%"></b></i>'
+      + '<span class="cost">' + F.money(x.cost) + "</span></div>").join("");
+    parts.push('<div class="grid" style="margin-top:12px"><div class="card wide">'
+      + "<h2>Par jour</h2><div class=\"days\">" + rows + "</div></div></div>");
+  }
+
+  const models = d.models.map((m) =>
+    "<tr><td>" + esc(m.model) + '</td><td class="num">' + F.int(m.requests)
+    + '</td><td class="num">' + F.tokens(m.output)
+    + '</td><td class="num">' + F.tokens(m.write5m + m.write1h)
+    + '</td><td class="num">' + F.tokens(m.read)
+    + '</td><td class="num">' + F.money(m.cost) + "</td></tr>").join("");
+  parts.push('<div class="grid" style="margin-top:12px"><div class="card wide">'
+    + '<h2>Par modèle</h2><div class="scroll"><table><thead><tr><th>Modèle</th>'
+    + '<th class="num">Req.</th><th class="num">Sortie</th>'
+    + '<th class="num">Cache écrit</th><th class="num">Cache lu</th>'
+    + '<th class="num">Équiv. API</th></tr></thead><tbody>'
+    + models + "</tbody></table></div></div></div>");
+
+  const sessions = d.recentSessions.map((s) =>
+    "<tr><td>" + esc(s.project) + "</td><td>" + esc(s.session)
+    + "</td><td>" + F.when(s.first) + " → " + F.when(s.last)
+    + '</td><td class="num">' + F.int(s.requests)
+    + '</td><td class="num">' + F.tokens(s.tokens)
+    + '</td><td class="num">' + F.money(s.cost) + "</td></tr>").join("");
+  parts.push('<div class="grid" style="margin-top:12px"><div class="card wide">'
+    + '<h2>Sessions récentes</h2><div class="scroll"><table><thead><tr>'
+    + "<th>Projet</th><th>Session</th><th>Plage</th>"
+    + '<th class="num">Req.</th><th class="num">Tokens</th>'
+    + '<th class="num">Équiv. API</th></tr></thead><tbody>'
+    + sessions + "</tbody></table></div></div></div>");
+
+  if (d.unpriced.length) {
+    parts.push('<div class="note">Modèles sans tarif connu, exclus des montants : '
+      + d.unpriced.map(esc).join(", ") + ".</div>");
+  }
+  if (d.unknownTtlTokens) {
+    parts.push('<div class="note">' + F.tokens(d.unknownTtlTokens)
+      + " tokens d'écriture de cache sans ventilation par durée : comptés au "
+      + "tarif cinq minutes, le moins cher des deux.</div>");
+  }
+
+  out.innerHTML = parts.join("");
+}
+
+async function tick() {
+  try {
+    // Chemin absolu : la page répond aussi sur « /claude/ », dont la barre
+    // finale ferait résoudre un chemin relatif vers « /claude/api/claude ».
+    const res = await fetch("/api/claude", { cache: "no-store" });
+    render(await res.json());
+  } catch (err) {
+    document.getElementById("stamp").textContent = "injoignable";
+  }
+}
+tick();
+// Une transcription ne bouge qu'au rythme des échanges : dix secondes suffisent.
+setInterval(tick, 10000);
+</script>
+</body>
+</html>
+"""
+)
 
 
 def _allowed_origin(origin, host_header):
@@ -647,6 +1132,10 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, PAGE, "text/html; charset=utf-8")
         elif path == "/api/metrics":
             self._send(200, json.dumps(_payload()), "application/json; charset=utf-8")
+        elif path == "/claude":
+            self._send(200, CLAUDE_PAGE, "text/html; charset=utf-8")
+        elif path == "/api/claude":
+            self._send(200, json.dumps(_claude_payload()), "application/json; charset=utf-8")
         elif path == "/healthz":
             self._send(200, "ok", "text/plain; charset=utf-8")
         else:

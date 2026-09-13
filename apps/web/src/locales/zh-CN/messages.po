@@ -676,6 +676,10 @@ msgstr ""
 msgid "Choose which connected model Ashitaka uses."
 msgstr ""
 
+#: src/pages/SystemMonitorOverlay.tsx:188
+msgid "Claude usage"
+msgstr ""
+
 #: src/pages/Shell.tsx:6376
 msgid "Clear"
 msgstr "清空"
@@ -701,7 +705,7 @@ msgstr "正在清空…"
 #: src/pages/PeerMessagesOverlay.tsx:209
 #: src/pages/PokemonPickerOverlay.tsx:67
 #: src/pages/RoutineEditor.tsx:263
-#: src/pages/SystemMonitorOverlay.tsx:105
+#: src/pages/SystemMonitorOverlay.tsx:124
 #: src/pages/WindowChrome.tsx:19
 msgid "Close"
 msgstr "关闭"
@@ -2049,6 +2053,10 @@ msgstr "来自服务器的模型"
 msgid "Models missing from the catalog are excluded from the total."
 msgstr ""
 
+#: src/pages/SystemMonitorOverlay.tsx:143
+msgid "Monitoring"
+msgstr ""
+
 #: src/pages/RoutineSchedule.tsx:96
 msgid "Monthly"
 msgstr "每月"
@@ -2214,7 +2222,8 @@ msgstr "没有可用的模型目录。"
 msgid "No model has run yet."
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:116
+#: src/pages/SystemMonitorOverlay.tsx:162
+#: src/pages/SystemMonitorOverlay.tsx:192
 msgid "No monitoring service on this host."
 msgstr ""
 
@@ -2304,7 +2313,7 @@ msgstr "打开"
 msgid "Open {0}"
 msgstr "打开 {0}"
 
-#: src/pages/SystemMonitorOverlay.tsx:101
+#: src/pages/SystemMonitorOverlay.tsx:120
 msgid "Open in a tab"
 msgstr ""
 
@@ -2460,7 +2469,7 @@ msgstr "提供方"
 msgid "Queued"
 msgstr "排队中"
 
-#: src/pages/SystemMonitorOverlay.tsx:131
+#: src/pages/SystemMonitorOverlay.tsx:136
 msgid "Reaching the monitoring service…"
 msgstr ""
 
@@ -2468,9 +2477,8 @@ msgstr ""
 msgid "Read replies aloud"
 msgstr "朗读回复"
 
-#. placeholder {0}: base.current
-#: src/pages/SystemMonitorOverlay.tsx:119
-msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. It is expected at <0>{0}</0> — see infra/monitoring in the repository."
+#: src/pages/SystemMonitorOverlay.tsx:165
+msgid "Readings come from a small service that reads the host's sensors, which the containers cannot see on their own. See infra/monitoring in the repository."
 msgstr ""
 
 #: src/pages/FavoriteModelsOverlay.tsx:188
@@ -3050,8 +3058,7 @@ msgid "System"
 msgstr ""
 
 #: src/pages/Shell.tsx:2988
-#: src/pages/SystemMonitorOverlay.tsx:92
-#: src/pages/SystemMonitorOverlay.tsx:138
+#: src/pages/SystemMonitorOverlay.tsx:158
 msgid "System monitor"
 msgstr ""
 
@@ -3254,6 +3261,10 @@ msgstr "正在更新…"
 #: src/pages/Shell.tsx:3026
 msgid "Usage"
 msgstr "用量"
+
+#: src/pages/SystemMonitorOverlay.tsx:195
+msgid "Usage is read from the Claude Code transcripts stored on the host, which the containers cannot see on their own. See infra/monitoring in the repository."
+msgstr ""
 
 #: src/pages/HostComputerPrompt.tsx:83
 msgid "Use {hostLabel}"

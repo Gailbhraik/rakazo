@@ -2,6 +2,7 @@ import type { Bot, Group } from "@rakazo/contracts";
 import { BotAvatar } from "@rakazo/ui-web";
 import {
   ArrowUpRight,
+  Coins,
   Cpu,
   Gauge,
   MessageCircle,
@@ -31,6 +32,9 @@ const Mcp = lazy(() =>
 const Monitor = lazy(() =>
   import("./SystemMonitorOverlay").then((m) => ({ default: m.SystemMonitorOverlay })),
 );
+const ClaudeUsage = lazy(() =>
+  import("./SystemMonitorOverlay").then((m) => ({ default: m.ClaudeUsageOverlay })),
+);
 type Balance = Awaited<ReturnType<typeof rpc.usage.balances>>[number];
 const names: Record<string, string> = {
   openrouter: "OpenRouter",
@@ -51,7 +55,7 @@ export function HomePage() {
   const [error, setError] = useState("");
   const [balanceError, setBalanceError] = useState("");
   const [panel, setPanel] = useState<
-    "models" | "favorites" | "plugins" | "mcp" | "monitor" | null
+    "models" | "favorites" | "plugins" | "mcp" | "monitor" | "claude" | null
   >(null);
   const [query, setQuery] = useState("");
   const [revision, setRevision] = useState(0);
@@ -236,6 +240,12 @@ export function HomePage() {
                 description: "État de la machine",
                 Icon: Gauge,
               },
+              {
+                id: "claude" as const,
+                label: "Conso Claude",
+                description: "Tokens et coût",
+                Icon: Coins,
+              },
             ].map(({ id, label, description, Icon }) => (
               <button type="button" key={id} className="rk-home-tile" onClick={() => setPanel(id)}>
                 <Icon size={22} className="mb-4 text-[var(--rk-accent)]" />
@@ -323,6 +333,7 @@ export function HomePage() {
           {panel === "plugins" && <Plugins onClose={close} onOpenMcp={() => setPanel("mcp")} />}
           {panel === "mcp" && <Mcp onClose={close} />}
           {panel === "monitor" && <Monitor onClose={close} />}
+          {panel === "claude" && <ClaudeUsage onClose={close} />}
         </div>
       </Suspense>
     </div>

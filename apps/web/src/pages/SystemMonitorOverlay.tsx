@@ -1,20 +1,21 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import { ExternalLink, X } from "lucide-react";
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
 /**
- * État de la machine hôte, montré dans l'interface.
+ * Pages rendues par le service de supervision de l'hôte, montrées dans l'interface.
  *
  * Les mesures ne peuvent pas venir de l'API : elle tourne en conteneur et ne
  * verrait que les limites de son propre cgroup, pas la machine. Elles viennent
- * d'un service de supervision posé à côté, qui lit `/proc`, `/sys` et
- * `podman stats` — voir `infra/monitoring/host-monitor.py`.
+ * d'un service posé à côté, qui lit `/proc`, `/sys`, `podman stats` et les
+ * transcriptions locales de Claude Code — voir `infra/monitoring/host-monitor.py`.
  *
- * Ce service rend déjà sa propre page, complète et adaptée au téléphone : on
- * l'incorpore plutôt que de redessiner les mêmes cartes ici. Une seule mise en
- * page à maintenir, et rien à reconstruire côté interface quand un relevé
- * s'ajoute. La contrepartie est que cette page garde sa palette propre et ne
- * suit pas la couleur d'accent choisie dans les réglages.
+ * Ce service rend déjà ses propres pages, complètes et adaptées au téléphone :
+ * on les incorpore plutôt que de redessiner les mêmes cartes ici. Une seule
+ * mise en page à maintenir, et rien à reconstruire côté interface quand un
+ * relevé s'ajoute. La contrepartie est que ces pages gardent leur palette
+ * propre et ne suivent pas la couleur d'accent choisie dans les réglages.
  *
  * Le service est optionnel : une instance qui ne l'a pas installé lit ce qui
  * lui manque, plutôt que de contempler un cadre vide.
@@ -44,10 +45,28 @@ function monitorBase(): string {
 
 type Reachability = "checking" | "up" | "absent";
 
-export function SystemMonitorOverlay({ onClose }: { onClose: () => void }) {
+/**
+ * Cadre commun aux pages du service : sonde, en-tête, lien sortant, fermeture.
+ *
+ * `path` désigne la page à incorporer — la racine pour les relevés matériels,
+ * `/claude` pour la consommation. Le reste est identique, et le rester évite
+ * d'avoir à corriger deux fois le même défaut.
+ */
+function MonitorFrame({
+  path,
+  title,
+  absence,
+  onClose,
+}: {
+  path: string;
+  title: ReactNode;
+  absence: ReactNode;
+  onClose: () => void;
+}) {
   const { t } = useLingui();
   const base = useRef(monitorBase());
   const [state, setState] = useState<Reachability>("checking");
+  const url = `${base.current}${path}`;
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -83,16 +102,16 @@ export function SystemMonitorOverlay({ onClose }: { onClose: () => void }) {
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="system-monitor-title"
+        aria-labelledby="monitor-frame-title"
         onPointerDown={(event) => event.stopPropagation()}
         className="flex h-[84vh] w-full max-w-[860px] flex-col overflow-hidden rounded-2xl border border-[var(--rk-n56)] bg-[var(--rk-n92)] shadow-[0_28px_70px_rgba(0,0,0,.6)]"
       >
         <div className="flex items-center gap-3 border-b border-[var(--rk-n70)] px-5 py-4">
-          <h2 id="system-monitor-title" className="flex-1 text-[16px] text-[var(--rk-n08)]">
-            <Trans>System monitor</Trans>
+          <h2 id="monitor-frame-title" className="flex-1 text-[16px] text-[var(--rk-n08)]">
+            {title}
           </h2>
           <a
-            href={base.current}
+            href={url}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-1.5 text-[13px] text-[var(--rk-n29)] hover:text-[var(--rk-n08)]"
@@ -110,21 +129,7 @@ export function SystemMonitorOverlay({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        {state === "absent" ? (
-          <div className="px-5 py-4">
-            <p className="text-[14px] text-[var(--rk-n08)]">
-              <Trans>No monitoring service on this host.</Trans>
-            </p>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--rk-n29)]">
-              <Trans>
-                Readings come from a small service that reads the host's sensors, which the
-                containers cannot see on their own. It is expected at{" "}
-                <code className="text-[var(--rk-n08)]">{base.current}</code> — see
-                infra/monitoring in the repository.
-              </Trans>
-            </p>
-          </div>
-        ) : null}
+        {state === "absent" ? <div className="px-5 py-4">{absence}</div> : null}
 
         {state === "checking" ? (
           <p className="px-5 py-4 text-[13.5px] text-[var(--rk-n29)]">
@@ -134,13 +139,66 @@ export function SystemMonitorOverlay({ onClose }: { onClose: () => void }) {
 
         {state === "up" ? (
           <iframe
-            src={base.current}
-            title={t`System monitor`}
+            src={url}
+            title={t`Monitoring`}
             referrerPolicy="no-referrer"
             className="min-h-0 flex-1 border-0 bg-[var(--rk-n92)]"
           />
         ) : null}
       </div>
     </div>
+  );
+}
+
+export function SystemMonitorOverlay({ onClose }: { onClose: () => void }) {
+  return (
+    <MonitorFrame
+      path=""
+      onClose={onClose}
+      title={<Trans>System monitor</Trans>}
+      absence={
+        <>
+          <p className="text-[14px] text-[var(--rk-n08)]">
+            <Trans>No monitoring service on this host.</Trans>
+          </p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--rk-n29)]">
+            <Trans>
+              Readings come from a small service that reads the host's sensors, which the containers
+              cannot see on their own. See infra/monitoring in the repository.
+            </Trans>
+          </p>
+        </>
+      }
+    />
+  );
+}
+
+/**
+ * Consommation de Claude Code sur cette machine.
+ *
+ * Elle ne peut pas venir de la base : celle-ci n'enregistre que les appels des
+ * bots, qui passent par un autre fournisseur. La seule source locale est la
+ * transcription que Claude Code écrit par session, d'où la lecture côté hôte.
+ */
+export function ClaudeUsageOverlay({ onClose }: { onClose: () => void }) {
+  return (
+    <MonitorFrame
+      path="/claude"
+      onClose={onClose}
+      title={<Trans>Claude usage</Trans>}
+      absence={
+        <>
+          <p className="text-[14px] text-[var(--rk-n08)]">
+            <Trans>No monitoring service on this host.</Trans>
+          </p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--rk-n29)]">
+            <Trans>
+              Usage is read from the Claude Code transcripts stored on the host, which the
+              containers cannot see on their own. See infra/monitoring in the repository.
+            </Trans>
+          </p>
+        </>
+      }
+    />
   );
 }
