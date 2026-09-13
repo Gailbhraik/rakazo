@@ -975,6 +975,12 @@ CLAUDE_PAGE = (
   .live { color: var(--muted); font-size: 12px; }
   .stale { color: var(--bad); font-size: 12px; }
   .muted { color: var(--muted); font-size: 12px; }
+  .machines { display: grid; gap: 12px; }
+  .machine + .machine { border-top: 1px solid var(--line); padding-top: 12px; }
+  .machine .head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .machine .figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 8px 0 4px; }
+  .machine .figures span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .machine .figures b { display: block; font-size: 14px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
   .day { display: grid; grid-template-columns: 4.6em 1fr 4.6em; align-items: center; gap: 9px; font-size: 12.5px; }
   .day > span { color: var(--muted); font-variant-numeric: tabular-nums; }
   .day > span.cost { text-align: right; color: var(--ink); }
@@ -1096,18 +1102,19 @@ function render(d) {
         : "il y a " + Math.round(minutes / 1440) + " j";
       return '<span class="' + (minutes > 1440 ? "stale" : "live") + '">synchronisé ' + ago + "</span>";
     };
-    const rows = d.machines.map((m) =>
-      "<tr><td><b>" + esc(m.machine) + "</b><br>" + state(m) + "</td>"
-      + '<td class="num">' + F.money(m.today.cost) + "</td>"
-      + '<td class="num">' + F.money(m.week.cost) + "</td>"
-      + '<td class="num">' + F.money(m.all.cost)
-      + '<br><span class="muted">' + F.int(m.sessions) + " session"
-      + (m.sessions > 1 ? "s" : "") + "</span></td></tr>").join("");
+    // Un bloc par machine plutôt qu'un tableau : quatre colonnes ne tiennent pas
+    // sur un téléphone, et le total finissait caché derrière un défilement.
+    const blocks = d.machines.map((m) =>
+      '<div class="machine"><div class="head"><b>' + esc(m.machine) + "</b>"
+      + state(m) + "</div>"
+      + '<div class="figures">'
+      + "<div><span>Aujourd'hui</span><b>" + F.money(m.today.cost) + "</b></div>"
+      + "<div><span>7 jours</span><b>" + F.money(m.week.cost) + "</b></div>"
+      + "<div><span>Total</span><b>" + F.money(m.all.cost) + "</b></div>"
+      + '</div><div class="muted">' + F.int(m.sessions) + " session"
+      + (m.sessions > 1 ? "s" : "") + "</div></div>").join("");
     parts.push('<div class="grid" style="margin-top:12px"><div class="card wide">'
-      + '<h2>Par machine</h2><div class="scroll"><table><thead><tr><th>Machine</th>'
-      + '<th class="num">Aujourd\'hui</th><th class="num">7 jours</th>'
-      + '<th class="num">Total</th></tr></thead><tbody>'
-      + rows + "</tbody></table></div></div></div>");
+      + '<h2>Par machine</h2><div class="machines">' + blocks + "</div></div></div>");
   }
 
   if (d.days.length > 1) {
