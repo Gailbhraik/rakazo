@@ -18,8 +18,22 @@ set -euo pipefail
 SRC="${CLAUDE_HOME:-$HOME/.claude}"
 HOST="${DECK_HOST:-deck-codex}"
 STAMP="$SRC/.deck-sync-stamp"
+LOCK="$SRC/.deck-sync.lock"
 
 cd "$SRC"
+
+# Lancé après chaque réponse de Claude, le script peut être rappelé alors qu'un
+# envoi lent n'est pas fini. Deux passages simultanés se disputeraient le
+# témoin : le second part donc aussitôt, sans erreur — le premier enverra déjà
+# tout ce qui a changé. `mkdir` est atomique, contrairement à un test suivi d'une
+# création. Un verrou vieux de plus de dix minutes est celui d'un passage tué en
+# route : on le lève plutôt que de bloquer toutes les synchronisations suivantes.
+if [ -d "$LOCK" ] && [ -n "$(find "$LOCK" -maxdepth 0 -mmin +10 2>/dev/null)" ]; then
+  rmdir "$LOCK" 2>/dev/null || true
+fi
+mkdir "$LOCK" 2>/dev/null || exit 0
+trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+
 touch "$STAMP.new"
 
 if [ -f "$STAMP" ]; then
