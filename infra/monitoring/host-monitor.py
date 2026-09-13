@@ -1213,22 +1213,313 @@ def _allowed_origin(origin, host_header):
     return None
 
 
-# --- portefeuille Meridian ---------------------------------------------------
+# --- portefeuille -------------------------------------------------------------
 #
-# Meridian (`meridian.html`, à côté de ce fichier) est servi sur `/meridian`, et
-# son portefeuille gardé dans un fichier du Deck via `/api/portfolio`. Dans le
-# seul navigateur, Safari l'effacerait après sept jours sans visite, et chaque
-# appareil aurait sa propre copie.
+# Une liste de positions saisies à la main, servie sur `/portfolio` et gardée
+# dans un fichier du Deck via `/api/portfolio`. Dans le seul navigateur, Safari
+# l'effacerait après sept jours sans visite, et chaque appareil aurait sa copie.
 #
-# Écriture protégée à trois niveaux :
+# Écriture protégée à quatre niveaux :
 # - PUT avec `Content-Type: application/json` n'est pas une requête « simple » :
 #   un autre site doit obtenir l'accord d'une requête OPTIONS préalable, et ce
 #   service n'y répond pas. Le navigateur bloque donc l'écriture avant l'envoi ;
 # - l'en-tête `Origin`, quand il est présent, doit désigner ce même hôte ;
-# - une écriture plus ancienne que l'état détenu est refusée (409) : un appareil
-#   resté hors ligne ne peut pas écraser ce qu'un autre a enregistré entre-temps.
+# - `baseEditedAt` désigne la version sur laquelle la modification a été faite :
+#   si le Deck en détient une autre, l'écriture est refusée (409) et la page
+#   rejoue sa modification sur l'état frais. Sans cela, une suppression faite
+#   depuis une liste chargée avant un ajout ailleurs effacerait cet ajout ;
+# - sans `baseEditedAt`, une écriture plus ancienne que l'état détenu est refusée.
 
-MERIDIAN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "meridian.html")
+PORTFOLIO_PAGE = (
+    r"""<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Portefeuille</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>"""
+    + CSS
+    + r"""
+  .summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+  .summary .card { padding: 10px 11px; }
+  .summary .big { font-size: 17px; overflow-wrap: anywhere; }
+  .up { color: var(--ok); } .down { color: var(--bad); }
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  button {
+    font: inherit; font-size: 14px; border-radius: 10px; padding: 10px 14px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.danger { color: var(--bad); }
+  button:disabled { opacity: .5; }
+  .status { color: var(--muted); font-size: 12.5px; margin-left: auto; }
+  .status.err { color: var(--bad); }
+  .list { display: grid; gap: 8px; }
+  .pos {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; width: 100%;
+    text-align: left; padding: 11px 13px; border-radius: 12px;
+  }
+  .pos .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pos .value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .pos .detail, .pos .pl { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .pos .detail { color: var(--muted); }
+  .pos .pl { text-align: right; }
+  .empty { color: var(--muted); text-align: center; padding: 28px 10px; }
+  form { display: grid; gap: 10px; }
+  label { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+  input {
+    font: inherit; font-size: 16px; color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 9px; padding: 10px 11px; width: 100%;
+  }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .actions .spacer { flex: 1; }
+</style>
+</head>
+<body>
+<header><h1>Portefeuille</h1></header>
+
+<div class="summary">
+  <div class="card"><h2>Valeur</h2><div class="big" id="sValue">—</div></div>
+  <div class="card"><h2>Investi</h2><div class="big" id="sInvested">—</div></div>
+  <div class="card"><h2>Plus-value</h2><div class="big" id="sPl">—</div><div class="sub" id="sPct"></div></div>
+</div>
+
+<div class="toolbar">
+  <button class="primary" id="addBtn" type="button">Ajouter une position</button>
+  <span class="status" id="status">chargement…</span>
+</div>
+
+<div class="card" id="formCard" hidden style="margin-bottom:12px">
+  <form id="form" autocomplete="off">
+    <label>Nom ou symbole<input id="fName" required maxlength="40" placeholder="LVMH"></label>
+    <div class="row2">
+      <label>Quantité<input id="fQty" inputmode="decimal" required placeholder="10"></label>
+      <label>Prix d'achat (€)<input id="fPru" inputmode="decimal" required placeholder="650,00"></label>
+    </div>
+    <label>Cours actuel (€) — vide = prix d'achat<input id="fPrice" inputmode="decimal" placeholder="700,00"></label>
+    <div class="actions">
+      <button class="primary" type="submit">Enregistrer</button>
+      <button type="button" id="cancelBtn">Annuler</button>
+      <span class="spacer"></span>
+      <button type="button" class="danger" id="deleteBtn" hidden>Supprimer</button>
+    </div>
+  </form>
+</div>
+
+<div class="list" id="list"></div>
+
+<script>
+"use strict";
+const API = "/api/portfolio";
+let positions = [];
+let editing = null;          // id de la position ouverte, ou "new"
+let busy = false;
+
+const $ = (id) => document.getElementById(id);
+const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
+const qtyFmt = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 6 });
+
+// Saisie à la française : « 12,5 » comme « 12.5 », espaces de milliers tolérés.
+function parseNum(s) {
+  const t = String(s == null ? "" : s).trim().replace(/[\s  ]/g, "").replace(",", ".");
+  return t === "" ? NaN : Number(t);
+}
+
+function normalize(p) {
+  if (!p || typeof p !== "object") return null;
+  const name = String(p.name || p.ticker || "").trim().slice(0, 40);
+  const qty = Number(p.qty), pru = Number(p.pru);
+  const price = Number(p.price);
+  if (!name || !(qty > 0) || !(pru >= 0)) return null;
+  return {
+    id: String(p.id || crypto.randomUUID()),
+    name, qty, pru,
+    price: price >= 0 ? price : pru,
+  };
+}
+
+function say(text, isErr) {
+  $("status").textContent = text;
+  $("status").className = "status" + (isErr ? " err" : "");
+}
+
+async function fetchState() {
+  const r = await fetch(API, { cache: "no-store" });
+  if (r.status === 404) return { positions: [], editedAt: 0 };
+  if (!r.ok) throw new Error("lecture refusée (" + r.status + ")");
+  const d = await r.json();
+  return {
+    positions: (Array.isArray(d.positions) ? d.positions : []).map(normalize).filter(Boolean),
+    editedAt: Number(d.editedAt) || 0,
+  };
+}
+
+// Chaque modification est rejouée sur l'état FRAIS du Deck, jamais sur la liste
+// affichée : un ajout fait sur un autre appareil depuis le chargement de la page
+// survit ainsi à une suppression faite ici. Si le Deck change encore entre la
+// lecture et l'écriture, il répond 409 et l'on recommence.
+async function commit(change) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const fresh = await fetchState();
+    const next = change(fresh.positions.slice());
+    const body = {
+      v: 1,
+      positions: next,
+      // Toujours après la version lue, même si l'horloge de cet appareil
+      // retarde sur celle de l'appareil qui a écrit en dernier.
+      editedAt: Math.max(Date.now(), fresh.editedAt + 1),
+      baseEditedAt: fresh.editedAt,
+    };
+    const r = await fetch(API, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (r.ok) { positions = next; return; }
+    if (r.status !== 409) throw new Error("écriture refusée (" + r.status + ")");
+  }
+  throw new Error("le portefeuille change trop vite ailleurs, réessaie");
+}
+
+function render() {
+  let value = 0, invested = 0;
+  for (const p of positions) { value += p.qty * p.price; invested += p.qty * p.pru; }
+  const pl = value - invested;
+  $("sValue").textContent = eur.format(value);
+  $("sInvested").textContent = eur.format(invested);
+  $("sPl").textContent = (pl > 0 ? "+" : "") + eur.format(pl);
+  $("sPl").className = "big " + (pl > 0 ? "up" : pl < 0 ? "down" : "");
+  $("sPct").textContent = invested > 0 ? ((pl / invested) * 100).toFixed(2).replace(".", ",") + " %" : "";
+
+  const list = $("list");
+  list.replaceChildren();
+  if (!positions.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "Aucune position. Ajoute ta première ligne.";
+    list.append(empty);
+    return;
+  }
+  const sorted = positions.slice().sort((a, b) => b.qty * b.price - a.qty * a.price);
+  for (const p of sorted) {
+    const v = p.qty * p.price, cost = p.qty * p.pru, diff = v - cost;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pos card";
+    // textContent partout : un nom saisi n'est jamais interprété comme du HTML.
+    const cell = (cls, text) => { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; };
+    btn.append(
+      cell("name", p.name),
+      cell("value", eur.format(v)),
+      cell("detail", qtyFmt.format(p.qty) + " × " + eur.format(p.price) + " · achat " + eur.format(p.pru)),
+      cell("pl " + (diff > 0 ? "up" : diff < 0 ? "down" : ""),
+           (diff > 0 ? "+" : "") + eur.format(diff) +
+           (cost > 0 ? " (" + ((diff / cost) * 100).toFixed(1).replace(".", ",") + " %)" : "")),
+    );
+    btn.addEventListener("click", () => openForm(p));
+    list.append(btn);
+  }
+}
+
+function openForm(p) {
+  editing = p ? p.id : "new";
+  $("fName").value = p ? p.name : "";
+  $("fQty").value = p ? String(p.qty).replace(".", ",") : "";
+  $("fPru").value = p ? String(p.pru).replace(".", ",") : "";
+  $("fPrice").value = p && p.price !== p.pru ? String(p.price).replace(".", ",") : "";
+  $("deleteBtn").hidden = !p;
+  $("deleteBtn").textContent = "Supprimer";
+  $("deleteBtn").dataset.armed = "";
+  $("formCard").hidden = false;
+  $("fName").focus();
+}
+
+function closeForm() {
+  editing = null;
+  $("formCard").hidden = true;
+}
+
+async function run(label, change) {
+  if (busy) return;
+  busy = true;
+  say(label + "…");
+  try {
+    await commit(change);
+    closeForm();
+    render();
+    say("Enregistré sur le Deck");
+  } catch (e) {
+    say(e.message, true);
+  } finally {
+    busy = false;
+  }
+}
+
+$("addBtn").addEventListener("click", () => openForm(null));
+$("cancelBtn").addEventListener("click", closeForm);
+
+$("form").addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  const name = $("fName").value.trim();
+  const qty = parseNum($("fQty").value);
+  const pru = parseNum($("fPru").value);
+  const priceIn = parseNum($("fPrice").value);
+  if (!name) return say("Il faut un nom.", true);
+  if (!(qty > 0)) return say("La quantité doit être positive.", true);
+  if (!(pru >= 0)) return say("Le prix d'achat est invalide.", true);
+  if ($("fPrice").value.trim() && !(priceIn >= 0)) return say("Le cours actuel est invalide.", true);
+  const price = $("fPrice").value.trim() ? priceIn : pru;
+  const id = editing === "new" ? crypto.randomUUID() : editing;
+  run("Enregistrement", (list) => {
+    const i = list.findIndex((x) => x.id === id);
+    const item = { id, name, qty, pru, price };
+    // Position supprimée ailleurs pendant l'édition : on la garde, puisque
+    // l'intention exprimée ici est de la conserver.
+    if (i < 0) list.push(item); else list[i] = item;
+    return list;
+  });
+});
+
+// Suppression en deux temps : un premier appui arme le bouton, le second
+// confirme. Plus sûr qu'un confirm(), que certains navigateurs bloquent dans
+// une page incorporée.
+$("deleteBtn").addEventListener("click", () => {
+  const b = $("deleteBtn");
+  if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = "Confirmer la suppression"; return; }
+  const id = editing;
+  run("Suppression", (list) => list.filter((x) => x.id !== id));
+});
+
+async function refresh() {
+  if (busy || editing || document.hidden) return;
+  try {
+    positions = (await fetchState()).positions;
+    render();
+    say("À jour");
+  } catch (e) {
+    say(e.message, true);
+  }
+}
+
+document.addEventListener("visibilitychange", refresh);
+setInterval(refresh, 30000);
+(async () => {
+  try {
+    positions = (await fetchState()).positions;
+    render();
+    say(positions.length ? "À jour" : "");
+  } catch (e) {
+    render();
+    say(e.message, true);
+  }
+})();
+</script>
+</body>
+</html>
+"""
+)
+
 PORTFOLIO_DIR = os.path.expanduser(os.environ.get("ASHITAKA_DATA", "~/.local/share/ashitaka"))
 PORTFOLIO_FILE = os.path.join(PORTFOLIO_DIR, "portfolio.json")
 PORTFOLIO_MAX_BYTES = 2 * 1024 * 1024
@@ -1337,10 +1628,17 @@ class Handler(BaseHTTPRequestHandler):
         if not isinstance(incoming, (int, float)):
             self._portfolio_json(400, {"error": "editedAt manquant"})
             return
+        base = state.pop("baseEditedAt", None)
         with _portfolio_lock:
             current = _portfolio_read()
             held = (current or {}).get("editedAt") or 0
-            if current and incoming < held:
+            if base is not None:
+                # La modification a été faite sur la version `base` : si le Deck
+                # en détient une autre, elle ignorerait ce qui a changé depuis.
+                if base != held:
+                    self._portfolio_json(409, {"error": "le portefeuille a changé entre-temps", "editedAt": held})
+                    return
+            elif current and incoming < held:
                 self._portfolio_json(409, {"error": "modification plus récente sur le Deck", "editedAt": held})
                 return
             try:
@@ -1360,14 +1658,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, CLAUDE_PAGE, "text/html; charset=utf-8")
         elif path == "/api/claude":
             self._send(200, json.dumps(_claude_payload()), "application/json; charset=utf-8")
-        elif path == "/meridian":
-            # Relu à chaque requête : une retouche de la page s'applique sans
-            # redémarrer le service.
-            try:
-                with open(MERIDIAN_FILE, encoding="utf-8") as fh:
-                    self._send(200, fh.read(), "text/html; charset=utf-8")
-            except OSError:
-                self._send(404, "Meridian absent de ce Deck", "text/plain; charset=utf-8")
+        elif path == "/portfolio":
+            self._send(200, PORTFOLIO_PAGE, "text/html; charset=utf-8")
         elif path == "/api/portfolio":
             state = _portfolio_read()
             if state is None:

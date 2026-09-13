@@ -183,16 +183,17 @@ export function ClaudeUsageOverlay({ onClose }: { onClose: () => void }) {
 }
 
 /**
- * Portefeuille boursier : Meridian, servi par le même service de l'hôte.
+ * Portefeuille boursier : une liste de positions saisies à la main, servie par
+ * le même service de l'hôte.
  *
- * Il y vit plutôt que dans l'API parce qu'il garde le portefeuille dans un
+ * Elle y vit plutôt que dans l'API parce qu'elle garde le portefeuille dans un
  * simple fichier du Deck, sans migration de base, et parce que ce service est
  * déjà joignable depuis l'interface — c'est lui que ce cadre sait incorporer.
  */
 export function PortfolioOverlay({ onClose }: { onClose: () => void }) {
   return (
     <MonitorFrame
-      path="/meridian"
+      path="/portfolio"
       onClose={onClose}
       title={<Trans>Portfolio</Trans>}
       absence={
