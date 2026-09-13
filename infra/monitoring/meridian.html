@@ -1,0 +1,2604 @@
+<!doctype html>
+<!--
+  Meridian, version servie par le Deck pour Ashitaka.
+
+  Copie de meridian.html (dépôt Documents/claude, branche main, commit ae9317b),
+  adaptée à un hébergement autonome :
+
+  - le squelette ci-dessous remplace celui que l'hébergeur d'artifacts ajoutait
+    à la publication : sans `viewport`, un téléphone affiche la page en largeur
+    bureau réduite, et sans doctype le navigateur passe en mode de compatibilité ;
+  - `[hidden]` reçoit la même règle qu'alors, la page basculant plusieurs
+    éléments par cet attribut ;
+  - le portefeuille est gardé sur le Deck (moteur « deck » de la couche cloud),
+    et non plus seulement dans le navigateur — voir `startDeck`.
+-->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body{ margin:0; }
+  img{ max-width:100%; }
+  [hidden]{ display:none !important; }
+</style>
+<title>Meridian Portfolio</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#EDEFF4; --surface:#FFFFFF; --surface-2:#E4E7EF; --field:#FFFFFF;
+    --line:#D2D7E3; --line-soft:#E2E6EF;
+    --text:#151824; --text-2:#4E5468; --text-3:#7C8296;
+    --brass:#A87A17; --brass-solid:#C79B3B;
+    --up:#2F7F66; --down:#B8503B;
+    --c-crypto:#B98A22; --c-equity:#5A73BE; --c-etf:#7C67AC; --c-cash:#3B9077;
+    --shadow:0 1px 2px rgba(21,24,36,.05), 0 12px 28px -18px rgba(21,24,36,.35);
+    --scene-bg:#E6E9F1; --scene-ring:#B9C0D2;
+    --chart-grid:#DDE1EB;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0F121C; --surface:#171B27; --surface-2:#1F2431; --field:#12161F;
+      --line:#2A3040; --line-soft:#222836;
+      --text:#EAECF3; --text-2:#A2A9BC; --text-3:#767E93;
+      --brass:#E0B25A; --brass-solid:#D9A441;
+      --up:#57BE9C; --down:#E07A63;
+      --c-crypto:#E0B25A; --c-equity:#8FA3E4; --c-etf:#A48FCE; --c-cash:#57BE9C;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 18px 40px -24px rgba(0,0,0,.8);
+      --scene-bg:#131725; --scene-ring:#333B4E;
+      --chart-grid:#262C3B;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F121C; --surface:#171B27; --surface-2:#1F2431; --field:#12161F;
+    --line:#2A3040; --line-soft:#222836;
+    --text:#EAECF3; --text-2:#A2A9BC; --text-3:#767E93;
+    --brass:#E0B25A; --brass-solid:#D9A441;
+    --up:#57BE9C; --down:#E07A63;
+    --c-crypto:#E0B25A; --c-equity:#8FA3E4; --c-etf:#A48FCE; --c-cash:#57BE9C;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 18px 40px -24px rgba(0,0,0,.8);
+    --scene-bg:#131725; --scene-ring:#333B4E;
+    --chart-grid:#262C3B;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground); color:var(--text);
+    font-family:"Archivo","Helvetica Neue",Arial,sans-serif;
+    font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px 72px;
+    display:flex; flex-direction:column; gap:34px}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+  .masthead{display:flex; align-items:baseline; justify-content:space-between;
+    gap:16px; flex-wrap:wrap; padding:26px 0 16px; border-bottom:1px solid var(--line)}
+  .mark{font-family:"Bodoni Moda",Georgia,serif; font-weight:500;
+    font-size:25px; letter-spacing:.16em; text-transform:uppercase}
+  .mark span{color:var(--brass)}
+  .masthead .meta{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+    color:var(--text-3); letter-spacing:.1em; text-transform:uppercase;
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+  .dotstate{width:6px;height:6px;border-radius:50%;background:var(--text-3);
+    display:inline-block; margin-right:7px; vertical-align:1px}
+  .dotstate.live{background:var(--up)}
+  .dotstate.err{background:var(--down)}
+  @media (prefers-reduced-motion: no-preference){ .dotstate.live{animation:breathe 3s ease-in-out infinite} }
+  @keyframes breathe{0%,100%{opacity:1}50%{opacity:.3}}
+
+  .hero{display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:30px}
+  .totals{display:flex; flex-direction:column; gap:18px; justify-content:center}
+  .eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--text-3)}
+  .total-value{font-family:"Bodoni Moda",Georgia,serif; font-weight:400;
+    font-size:clamp(38px,5.2vw,60px); line-height:1.05; letter-spacing:-.015em;
+    font-variant-numeric:tabular-nums; margin:10px 0 0; white-space:nowrap}
+  .total-value .cents{font-size:.46em; color:var(--text-3); letter-spacing:0}
+  .chip{display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; font-weight:500;
+    padding:6px 11px; letter-spacing:.03em; font-variant-numeric:tabular-nums}
+  .chip.up{color:var(--up); background:color-mix(in srgb, var(--up) 12%, transparent)}
+  .chip.down{color:var(--down); background:color-mix(in srgb, var(--down) 12%, transparent)}
+  .chip.flat{color:var(--text-2); background:var(--surface-2)}
+  .tiles{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line);
+    border:1px solid var(--line)}
+  .tile{background:var(--ground); padding:13px 14px 15px; display:flex; flex-direction:column; gap:6px}
+  .tile b{font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:500;
+    font-size:16px; font-variant-numeric:tabular-nums; letter-spacing:-.01em}
+  .tile .lbl{font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--text-3); font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+  .scene-shell{position:relative; background:var(--scene-bg); border:1px solid var(--line);
+    min-height:520px; overflow:hidden; box-shadow:var(--shadow)}
+  #scene{display:block; position:absolute; inset:0; width:100%; height:100%}
+  .scene-labels{position:absolute; inset:0; pointer-events:none}
+  .node-label{position:absolute; transform:translate(-50%,-50%);
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px; font-weight:500;
+    letter-spacing:.12em; color:var(--text-2); white-space:nowrap;
+    text-shadow:0 0 7px var(--scene-bg), 0 0 7px var(--scene-bg)}
+  .scene-head{position:absolute; top:0; left:0; right:0; padding:15px 16px; pointer-events:none}
+  .legend{display:flex; gap:16px; flex-wrap:wrap; font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--text-2)}
+  .legend i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:7px}
+  .scrim{position:absolute; left:0; right:0; bottom:0; height:120px; pointer-events:none;
+    background:linear-gradient(to top, var(--scene-bg) 20%, transparent)}
+  .readout{position:absolute; left:16px; bottom:14px; right:16px;
+    display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+    pointer-events:none; font-family:"IBM Plex Mono",ui-monospace,monospace}
+  .readout .name{font-size:12.5px; color:var(--text); letter-spacing:.05em}
+  .readout .sub{font-size:11px; color:var(--text-3); letter-spacing:.05em; margin-top:3px}
+  .readout .hint{font-size:10px; color:var(--text-3); letter-spacing:.13em;
+    text-transform:uppercase; flex:none}
+  .scene-empty{position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    text-align:center; padding:24px; font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-3)}
+  .is-empty .scene-empty{display:flex}
+
+  /* ---------- panneaux ---------- */
+  .panels{display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start}
+  .panel{border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow);
+    display:flex; flex-direction:column}
+  .panel > h3{margin:0; padding:12px 16px; border-bottom:1px solid var(--line-soft);
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px; font-weight:500;
+    letter-spacing:.16em; text-transform:uppercase; color:var(--text-3)}
+  .panel-body{padding:14px 16px; display:flex; flex-direction:column; gap:12px}
+  .kv{display:flex; gap:16px; flex-wrap:wrap; font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11px; color:var(--text-2); letter-spacing:.05em}
+  .kv b{font-weight:500; color:var(--text-3); text-transform:uppercase; letter-spacing:.13em;
+    font-size:10px; margin-right:7px}
+  .panel-msg{font-size:12.5px; color:var(--text-2); max-width:70ch}
+  .panel-msg.err{color:var(--down)}
+  .keyrow{display:none; gap:10px; align-items:flex-end; flex-wrap:wrap}
+  .keyrow.open{display:flex}
+
+  .seg{display:inline-flex; border:1px solid var(--line)}
+  .seg button{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px;
+    font-weight:500; letter-spacing:.13em; padding:8px 14px; cursor:pointer;
+    background:transparent; color:var(--text-3); border:none}
+  .seg button.on{background:var(--brass-solid); color:#20180A}
+  .seg button:not(.on):hover{color:var(--text)}
+
+  button{font:inherit}
+  .btn{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px; font-weight:500;
+    letter-spacing:.13em; text-transform:uppercase; padding:9px 14px; cursor:pointer;
+    background:var(--surface-2); color:var(--text); border:1px solid var(--line);
+    transition:background .15s, border-color .15s}
+  .btn:hover{border-color:var(--text-3)}
+  .btn.primary{background:var(--brass-solid); border-color:var(--brass-solid); color:#20180A}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.ghost{background:transparent}
+  .btn[disabled]{opacity:.45; cursor:not-allowed}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .icon-btn{background:none; border:none; cursor:pointer; color:var(--text-3);
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px; letter-spacing:.1em;
+    text-transform:uppercase; padding:4px 6px}
+  .icon-btn:hover{color:var(--text)}
+  .icon-btn.danger:hover{color:var(--down)}
+
+  label{display:flex; flex-direction:column; gap:6px; font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--text-3)}
+  input, select{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px;
+    padding:9px 10px; background:var(--field); color:var(--text);
+    border:1px solid var(--line); border-radius:0; width:100%;
+    font-variant-numeric:tabular-nums}
+  input:focus, select:focus{outline:2px solid var(--brass-solid); outline-offset:-1px;
+    border-color:var(--brass-solid)}
+  input::placeholder{color:var(--text-3); opacity:.7}
+  .fxrow{display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap}
+  .fxrow label{flex:0 1 190px}
+
+  /* ---------- suggestions de tickers ---------- */
+  .ac-wrap{position:relative; display:block; width:100%}
+  .ac{position:absolute; left:0; top:100%; z-index:40;
+    min-width:100%; width:max-content; max-width:min(420px, 78vw);
+    background:var(--surface); border:1px solid var(--brass-solid); border-top:none;
+    max-height:290px; overflow-y:auto; overflow-x:hidden; box-shadow:var(--shadow)}
+  .ac ul{list-style:none; margin:0; padding:0}
+  .ac li{padding:9px 10px; cursor:pointer; display:flex; align-items:center; gap:10px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px;
+    border-bottom:1px solid var(--line-soft)}
+  .ac li:last-of-type{border-bottom:none}
+  .ac li.ac-empty{display:block; cursor:default; color:var(--text-2);
+    font-family:"Archivo",sans-serif; font-size:12.5px; line-height:1.5; padding:12px 11px;
+    text-transform:none; letter-spacing:0}
+  .ac li.ac-empty:hover{background:transparent}
+  .ac li.on{background:var(--surface-2); box-shadow:inset 2px 0 0 var(--brass-solid)}
+  .ac li i{width:8px; height:8px; border-radius:50%; flex:none}
+  .ac .tk{font-weight:600; letter-spacing:.06em; min-width:62px; color:var(--text)}
+  .ac .tk b{color:var(--brass); font-weight:600}
+  .ac .nm{font-family:"Archivo",sans-serif; font-size:12px; color:var(--text-2);
+    flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    letter-spacing:0; text-transform:none}
+  .ac .cl{font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-3); flex:none}
+  .ac-foot{padding:8px 10px; border-top:1px solid var(--line);
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:9.5px;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--text-3)}
+
+  .form-panel{border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow);
+    padding:18px 16px; display:none}
+  .form-panel.open{display:block}
+  .form-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:14px}
+  .field-note{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px;
+    letter-spacing:.06em; text-transform:none; color:var(--text-3); min-height:1.25em;
+    line-height:1.25}
+  .field-note.ok{color:var(--up)}
+  .field-note.warn{color:var(--text-2)}
+  .form-foot{display:flex; justify-content:space-between; align-items:center; gap:16px;
+    flex-wrap:wrap; margin-top:16px; padding-top:14px; border-top:1px solid var(--line-soft)}
+  .form-err{color:var(--down); font-size:12.5px; min-height:1.4em}
+  .adv{margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft)}
+  .adv summary{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px;
+    letter-spacing:.13em; text-transform:uppercase; color:var(--text-3); cursor:pointer}
+  .adv summary:hover{color:var(--text-2)}
+  .adv .form-grid{margin-top:14px}
+
+  .sec-head{display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+    border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:18px; flex-wrap:wrap}
+  .sec-head h2{font-family:"Bodoni Moda",Georgia,serif; font-weight:400; font-size:23px;
+    margin:0; text-wrap:balance}
+  .sec-head .note{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10.5px;
+    color:var(--text-3); letter-spacing:.11em; text-transform:uppercase}
+
+  .alloc-bar{display:flex; height:11px; gap:2px; margin-bottom:18px}
+  .alloc-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line)}
+  .alloc-cell{background:var(--ground); padding:14px; display:flex; flex-direction:column; gap:6px}
+  .alloc-cell .k{font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--text-2);
+    font-family:"IBM Plex Mono",ui-monospace,monospace; display:flex; align-items:center; gap:8px}
+  .alloc-cell .k i{width:7px;height:7px;border-radius:50%;flex:none}
+  .alloc-cell .w{font-family:"Bodoni Moda",Georgia,serif; font-size:27px; line-height:1;
+    font-variant-numeric:tabular-nums}
+  .alloc-cell .w em{font-style:normal; font-size:.45em; color:var(--text-3)}
+  .alloc-cell .v{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px;
+    color:var(--text-3); font-variant-numeric:tabular-nums}
+
+  .chart-shell{position:relative; background:var(--surface); border:1px solid var(--line);
+    box-shadow:var(--shadow); padding:18px 18px 12px}
+  #chart{display:block; width:100%; height:240px}
+  .chart-tip{position:absolute; pointer-events:none; opacity:0; transition:opacity .12s;
+    background:var(--surface-2); border:1px solid var(--line); padding:7px 10px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; white-space:nowrap;
+    font-variant-numeric:tabular-nums; transform:translate(-50%,-130%); z-index:2}
+  .chart-tip b{display:block; font-weight:500; font-size:12.5px}
+  .chart-tip i{font-style:normal; color:var(--text-3); letter-spacing:.08em;
+    text-transform:uppercase; font-size:10px}
+  .chart-foot{display:flex; justify-content:space-between; margin-top:8px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px;
+    color:var(--text-3); letter-spacing:.11em; text-transform:uppercase}
+  .chart-key{display:flex; gap:18px; flex-wrap:wrap; margin-top:10px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px;
+    letter-spacing:.11em; text-transform:uppercase; color:var(--text-2)}
+  .chart-key i{display:inline-block; width:14px; height:2px; margin-right:7px; vertical-align:3px}
+
+  .table-scroll{overflow-x:auto; border:1px solid var(--line); background:var(--surface);
+    box-shadow:var(--shadow)}
+  table{border-collapse:collapse; width:100%; min-width:880px}
+  thead th{font-family:"IBM Plex Mono",ui-monospace,monospace; font-weight:500; font-size:10px;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--text-3);
+    text-align:right; padding:13px 11px; border-bottom:1px solid var(--line); white-space:nowrap}
+  thead th:first-child{text-align:left}
+  thead th:last-child{text-align:center}
+  tbody td{padding:12px 11px; border-bottom:1px solid var(--line-soft); text-align:right;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px;
+    font-variant-numeric:tabular-nums; white-space:nowrap}
+  tbody tr:last-child td{border-bottom:none}
+  tbody td:first-child{text-align:left}
+  tbody td:last-child{text-align:center}
+  tbody tr{transition:background .18s}
+  tbody tr.on{background:var(--surface-2); box-shadow:inset 3px 0 0 var(--brass-solid)}
+  tbody tr:hover{background:var(--surface-2)}
+  .asset{display:flex; align-items:center; gap:12px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .asset .tick{font-weight:600; letter-spacing:.07em; cursor:pointer}
+  .asset .nm{font-family:"Archivo",sans-serif; font-size:12px; color:var(--text-3); letter-spacing:0}
+  .up{color:var(--up)} .down{color:var(--down)}
+  .sub-num{display:block; font-size:11px; color:var(--text-3)}
+  .weight-cell{position:relative}
+  .wbar{position:absolute; left:11px; right:11px; bottom:7px; height:2px; background:var(--line)}
+  .wbar span{position:absolute; left:0; top:0; bottom:0; background:var(--brass-solid)}
+  .empty-row td{text-align:center; color:var(--text-3); padding:34px 14px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+    letter-spacing:.12em; text-transform:uppercase}
+  tfoot td{padding:13px 11px; text-align:right; border-top:1px solid var(--line);
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:13px; font-weight:500;
+    font-variant-numeric:tabular-nums; white-space:nowrap}
+  tfoot td:first-child{text-align:left; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--text-3); font-weight:500}
+
+  footer{border-top:1px solid var(--line); padding-top:16px; color:var(--text-3);
+    font-size:12px; display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  footer code{font-family:"IBM Plex Mono",ui-monospace,monospace; letter-spacing:.08em}
+  :focus-visible{outline:2px solid var(--brass-solid); outline-offset:-2px}
+
+  /* ---------- navigation par pages ---------- */
+  .topbar{display:flex; flex-direction:column}
+  .nav{display:flex; gap:26px; overflow-x:auto; border-bottom:1px solid var(--line);
+    scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{background:none; border:none; cursor:pointer; white-space:nowrap;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:500;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--text-3);
+    padding:12px 0; border-bottom:2px solid transparent; margin-bottom:-1px;
+    transition:color .15s}
+  .nav button:hover{color:var(--text-2)}
+  .nav button.on{color:var(--text); border-bottom-color:var(--brass-solid)}
+  .nav .count{color:var(--text-3); margin-left:7px; font-size:10px}
+  .nav button.on .count{color:var(--brass)}
+
+  .page{display:none; flex-direction:column; gap:34px}
+  .page.on{display:flex}
+  .page-note{border:1px solid var(--line); background:var(--surface); padding:34px 20px;
+    text-align:center; color:var(--text-3); box-shadow:var(--shadow);
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+    letter-spacing:.12em; text-transform:uppercase}
+  .minis{display:flex; align-items:baseline; gap:10px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+  .minis .m1{font-size:13px; color:var(--text); letter-spacing:.02em}
+  .minis .m2{font-size:11px}
+
+  /* ---------- fil Cerebras ---------- */
+  .tw-embed{border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow);
+    min-height:120px; padding:2px}
+  .tw-embed:empty{display:none}
+  .tw-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px}
+  .tw-card{border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow);
+    padding:16px; display:flex; flex-direction:column; gap:10px}
+  .tw-card .tw-date{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px;
+    letter-spacing:.13em; text-transform:uppercase; color:var(--text-3)}
+  .tw-card p{margin:0; font-size:14px; line-height:1.55; white-space:pre-wrap;
+    overflow-wrap:anywhere}
+  .tw-card a{color:var(--brass); text-decoration:none;
+    font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px;
+    letter-spacing:.13em; text-transform:uppercase; align-self:flex-start}
+  .tw-card a:hover{text-decoration:underline}
+  a.btn{display:inline-block; text-decoration:none; text-align:center}
+
+  @media (max-width:920px){ .panels{grid-template-columns:1fr} }
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr}
+    .scene-shell{min-height:340px; order:-1}
+    .readout .hint{display:none}
+  }
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <header class="masthead">
+      <div class="mark">Meri<span>dian</span></div>
+      <div class="meta">
+        <span class="minis"><span class="m1" id="miniTotal">—</span><span class="m2" id="miniPnl"></span></span>
+        <span id="feedState"><span class="dotstate"></span>Cours saisis</span>
+        <span id="memState">Mémoire locale</span>
+        <span id="asof">—</span>
+      </div>
+    </header>
+    <nav class="nav" id="nav" aria-label="Sections du portefeuille">
+      <button type="button" data-goto="overview" class="on">Vue d'ensemble</button>
+      <button type="button" data-goto="positions">Positions<span class="count" id="navCount"></span></button>
+      <button type="button" data-goto="allocation">Allocation</button>
+      <button type="button" data-goto="capital">Capital</button>
+      <button type="button" data-goto="cerebras">Cerebras</button>
+      <button type="button" data-goto="settings">Réglages</button>
+    </nav>
+  </div>
+
+  <div class="page on" data-page="overview">
+  <section class="hero">
+    <div class="totals">
+      <div>
+        <div class="eyebrow">Valeur du portefeuille</div>
+        <div class="total-value" id="total">—</div>
+      </div>
+      <div class="chip flat" id="pnlChip">—</div>
+      <div class="tiles">
+        <div class="tile"><span class="lbl">Investi</span><b id="tCost">—</b></div>
+        <div class="tile"><span class="lbl">Plus-value</span><b id="tPnl">—</b></div>
+        <div class="tile"><span class="lbl">Annualisée</span><b id="tCagr">—</b></div>
+        <div class="tile"><span class="lbl">Lignes</span><b id="tLines">—</b></div>
+      </div>
+    </div>
+
+    <div class="scene-shell" id="sceneShell">
+      <canvas id="scene" aria-label="Vue orbitale des positions : chaque sphère est une ligne, sa hauteur sa plus-value"></canvas>
+      <div class="scene-labels" id="labels"></div>
+      <div class="scene-head"><div class="legend" id="legend"></div></div>
+      <div class="scrim"></div>
+      <div class="readout">
+        <div>
+          <div class="name" id="roName">Toutes les positions</div>
+          <div class="sub" id="roSub">Rayon = poids · anneau = classe · hauteur = plus-value depuis le PRU</div>
+        </div>
+        <div class="hint">Survolez une sphère</div>
+      </div>
+      <div class="scene-empty">Aucune position — ajoutez-en une pour peupler l'orbite</div>
+    </div>
+  </section>
+
+  </div>
+
+  <div class="page" data-page="cerebras">
+  <section>
+    <div class="sec-head">
+      <h2>Fil Cerebras</h2>
+      <span class="note" id="twNote">Actualité du compte</span>
+    </div>
+    <div class="panel" style="margin-bottom:20px">
+      <div class="panel-body">
+        <div class="fxrow">
+          <label style="flex:0 1 210px">Compte X
+            <input id="twHandle" placeholder="CerebrasSystems">
+          </label>
+          <label style="flex:1 1 320px">Flux RSS ou JSON (facultatif)
+            <input id="twFeed" placeholder="https://mon-relais/CerebrasSystems/rss">
+          </label>
+          <button class="btn primary" id="twLoad" type="button">Charger le fil</button>
+          <a class="btn ghost" id="twOpen" href="https://x.com/CerebrasSystems" target="_blank" rel="noopener noreferrer">Ouvrir sur X</a>
+        </div>
+        <div class="panel-msg" id="twMsg">Chargement du fil au premier affichage.</div>
+      </div>
+    </div>
+    <div class="tw-embed" id="twEmbed"></div>
+    <div class="tw-list" id="twList"></div>
+  </section>
+  </div>
+
+  <div class="page" data-page="settings">
+  <div class="panels">
+    <section class="panel">
+      <h3>Cours de marché</h3>
+      <div class="panel-body">
+        <div class="kv">
+          <span><b>Crypto</b><span id="srcCrypto">CoinGecko · en attente</span></span>
+          <span><b>Actions / ETF</b><span id="srcStocks">Finnhub · clé requise</span></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="refresh" type="button">Actualiser les cours</button>
+          <button class="btn ghost" id="keyToggle" type="button">Clé Finnhub</button>
+        </div>
+        <div class="keyrow" id="keyrow">
+          <label style="flex:1 1 240px">Clé Finnhub (gratuite, gardée sur cet appareil)
+            <input type="password" id="apiKey" placeholder="ex. c9f3k2aad3i…" autocomplete="off">
+          </label>
+          <button class="btn" id="keySave" type="button">Enregistrer</button>
+          <button class="btn ghost" id="keyClear" type="button">Effacer</button>
+        </div>
+        <div class="panel-msg" id="feedMsg">Cliquez sur « Actualiser les cours » pour tester l'accès réseau de cet environnement.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Devise et mémoire</h3>
+      <div class="panel-body">
+        <div class="fxrow">
+          <div class="seg" role="group" aria-label="Devise d'affichage">
+            <button type="button" id="curEUR" class="on">EUR €</button>
+            <button type="button" id="curUSD">USD $</button>
+          </div>
+          <label>1 € vaut
+            <input type="number" id="fxRate" step="0.0001" min="0.0001" inputmode="decimal">
+          </label>
+          <span class="kv" style="padding-bottom:9px"><span id="fxSrc">$ · taux par défaut</span></span>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="exportBtn" type="button">Exporter</button>
+          <button class="btn" id="importBtn" type="button">Importer</button>
+          <button class="btn ghost" id="syncBtn" type="button" hidden>Synchro cloud</button>
+          <input type="file" id="importFile" accept=".json,application/json" hidden>
+        </div>
+        <div class="panel-msg" id="memMsg">—</div>
+      </div>
+    </section>
+  </div>
+
+  </div>
+
+  <div class="page" data-page="positions">
+  <section>
+    <div class="sec-head">
+      <h2>Positions</h2>
+      <div class="btn-row">
+        <button class="btn primary" id="addBtn" type="button">Ajouter une position</button>
+        <button class="btn ghost" id="demoBtn" type="button">Charger l'exemple</button>
+        <button class="btn ghost" id="wipeBtn" type="button">Tout effacer</button>
+      </div>
+    </div>
+
+    <div class="form-panel" id="formPanel">
+      <form id="posForm" autocomplete="off">
+        <div class="form-grid">
+          <label>Classe
+            <select id="fCls">
+              <option value="crypto">Crypto</option>
+              <option value="equity">Action</option>
+              <option value="etf">ETF</option>
+              <option value="cash">Liquidités</option>
+            </select>
+          </label>
+          <label>Ticker
+            <span class="ac-wrap" id="acWrapTicker">
+              <input id="fTicker" placeholder="BTC" maxlength="12" required
+                     role="combobox" aria-autocomplete="list" aria-expanded="false"
+                     aria-controls="acList" autocomplete="off" spellcheck="false">
+              <div class="ac" id="ac" hidden>
+                <ul id="acList" role="listbox" aria-label="Suggestions d'actifs"></ul>
+                <div class="ac-foot" id="acFoot"></div>
+              </div>
+            </span>
+          </label>
+          <label>Nom
+            <span class="ac-wrap" id="acWrapName">
+              <input id="fName" placeholder="Bitcoin" maxlength="40"
+                     role="combobox" aria-autocomplete="list" aria-expanded="false"
+                     aria-controls="acList" autocomplete="off" spellcheck="false">
+            </span>
+          </label>
+          <label>Quantité
+            <input id="fQty" type="number" step="any" min="0" placeholder="0,42" required>
+          </label>
+          <label id="lblPru">PRU (€)
+            <input id="fPru" type="number" step="any" min="0" placeholder="41 500" required>
+          </label>
+          <label>Date d'achat
+            <input id="fDate" type="date" required>
+          </label>
+          <label id="lblPrice">Cours actuel (€)
+            <input id="fPrice" type="number" step="any" min="0" placeholder="récupéré tout seul">
+            <span class="field-note" id="priceNote"></span>
+          </label>
+        </div>
+
+        <details class="adv">
+          <summary>Cotation en direct — réglages</summary>
+          <div class="form-grid">
+            <label>Identifiant CoinGecko
+              <input id="fCg" placeholder="bitcoin">
+            </label>
+            <label>Symbole Finnhub
+              <input id="fSym" placeholder="AAPL">
+            </label>
+            <label>Devise de cotation
+              <select id="fCur">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="CHF">CHF</option>
+                <option value="CAD">CAD</option>
+                <option value="JPY">JPY</option>
+              </select>
+            </label>
+          </div>
+        </details>
+
+        <div class="form-err" id="formErr"></div>
+        <div class="form-foot">
+          <span class="mono" id="formMode" style="font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--text-3)">Nouvelle position</span>
+          <div class="btn-row">
+            <button class="btn ghost" id="cancelBtn" type="button">Annuler</button>
+            <button class="btn primary" type="submit">Enregistrer</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-scroll" style="margin-top:18px">
+      <table>
+        <thead>
+          <tr>
+            <th>Actif</th><th>Quantité</th><th>PRU</th><th>Achat</th>
+            <th>Cours</th><th>Investi</th><th>Valeur</th>
+            <th>Plus-value</th><th>Poids</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+        <tfoot id="foot"></tfoot>
+      </table>
+    </div>
+  </section>
+
+  </div>
+
+  <div class="page" data-page="allocation">
+  <div class="page-note" id="allocEmpty" hidden>Aucune position à répartir</div>
+  <section id="allocSec">
+    <div class="sec-head">
+      <h2>Allocation</h2>
+      <span class="note">Par classe d'actif</span>
+    </div>
+    <div class="alloc-bar" id="allocBar"></div>
+    <div class="alloc-grid" id="allocGrid"></div>
+  </section>
+
+  </div>
+
+  <div class="page" data-page="capital">
+  <div class="page-note" id="chartEmpty" hidden>Aucun achat enregistré</div>
+  <section id="chartSec">
+    <div class="sec-head">
+      <h2>Capital investi</h2>
+      <span class="note" id="chartNote">—</span>
+    </div>
+    <div class="chart-shell">
+      <canvas id="chart"></canvas>
+      <div class="chart-tip" id="tip"></div>
+      <div class="chart-foot"><span id="cf0">—</span><span>Aujourd'hui</span></div>
+      <div class="chart-key">
+        <span><i style="background:var(--text-3)"></i>Investi cumulé, par date d'achat</span>
+        <span><i id="keyMark"></i>Valeur de marché actuelle</span>
+      </div>
+    </div>
+  </section>
+
+  </div>
+
+  <footer>
+    <span id="footNote">—</span>
+    <span><code>meridian v3.0</code></span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var STORE = "meridian.portfolio.v3", KEYSTORE = "meridian.finnhub.key";
+  var CLOUD_DOC = "portfolio/main";
+
+  var CLASSES = {
+    crypto:{label:"Crypto", varname:"--c-crypto"},
+    equity:{label:"Actions", varname:"--c-equity"},
+    etf:{label:"ETF", varname:"--c-etf"},
+    cash:{label:"Liquidités", varname:"--c-cash"}
+  };
+
+  /* Tickers crypto courants -> identifiants CoinGecko. Surchargeable par position. */
+  var CG = {
+    BTC:"bitcoin", ETH:"ethereum", SOL:"solana", ADA:"cardano", XRP:"ripple",
+    DOGE:"dogecoin", DOT:"polkadot", LINK:"chainlink", AVAX:"avalanche-2",
+    BNB:"binancecoin", LTC:"litecoin", ATOM:"cosmos", UNI:"uniswap",
+    ARB:"arbitrum", OP:"optimism", NEAR:"near", APT:"aptos", SUI:"sui",
+    TON:"the-open-network", TRX:"tron", XLM:"stellar", MATIC:"matic-network",
+    POL:"polygon-ecosystem-token", XMR:"monero", HBAR:"hedera-hashgraph",
+    ICP:"internet-computer", FIL:"filecoin", INJ:"injective-protocol",
+    RNDR:"render-token", TAO:"bittensor", USDC:"usd-coin", USDT:"tether"
+  };
+
+  var DEMO = [
+    {cls:"crypto", ticker:"BTC",  name:"Bitcoin",            qty:0.42, pru:41500, date:"2023-11-14", price:63180,  cg:"bitcoin",  cur:"EUR"},
+    {cls:"crypto", ticker:"ETH",  name:"Ethereum",           qty:3.6,  pru:2210,  date:"2024-01-22", price:2940,   cg:"ethereum", cur:"EUR"},
+    {cls:"crypto", ticker:"SOL",  name:"Solana",             qty:48,   pru:74.20, date:"2024-03-05", price:148.60, cg:"solana",   cur:"EUR"},
+    {cls:"equity", ticker:"NVDA", name:"NVIDIA",             qty:62,   pru:64.80, date:"2023-06-12", price:121.40, sym:"NVDA",    cur:"EUR"},
+    {cls:"equity", ticker:"AAPL", name:"Apple",              qty:95,   pru:158.30,date:"2022-09-19", price:228.50, sym:"AAPL",    cur:"EUR"},
+    {cls:"equity", ticker:"MSFT", name:"Microsoft",          qty:40,   pru:262.10,date:"2022-11-07", price:418.90, sym:"MSFT",    cur:"EUR"},
+    {cls:"equity", ticker:"ASML", name:"ASML Holding",       qty:8,    pru:810.00,date:"2024-05-28", price:742.30, sym:"ASML.AS", cur:"EUR"},
+    {cls:"etf",    ticker:"IWDA", name:"iShares Core World", qty:120,  pru:78.40, date:"2021-04-15", price:96.80,  sym:"IWDA.AS", cur:"EUR"},
+    {cls:"cash",   ticker:"EUR",  name:"Compte espèces",     qty:8400, pru:1,     date:"2024-01-02", price:1,      cur:"EUR"}
+  ];
+
+  /* Montants stockés en euros ; la devise ci-dessous n'est qu'un habillage d'affichage. */
+  var DEFAULTS = {currency:"USD", fx:1.16, fxAt:null, fxSrc:"par défaut", sync:false,
+    rates:{USD:1.16}, usdDefault:false, curFixed:false,
+    twHandle:"CerebrasSystems", twFeed:""};
+
+  /* Devise dans laquelle une place cote. Un symbole sans suffixe est américain,
+     donc coté en dollars : c'est le cas le plus courant, et l'oublier fausse
+     le prix du montant exact du taux de change. */
+  var SUFFIX_CUR = {
+    PA:"EUR", AS:"EUR", DE:"EUR", F:"EUR", MI:"EUR", MC:"EUR", BR:"EUR",
+    LS:"EUR", HE:"EUR", VI:"EUR", IR:"EUR", AT:"EUR",
+    SW:"CHF", VX:"CHF", TO:"CAD", V:"CAD", T:"JPY"
+  };
+  var CUR_LABELS = ["EUR","USD","CHF","CAD","JPY"];
+
+  function curFromSymbol(sym){
+    var m = String(sym || "").toUpperCase().match(/\.([A-Z]+)$/);
+    if(!m) return "USD";
+    return SUFFIX_CUR[m[1]] || "";      /* suffixe inconnu : à choisir à la main */
+  }
+
+  /* Unités de la devise pour 1 euro. Renvoie null si le taux manque. */
+  function rateOf(cur){
+    if(!cur || cur === "EUR") return 1;
+    if(cur === "USD") return S.rates && S.rates.USD ? S.rates.USD : S.fx;
+    return (S.rates && S.rates[cur]) || null;
+  }
+
+  var positions = [], S = clone(DEFAULTS), updatedAt = 0;
+  var selected = null, editingId = null, apiKey = "";
+  var dbNS = null, dlNS = null, unsub = null, cloudState = "absent";
+  /* `backend` : "artifact" (stockage de claude.ai) ou "deck" (fichier sur le Deck).
+     `demoSeeded` : vrai tant que le portefeuille affiché est la démo posée faute de
+     mieux. Une démo ne doit jamais partir vers un stockage partagé — voir startDeck. */
+  var backend = null, demoSeeded = false, deckTimer = null;
+  /* Vrai une fois la première lecture du Deck revenue. Avant, aucune écriture :
+     un `save()` déclenché entre-temps (bouton de synchro, cours actualisé)
+     pousserait un état qui n'a pas encore vu celui du Deck. */
+  var deckReady = false;
+
+  var PAGES = ["overview","positions","allocation","capital","cerebras","settings"];
+  var currentPage = "overview";
+
+  function showPage(name){
+    if(PAGES.indexOf(name) < 0) name = "overview";
+    currentPage = name;
+    [].forEach.call(document.querySelectorAll(".page"), function(el){
+      el.classList.toggle("on", el.dataset.page === name);
+    });
+    [].forEach.call(document.querySelectorAll("#nav button"), function(b){
+      var on = b.dataset.goto === name;
+      b.classList.toggle("on", on);
+      if(on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
+    /* canvas et WebGL ne mesurent rien tant que leur page est masquée */
+    if(name === "overview") resize();
+    if(name === "capital") drawChart();
+    if(name === "cerebras") renderCerebras();
+    if(location.hash !== "#/" + name) location.hash = "#/" + name;
+  }
+
+  function routeFromHash(){
+    showPage((location.hash || "").replace(/^[#/]+/, "") || "overview");
+  }
+  window.addEventListener("hashchange", routeFromHash);
+  document.getElementById("nav").addEventListener("click", function(e){
+    var b = e.target.closest("button[data-goto]");
+    if(!b) return;
+    showPage(b.dataset.goto);
+    window.scrollTo(0, 0);
+  });
+
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function uid(){ return "p" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3); }
+
+  /* ---------- mémoire locale ---------- */
+  var needSave = false;
+
+  function load(){
+    var raw = null;
+    try{
+      raw = localStorage.getItem(STORE);
+      apiKey = localStorage.getItem(KEYSTORE) || "";
+      if(!raw){
+        var old = localStorage.getItem("meridian.portfolio.v2");   /* format v2 : un simple tableau */
+        if(old) raw = JSON.stringify({positions:JSON.parse(old), settings:DEFAULTS, updatedAt:Date.now()});
+      }
+    }catch(e){ raw = null; }
+    adopt(raw ? safeParse(raw) : null, false);
+    /* bascule unique vers le dollar pour un portefeuille enregistré avant ce changement ;
+       un choix manuel ultérieur reste respecté */
+    if(!S.usdDefault){ S.currency = "USD"; S.usdDefault = true; needSave = true; }
+
+    /* Corriger les lignes enregistrées avant que la devise de cotation soit
+       déduite du symbole : leur prix Finnhub avait été rangé en euros sans
+       conversion, donc majoré du taux de change. */
+    if(!S.curFixed){
+      positions.forEach(function(q){
+        if(q.cls !== "equity" && q.cls !== "etf") return;
+        if(!q.sym) return;
+        var real = curFromSymbol(q.sym);
+        if(!real || real === q.cur) return;
+        if(q.priceSrc === "Finnhub" && q.cur === "EUR"){
+          var k = rateOf(real);
+          if(k && k > 0) q.price = q.price/k;
+        }
+        q.cur = real;
+      });
+      S.curFixed = true; needSave = true;
+    }
+    if(!positions.length){ positions = DEMO.map(seed); demoSeeded = true; }
+  }
+
+  function safeParse(s){ try{ return JSON.parse(s); }catch(e){ return null; } }
+
+  function adopt(state, markDirty){
+    if(state && Array.isArray(state.positions)){
+      positions = state.positions.map(normalize).filter(Boolean);
+      S = Object.assign(clone(DEFAULTS), state.settings || {});
+      updatedAt = state.updatedAt || Date.now();
+    }
+    if(markDirty) updatedAt = Date.now();
+  }
+
+  function normalize(d){
+    if(!d || !d.ticker) return null;
+    var qty = Number(d.qty), pru = Number(d.pru), price = Number(d.price);
+    if(!isFinite(qty) || qty <= 0) return null;
+    if(!isFinite(pru) || pru < 0) pru = 0;
+    if(!isFinite(price) || price < 0) price = pru;
+    return {
+      id: d.id || uid(),
+      cls: CLASSES[d.cls] ? d.cls : "equity",
+      ticker: String(d.ticker).slice(0,12).toUpperCase(),
+      name: d.name ? String(d.name).slice(0,40) : "",
+      qty:qty, pru:pru, price:price,
+      date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || "") ? d.date : new Date().toISOString().slice(0,10),
+      cg: d.cg || "", sym: d.sym || "", cur: d.cur === "USD" ? "USD" : "EUR",
+      priceAt: d.priceAt || null, priceSrc: d.priceSrc || "saisi"
+    };
+  }
+
+  function seed(d){ return normalize(Object.assign({id:uid()}, d)); }
+
+  function snapshot(){
+    return {v:3, positions:positions, settings:S, updatedAt:updatedAt};
+  }
+
+  function save(){
+    updatedAt = Date.now();
+    try{ localStorage.setItem(STORE, JSON.stringify(snapshot())); }
+    catch(e){ /* stockage refusé : la session reste utilisable, rien n'est perdu à l'écran */ }
+    pushCloud();
+    renderMemory();
+  }
+
+  /* ---------- devise ---------- */
+  var fmt0, fmt2, fmtQty = new Intl.NumberFormat("fr-FR",{maximumFractionDigits:6});
+
+  function applyCurrency(){
+    /* narrowSymbol donne « $ » plutôt que « $US » ; certains moteurs anciens le refusent */
+    var base = {style:"currency", currency:S.currency, currencyDisplay:"narrowSymbol"};
+    try{
+      fmt0 = new Intl.NumberFormat("fr-FR", Object.assign({maximumFractionDigits:0}, base));
+      fmt2 = new Intl.NumberFormat("fr-FR", Object.assign({minimumFractionDigits:2, maximumFractionDigits:2}, base));
+    }catch(e){
+      fmt0 = new Intl.NumberFormat("fr-FR",{style:"currency",currency:S.currency,maximumFractionDigits:0});
+      fmt2 = new Intl.NumberFormat("fr-FR",{style:"currency",currency:S.currency,
+        minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+    document.getElementById("curEUR").classList.toggle("on", S.currency === "EUR");
+    document.getElementById("curUSD").classList.toggle("on", S.currency === "USD");
+    document.getElementById("fxRate").value = S.fx;
+    document.getElementById("fxSrc").textContent = "$ · taux " + S.fxSrc +
+      (S.fxAt ? " du " + new Date(S.fxAt).toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}) : "");
+    var unit = S.currency === "USD" ? "$" : "€";
+    document.getElementById("lblPru").firstChild.nodeValue = "PRU (" + unit + ")";
+    document.getElementById("lblPrice").firstChild.nodeValue = "Cours actuel (" + unit + ")";
+  }
+
+  function rate(){ return S.currency === "USD" ? S.fx : 1; }   /* euros -> devise affichée */
+  function money(v){ return fmt0.format(v*rate()); }
+  function money2(v){ return fmt2.format(v*rate()); }
+  function toDisplay(v){ return v*rate(); }
+  function fromDisplay(v){ return v/rate(); }
+
+  function pct(x){ return (x >= 0 ? "+" : "−") + Math.abs(x*100).toFixed(2) + " %"; }
+  function signed(v){ return (v >= 0 ? "+" : "−") + money(Math.abs(v)); }
+  function dir(x){ return x > 0 ? "up" : x < 0 ? "down" : ""; }
+  function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function fdate(s){
+    var d = new Date(s + "T00:00:00");
+    return isNaN(d) ? "—" : d.toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"2-digit"});
+  }
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  var DAY = 86400000;
+
+  document.getElementById("curEUR").addEventListener("click", function(){ setCurrency("EUR"); });
+  document.getElementById("curUSD").addEventListener("click", function(){ setCurrency("USD"); });
+  function setCurrency(c){
+    if(S.currency === c) return;
+    S.currency = c;
+    applyCurrency(); save(); renderAll();
+  }
+  document.getElementById("fxRate").addEventListener("change", function(){
+    var v = parseFloat(this.value);
+    if(!isFinite(v) || v <= 0){ this.value = S.fx; return; }
+    S.fx = v; S.fxSrc = "saisi"; S.fxAt = Date.now();
+    applyCurrency(); save(); renderAll();
+  });
+
+  /* ---------- calculs ---------- */
+  function metrics(){
+    var now = Date.now();
+    positions.forEach(function(p){
+      p.cost = p.qty * p.pru;
+      p.value = p.qty * (p.price || 0);
+      p.pnl = p.value - p.cost;
+      p.pnlPct = p.cost > 0 ? p.pnl/p.cost : 0;
+      var t = new Date(p.date + "T00:00:00").getTime();
+      p.days = isNaN(t) ? 0 : Math.max(0, (now - t)/DAY);
+      p.cagr = (p.cost > 0 && p.days >= 90 && p.value > 0)
+        ? Math.pow(p.value/p.cost, 365/p.days) - 1 : null;
+    });
+    var total = positions.reduce(function(a,p){ return a + p.value; }, 0);
+    var cost  = positions.reduce(function(a,p){ return a + p.cost; }, 0);
+    positions.forEach(function(p){ p.weight = total > 0 ? p.value/total : 0; });
+    /* durée de détention pondérée par le capital, pour une annualisation d'ensemble */
+    var wDays = cost > 0 ? positions.reduce(function(a,p){ return a + p.cost*p.days; }, 0)/cost : 0;
+    var cagr = (cost > 0 && total > 0 && wDays >= 90) ? Math.pow(total/cost, 365/wDays) - 1 : null;
+    return {total:total, cost:cost, pnl:total-cost,
+      pnlPct: cost > 0 ? (total-cost)/cost : 0, cagr:cagr, wDays:wDays};
+  }
+
+  /* ---------- rendu : en-tête ---------- */
+  function renderHead(m){
+    document.getElementById("asof").textContent =
+      new Date().toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"}).toUpperCase();
+
+    var parts = money2(m.total).split(",");
+    document.getElementById("total").innerHTML =
+      parts[0] + '<span class="cents">,' + parts[1] + "</span>";
+
+    var chip = document.getElementById("pnlChip");
+    chip.className = "chip " + (dir(m.pnl) || "flat");
+    chip.textContent = positions.length
+      ? pct(m.pnlPct) + "   " + signed(m.pnl) + "   latent"
+      : "Portefeuille vide";
+
+    document.getElementById("tCost").textContent = money(m.cost);
+    var tp = document.getElementById("tPnl");
+    tp.textContent = signed(m.pnl); tp.className = dir(m.pnl);
+    var tc = document.getElementById("tCagr");
+    tc.textContent = m.cagr === null ? "—" : pct(m.cagr);
+    tc.className = m.cagr === null ? "" : dir(m.cagr);
+    tc.title = m.cagr === null
+      ? "Disponible dès 90 jours de détention"
+      : "Estimation sur une détention moyenne de " + Math.round(m.wDays) +
+        " jours, pondérée par le capital investi";
+    document.getElementById("tLines").textContent = positions.length;
+
+    document.getElementById("miniTotal").textContent = money(m.total);
+    var mp = document.getElementById("miniPnl");
+    mp.textContent = positions.length ? pct(m.pnlPct) : "";
+    mp.className = "m2 " + dir(m.pnl);
+    document.getElementById("navCount").textContent = positions.length ? positions.length : "";
+  }
+
+  /* ---------- rendu : table ---------- */
+  var rows = document.getElementById("rows"), foot = document.getElementById("foot");
+
+  function renderTable(m){
+    rows.innerHTML = ""; foot.innerHTML = "";
+    if(!positions.length){
+      rows.innerHTML = '<tr class="empty-row"><td colspan="10">Aucune position enregistrée</td></tr>';
+      return;
+    }
+    positions.slice().sort(function(a,b){ return b.value - a.value; }).forEach(function(p){
+      var tr = document.createElement("tr");
+      tr.dataset.id = p.id;
+      if(p.id === selected) tr.className = "on";
+      var isCash = p.cls === "cash";
+      tr.innerHTML =
+        '<td><div class="asset"><span class="dot" style="background:var(' + CLASSES[p.cls].varname + ')"></span>' +
+          '<span><span class="tick">' + esc(p.ticker) + "</span> " +
+          '<span class="nm">' + esc(p.name || CLASSES[p.cls].label) + "</span></span></div></td>" +
+        "<td>" + fmtQty.format(p.qty) + "</td>" +
+        "<td>" + (isCash ? "—" : money2(p.pru)) + "</td>" +
+        "<td>" + fdate(p.date) + "</td>" +
+        "<td>" + (isCash ? "—" : money2(p.price || 0)) +
+          '<span class="sub-num">' + esc(p.priceSrc || "saisi") + "</span></td>" +
+        "<td>" + money(p.cost) + "</td>" +
+        "<td>" + money(p.value) + "</td>" +
+        '<td class="' + dir(p.pnl) + '">' + (isCash ? "—" : signed(p.pnl)) +
+          (isCash ? "" : '<span class="sub-num ' + dir(p.pnl) + '">' + pct(p.pnlPct) + "</span>") + "</td>" +
+        '<td class="weight-cell">' + (p.weight*100).toFixed(1) + " %" +
+          '<span class="wbar"><span style="width:' + (p.weight*100).toFixed(1) + '%"></span></span></td>' +
+        '<td><button class="icon-btn" data-act="edit">Éditer</button>' +
+          '<button class="icon-btn danger" data-act="del">Retirer</button></td>';
+
+      tr.addEventListener("click", function(e){
+        var b = e.target.closest("button");
+        if(b && b.dataset.act === "edit"){ openForm(p.id); return; }
+        if(b && b.dataset.act === "del"){ removePosition(p); return; }
+        selectPosition(p.id === selected ? null : p.id);
+      });
+      rows.appendChild(tr);
+    });
+
+    var f = document.createElement("tr");
+    f.innerHTML = '<td colspan="5">Total</td>' +
+      "<td>" + money(m.cost) + "</td>" +
+      "<td>" + money(m.total) + "</td>" +
+      '<td class="' + dir(m.pnl) + '">' + signed(m.pnl) +
+        '<span class="sub-num ' + dir(m.pnl) + '">' + pct(m.pnlPct) + "</span></td>" +
+      "<td>100 %</td><td></td>";
+    foot.appendChild(f);
+  }
+
+  /* ---------- rendu : allocation ---------- */
+  function renderAlloc(m){
+    var bar = document.getElementById("allocBar"), grid = document.getElementById("allocGrid"),
+        legend = document.getElementById("legend");
+    bar.innerHTML = ""; grid.innerHTML = ""; legend.innerHTML = "";
+    var classes = byClass();
+    document.getElementById("allocSec").style.display = classes.length ? "" : "none";
+    document.getElementById("allocEmpty").hidden = classes.length > 0;
+
+    classes.forEach(function(c){
+      var w = m.total > 0 ? c.value/m.total : 0;
+      var s = document.createElement("span");
+      s.style.flex = Math.max(w, 0.001);
+      s.style.background = "var(" + c.varname + ")";
+      s.title = c.label + " · " + (w*100).toFixed(1) + " %";
+      bar.appendChild(s);
+
+      var cell = document.createElement("div");
+      cell.className = "alloc-cell";
+      cell.innerHTML =
+        '<div class="k"><i style="background:var(' + c.varname + ')"></i>' + c.label + "</div>" +
+        '<div class="w">' + (w*100).toFixed(1) + " <em>%</em></div>" +
+        '<div class="v">' + money(c.value) + " · " +
+          '<span class="' + dir(c.pnl) + '">' + signed(c.pnl) + "</span></div>";
+      grid.appendChild(cell);
+
+      var li = document.createElement("span");
+      li.innerHTML = '<i style="background:var(' + c.varname + ')"></i>' + c.label;
+      legend.appendChild(li);
+    });
+  }
+
+  function byClass(){
+    return Object.keys(CLASSES).map(function(k){
+      var list = positions.filter(function(p){ return p.cls === k; });
+      return {key:k, label:CLASSES[k].label, varname:CLASSES[k].varname,
+        value:list.reduce(function(a,p){ return a + p.value; }, 0),
+        pnl:list.reduce(function(a,p){ return a + p.pnl; }, 0), list:list};
+    }).filter(function(c){ return c.list.length > 0; })
+      .sort(function(a,b){ return b.value - a.value; });
+  }
+
+  /* ---------- graphique : capital investi ---------- */
+  var chart = document.getElementById("chart"), cx = chart.getContext("2d"),
+      tip = document.getElementById("tip"), steps = [], span = null, hoverX = null;
+
+  function buildSteps(){
+    var list = positions.filter(function(p){ return p.date; })
+      .sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+    steps = []; var acc = 0;
+    list.forEach(function(p){
+      acc += p.cost;
+      steps.push({t:new Date(p.date + "T00:00:00").getTime(), v:acc, p:p});
+    });
+    span = steps.length ? {t0:steps[0].t, t1:Date.now()} : null;
+    if(span && span.t1 - span.t0 < 30*DAY) span.t0 = span.t1 - 30*DAY;
+  }
+
+  function drawChart(){
+    var m = window.__m || metrics();
+    document.getElementById("chartSec").style.display = steps.length ? "" : "none";
+    document.getElementById("chartEmpty").hidden = steps.length > 0;
+    if(!steps.length) return;
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = chart.clientWidth, h = chart.clientHeight;
+    if(!w) return;
+    chart.width = w*dpr; chart.height = h*dpr;
+    cx.setTransform(dpr,0,0,dpr,0,0);
+    cx.clearRect(0,0,w,h);
+
+    var padTop = 18, padBot = 20, padRight = 8;
+    var top = Math.max(m.cost, m.total) * 1.12 || 1;
+    var X = function(t){ return (t - span.t0)/(span.t1 - span.t0)*(w - padRight); };
+    var Y = function(v){ return padTop + (1 - v/top)*(h - padTop - padBot); };
+
+    cx.strokeStyle = cssVar("--chart-grid"); cx.lineWidth = 1;
+    cx.font = '10px "IBM Plex Mono", ui-monospace, monospace';
+    cx.textBaseline = "bottom"; cx.textAlign = "left";
+    for(var g = 0; g <= 3; g++){
+      var yy = Math.round(padTop + g*(h - padTop - padBot)/3) + .5;
+      cx.beginPath(); cx.moveTo(0, yy); cx.lineTo(w, yy); cx.stroke();
+      cx.fillStyle = cssVar("--text-3");
+      cx.fillText(money(top*(3 - g)/3), 2, yy - 3);
+    }
+
+    /* escalier du capital investi */
+    var grey = cssVar("--text-3");
+    cx.beginPath(); cx.moveTo(X(span.t0), Y(0));
+    var prev = 0;
+    steps.forEach(function(s){
+      cx.lineTo(X(s.t), Y(prev));
+      cx.lineTo(X(s.t), Y(s.v));
+      prev = s.v;
+    });
+    cx.lineTo(X(span.t1), Y(prev));
+    cx.strokeStyle = grey; cx.lineWidth = 1.6; cx.lineJoin = "miter"; cx.stroke();
+    cx.lineTo(X(span.t1), Y(0)); cx.lineTo(X(span.t0), Y(0)); cx.closePath();
+    cx.globalAlpha = .10; cx.fillStyle = grey; cx.fill(); cx.globalAlpha = 1;
+
+    /* écart entre investi et valeur de marché, aujourd'hui */
+    var col = m.pnl >= 0 ? cssVar("--up") : cssVar("--down");
+    var xNow = X(span.t1), yCost = Y(m.cost), yVal = Y(m.total);
+    cx.globalAlpha = .16; cx.fillStyle = col;
+    cx.fillRect(xNow - 34, Math.min(yCost, yVal), 34, Math.abs(yVal - yCost));
+    cx.globalAlpha = 1;
+
+    cx.beginPath(); cx.moveTo(0, yVal); cx.lineTo(xNow, yVal);
+    cx.strokeStyle = col; cx.lineWidth = 1.5; cx.setLineDash([4,4]); cx.stroke(); cx.setLineDash([]);
+    cx.beginPath(); cx.arc(xNow, yVal, 4.5, 0, 6.2832);
+    cx.fillStyle = col; cx.fill();
+    cx.globalAlpha = .3; cx.beginPath(); cx.arc(xNow, yVal, 9, 0, 6.2832);
+    cx.strokeStyle = col; cx.lineWidth = 1.5; cx.stroke(); cx.globalAlpha = 1;
+
+    cx.fillStyle = col; cx.textAlign = "right"; cx.textBaseline = "middle";
+    cx.fillText(signed(m.pnl), xNow - 42, (yCost + yVal)/2);
+    cx.textAlign = "left";
+
+    if(hoverX !== null){
+      var t = span.t0 + (hoverX/(w - padRight))*(span.t1 - span.t0);
+      var acc = 0, last = null;
+      steps.forEach(function(s){ if(s.t <= t){ acc = s.v; last = s; } });
+      cx.beginPath(); cx.moveTo(hoverX, padTop - 10); cx.lineTo(hoverX, h - padBot + 8);
+      cx.strokeStyle = grey; cx.lineWidth = 1; cx.setLineDash([3,3]); cx.stroke(); cx.setLineDash([]);
+      cx.beginPath(); cx.arc(hoverX, Y(acc), 4, 0, 6.2832);
+      cx.fillStyle = cssVar("--surface"); cx.fill();
+      cx.strokeStyle = grey; cx.lineWidth = 2; cx.stroke();
+
+      tip.style.opacity = 1;
+      tip.style.left = (hoverX + 18) + "px";
+      tip.style.top = (Y(acc) + 18) + "px";
+      tip.innerHTML = "<b>" + money(acc) + "</b><i>investi au " +
+        new Date(t).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"2-digit"}) +
+        (last ? " · dernier achat " + esc(last.p.ticker) : "") + "</i>";
+    }
+
+    document.getElementById("cf0").textContent =
+      new Date(span.t0).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",year:"numeric"});
+    document.getElementById("chartNote").textContent =
+      money(m.cost) + " investis · " + money(m.total) + " au marché";
+    document.getElementById("keyMark").style.background = col;
+  }
+
+  chart.addEventListener("pointermove", function(e){
+    var r = chart.getBoundingClientRect();
+    hoverX = Math.max(0, Math.min(r.width, e.clientX - r.left));
+    drawChart();
+  });
+  chart.addEventListener("pointerleave", function(){
+    hoverX = null; tip.style.opacity = 0; drawChart();
+  });
+
+  /* ---------- scène three.js ---------- */
+  var shell = document.getElementById("sceneShell"),
+      canvas = document.getElementById("scene"),
+      labelBox = document.getElementById("labels"),
+      roName = document.getElementById("roName"),
+      roSub = document.getElementById("roSub");
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var renderer, cam, scene, group, rings = [], nodes = [], labels = [];
+  var hovered = null;
+  var pointer = new THREE.Vector2(-2,-2), ray = new THREE.Raycaster();
+  var spin = 0, targetTilt = 0, tilt = 0, camDist = 13.4, tmp = new THREE.Vector3();
+
+  function initScene(){
+    renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    scene = new THREE.Scene();
+    cam = new THREE.PerspectiveCamera(38, 1, .1, 100);
+    group = new THREE.Group();
+    scene.add(group);
+  }
+
+  function clearScene(){
+    rings.forEach(function(ring){
+      ring.traverse(function(o){
+        if(o.geometry) o.geometry.dispose();
+        if(o.material) o.material.dispose();
+      });
+      group.remove(ring);
+    });
+    rings = []; nodes = []; labels = [];
+    labelBox.innerHTML = "";
+  }
+
+  function buildScene(){
+    if(!renderer) return;
+    clearScene();
+    var classes = byClass();
+    shell.classList.toggle("is-empty", classes.length === 0);
+    if(!classes.length){ resize(); return; }
+
+    var maxW = Math.max.apply(null, positions.map(function(p){ return p.weight; })) || 1;
+
+    classes.forEach(function(c, ri){
+      var radius = 1.85 + ri*1.2;
+      var ring = new THREE.Group();
+      ring.userData.speed = 0.0075 / (1 + ri*0.6);
+      group.add(ring); rings.push(ring);
+
+      var pts = [], seg = 180, a, th;
+      for(a = 0; a <= seg; a++){
+        th = a/seg*Math.PI*2;
+        pts.push(new THREE.Vector3(Math.cos(th)*radius, 0, Math.sin(th)*radius));
+      }
+      var line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:.5})
+      );
+      line.userData.isRing = true;
+      ring.add(line);
+
+      c.list.forEach(function(p, mi){
+        var ang = (mi/c.list.length)*Math.PI*2 + ri*0.8;
+        var r = 0.20 + 0.50*Math.sqrt((p.weight || 0)/maxW);
+        /* hauteur = plus-value latente, plafonnée pour rester lisible */
+        var lift = Math.max(-0.55, Math.min(0.55, p.pnlPct || 0))*2.4;
+
+        var mesh = new THREE.Mesh(
+          new THREE.SphereGeometry(r, 32, 24),
+          new THREE.MeshBasicMaterial({color:0xffffff})
+        );
+        mesh.position.set(Math.cos(ang)*radius, lift, Math.sin(ang)*radius);
+        mesh.userData.id = p.id;
+        mesh.userData.radius = r;
+        ring.add(mesh);
+
+        var halo = new THREE.Mesh(
+          new THREE.SphereGeometry(r*1.6, 24, 18),
+          new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0,
+            side:THREE.BackSide, depthWrite:false})
+        );
+        mesh.add(halo);
+        mesh.userData.halo = halo;
+
+        /* tige jusqu'au plan de l'anneau : rend la hauteur mesurable */
+        var stem = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(Math.cos(ang)*radius, 0, Math.sin(ang)*radius),
+            new THREE.Vector3(Math.cos(ang)*radius, lift, Math.sin(ang)*radius)
+          ]),
+          new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:.55})
+        );
+        stem.userData.isStem = true;
+        stem.userData.gain = (p.pnl || 0) >= 0;
+        ring.add(stem);
+
+        var el = document.createElement("div");
+        el.className = "node-label";
+        el.textContent = p.ticker;
+        labelBox.appendChild(el);
+
+        nodes.push(mesh);
+        labels.push({mesh:mesh, el:el, id:p.id});
+      });
+    });
+
+    paintScene();
+    resize();
+  }
+
+  function paintScene(){
+    if(renderer){
+      var ringCol = new THREE.Color(cssVar("--scene-ring"));
+      var upCol = new THREE.Color(cssVar("--up")), downCol = new THREE.Color(cssVar("--down"));
+      rings.forEach(function(ring){
+        ring.children.forEach(function(o){
+          if(o.userData.isRing) o.material.color.copy(ringCol);
+          else if(o.userData.isStem) o.material.color.copy(o.userData.gain ? upCol : downCol);
+        });
+      });
+      nodes.forEach(function(mesh){
+        var p = find(mesh.userData.id);
+        if(!p) return;
+        var c = new THREE.Color(cssVar(CLASSES[p.cls].varname));
+        mesh.material.color.copy(c);
+        mesh.userData.halo.material.color.copy(c);
+      });
+    }
+    drawChart();
+  }
+
+  function resize(){
+    var w = shell.clientWidth, h = shell.clientHeight;
+    if(!w || !h || !renderer) return;
+    renderer.setSize(w, h, false);
+    var aspect = w/h;
+    cam.aspect = aspect;
+    /* la caméra recule quand le cadre est étroit, pour garder l'anneau extérieur dans le champ */
+    var d = aspect < 1.05 ? 18.5 : aspect < 1.6 ? 15.4 : 13.4;
+    camDist = d;
+    cam.position.set(0, d*0.40, d*0.90);
+    cam.lookAt(0, 0, 0);
+    cam.updateProjectionMatrix();
+  }
+
+  function frame(){
+    requestAnimationFrame(frame);
+    if(!renderer || currentPage !== "overview") return;
+
+    if(!reduced){
+      spin += 0.0016;
+      rings.forEach(function(ring){ ring.rotation.y += ring.userData.speed; });
+    }
+    group.rotation.y = spin;
+    tilt += (targetTilt - tilt)*0.06;
+    group.rotation.x = tilt;
+
+    ray.setFromCamera(pointer, cam);
+    var hit = ray.intersectObjects(nodes, false)[0];
+    var hId = hit ? hit.object.userData.id : null;
+    if(hId !== hovered){
+      hovered = hId;
+      canvas.style.cursor = hId ? "pointer" : "default";
+      updateReadout();
+    }
+
+    var w = shell.clientWidth, h = shell.clientHeight;
+    labels.forEach(function(L){
+      var active = (L.id === hovered || L.id === selected);
+      var dim = (selected && !active);
+
+      var s = L.mesh.scale.x + ((active ? 1.35 : 1) - L.mesh.scale.x)*0.15;
+      L.mesh.scale.setScalar(s);
+      L.mesh.material.transparent = dim;
+      L.mesh.material.opacity = dim ? 0.28 : 1;
+
+      var halo = L.mesh.userData.halo.material;
+      halo.opacity += ((active ? .3 : 0) - halo.opacity)*0.15;
+
+      L.mesh.getWorldPosition(tmp);
+      var depth = tmp.distanceTo(cam.position);
+      tmp.project(cam);
+      L.el.style.left = ((tmp.x*0.5 + 0.5)*w) + "px";
+      L.el.style.top = ((-tmp.y*0.5 + 0.5)*h - 14 - L.mesh.userData.radius*24) + "px";
+      /* les sphères éloignées s'estompent, sans jamais devenir illisibles */
+      var t = Math.max(0, Math.min(1, (depth - (camDist - 5.5))/11));
+      var fade = 1 - 0.5*t;
+      L.el.style.opacity = active ? 1 : (dim ? fade*0.35 : fade*0.9);
+      L.el.style.color = active ? "var(--text)" : "var(--text-2)";
+    });
+
+    renderer.render(scene, cam);
+  }
+
+  function find(id){
+    for(var i = 0; i < positions.length; i++) if(positions[i].id === id) return positions[i];
+    return null;
+  }
+
+  function updateReadout(){
+    var p = find(hovered) || find(selected);
+    if(!p){
+      roName.textContent = positions.length ? "Toutes les positions" : "Portefeuille vide";
+      roSub.textContent = "Rayon = poids · anneau = classe · hauteur = plus-value depuis le PRU";
+      return;
+    }
+    roName.textContent = p.ticker + " — " + (p.name || CLASSES[p.cls].label);
+    roSub.innerHTML = money(p.value) + " · " + (p.weight*100).toFixed(1) + " % · PRU " + money2(p.pru) +
+      ' · <span class="' + dir(p.pnl) + '">' + signed(p.pnl) + " (" + pct(p.pnlPct) + ")</span>" +
+      " · depuis le " + fdate(p.date);
+  }
+
+  function selectPosition(id){
+    selected = id;
+    [].forEach.call(rows.querySelectorAll("tr"), function(tr){
+      tr.classList.toggle("on", tr.dataset.id === id);
+    });
+    updateReadout();
+  }
+
+  canvas.addEventListener("pointermove", function(e){
+    var r = canvas.getBoundingClientRect();
+    pointer.x = (e.clientX - r.left)/r.width*2 - 1;
+    pointer.y = -((e.clientY - r.top)/r.height)*2 + 1;
+    targetTilt = ((e.clientY - r.top)/r.height - .5)*0.3;
+  });
+  canvas.addEventListener("pointerleave", function(){ pointer.set(-2,-2); targetTilt = 0; });
+  canvas.addEventListener("click", function(){
+    if(!hovered) return;
+    var id = hovered;
+    selectPosition(id === selected ? null : id);
+    if(selected){
+      showPage("positions");
+      var tr = rows.querySelector('tr[data-id="' + id + '"]');
+      if(tr) tr.scrollIntoView({block:"center", behavior:reduced ? "auto" : "smooth"});
+    }
+  });
+
+  window.addEventListener("resize", function(){ resize(); drawChart(); });
+
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if(mq.addEventListener) mq.addEventListener("change", paintScene);
+  else if(mq.addListener) mq.addListener(paintScene);
+  new MutationObserver(paintScene)
+    .observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+  /* le widget X est thématisé à sa création : le refaire si le thème bascule */
+  function repaintFeedTheme(){ if(currentPage === "cerebras") renderCerebras(); }
+  if(mq.addEventListener) mq.addEventListener("change", repaintFeedTheme);
+  else if(mq.addListener) mq.addListener(repaintFeedTheme);
+  new MutationObserver(repaintFeedTheme)
+    .observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+
+  /* ---------- formulaire ---------- */
+  var panel = document.getElementById("formPanel"), form = document.getElementById("posForm"),
+      fErr = document.getElementById("formErr"), fMode = document.getElementById("formMode");
+  var F = {
+    cls:document.getElementById("fCls"), ticker:document.getElementById("fTicker"),
+    name:document.getElementById("fName"), qty:document.getElementById("fQty"),
+    pru:document.getElementById("fPru"), date:document.getElementById("fDate"),
+    price:document.getElementById("fPrice"), cg:document.getElementById("fCg"),
+    sym:document.getElementById("fSym"), cur:document.getElementById("fCur")
+  };
+
+  /* ---------- suggestions de tickers ----------
+     [ticker, nom, classe, identifiant de cotation]. Le catalogue local répond
+     instantanément et fonctionne sans réseau ; la recherche en direct vient l'enrichir. */
+  var CATALOG = [
+    ["BTC","Bitcoin","crypto","bitcoin"], ["ETH","Ethereum","crypto","ethereum"],
+    ["USDT","Tether","crypto","tether"], ["BNB","BNB","crypto","binancecoin"],
+    ["SOL","Solana","crypto","solana"], ["USDC","USD Coin","crypto","usd-coin"],
+    ["XRP","XRP","crypto","ripple"], ["ADA","Cardano","crypto","cardano"],
+    ["DOGE","Dogecoin","crypto","dogecoin"], ["TRX","TRON","crypto","tron"],
+    ["TON","Toncoin","crypto","the-open-network"], ["AVAX","Avalanche","crypto","avalanche-2"],
+    ["DOT","Polkadot","crypto","polkadot"], ["LINK","Chainlink","crypto","chainlink"],
+    ["MATIC","Polygon","crypto","matic-network"], ["POL","Polygon Ecosystem","crypto","polygon-ecosystem-token"],
+    ["LTC","Litecoin","crypto","litecoin"], ["ATOM","Cosmos","crypto","cosmos"],
+    ["UNI","Uniswap","crypto","uniswap"], ["XLM","Stellar","crypto","stellar"],
+    ["XMR","Monero","crypto","monero"], ["ICP","Internet Computer","crypto","internet-computer"],
+    ["FIL","Filecoin","crypto","filecoin"], ["HBAR","Hedera","crypto","hedera-hashgraph"],
+    ["ARB","Arbitrum","crypto","arbitrum"], ["OP","Optimism","crypto","optimism"],
+    ["NEAR","NEAR Protocol","crypto","near"], ["APT","Aptos","crypto","aptos"],
+    ["SUI","Sui","crypto","sui"], ["INJ","Injective","crypto","injective-protocol"],
+    ["RNDR","Render","crypto","render-token"], ["TAO","Bittensor","crypto","bittensor"],
+
+    ["AAPL","Apple","equity","AAPL"], ["MSFT","Microsoft","equity","MSFT"],
+    ["CBRS","Cerebras Systems","equity","CBRS"],
+    ["NVDA","NVIDIA","equity","NVDA"], ["GOOGL","Alphabet","equity","GOOGL"],
+    ["AMZN","Amazon","equity","AMZN"], ["META","Meta Platforms","equity","META"],
+    ["TSLA","Tesla","equity","TSLA"], ["AVGO","Broadcom","equity","AVGO"],
+    ["AMD","Advanced Micro Devices","equity","AMD"], ["INTC","Intel","equity","INTC"],
+    ["ARM","Arm Holdings","equity","ARM"], ["MU","Micron Technology","equity","MU"],
+    ["QCOM","Qualcomm","equity","QCOM"], ["TXN","Texas Instruments","equity","TXN"],
+    ["SMCI","Super Micro Computer","equity","SMCI"], ["DELL","Dell Technologies","equity","DELL"],
+    ["NFLX","Netflix","equity","NFLX"], ["ADBE","Adobe","equity","ADBE"],
+    ["CRM","Salesforce","equity","CRM"], ["ORCL","Oracle","equity","ORCL"],
+    ["CSCO","Cisco Systems","equity","CSCO"], ["IBM","IBM","equity","IBM"],
+    ["NOW","ServiceNow","equity","NOW"], ["PLTR","Palantir Technologies","equity","PLTR"],
+    ["SNOW","Snowflake","equity","SNOW"], ["CRWD","CrowdStrike","equity","CRWD"],
+    ["PANW","Palo Alto Networks","equity","PANW"], ["UBER","Uber Technologies","equity","UBER"],
+    ["ABNB","Airbnb","equity","ABNB"], ["SHOP","Shopify","equity","SHOP"],
+    ["COIN","Coinbase","equity","COIN"], ["HOOD","Robinhood Markets","equity","HOOD"],
+    ["JPM","JPMorgan Chase","equity","JPM"], ["BAC","Bank of America","equity","BAC"],
+    ["V","Visa","equity","V"], ["MA","Mastercard","equity","MA"],
+    ["BRK.B","Berkshire Hathaway B","equity","BRK.B"], ["JNJ","Johnson & Johnson","equity","JNJ"],
+    ["LLY","Eli Lilly","equity","LLY"], ["UNH","UnitedHealth","equity","UNH"],
+    ["PFE","Pfizer","equity","PFE"], ["MRK","Merck","equity","MRK"],
+    ["XOM","Exxon Mobil","equity","XOM"], ["CVX","Chevron","equity","CVX"],
+    ["KO","Coca-Cola","equity","KO"], ["PEP","PepsiCo","equity","PEP"],
+    ["PG","Procter & Gamble","equity","PG"], ["WMT","Walmart","equity","WMT"],
+    ["COST","Costco","equity","COST"], ["MCD","McDonald's","equity","MCD"],
+    ["DIS","Walt Disney","equity","DIS"], ["BA","Boeing","equity","BA"],
+    ["CAT","Caterpillar","equity","CAT"], ["GE","GE Aerospace","equity","GE"],
+    ["T","AT&T","equity","T"], ["VZ","Verizon","equity","VZ"],
+
+    ["SKHY","SK hynix (ADR)","equity","SKHY"], ["TSM","Taiwan Semiconductor (ADR)","equity","TSM"],
+    ["SONY","Sony Group (ADR)","equity","SONY"], ["BABA","Alibaba (ADR)","equity","BABA"],
+    ["ASML","ASML Holding","equity","ASML.AS"], ["SAP","SAP","equity","SAP"],
+    ["MC","LVMH","equity","MC.PA"], ["OR","L'Oréal","equity","OR.PA"],
+    ["SAN","Sanofi","equity","SAN.PA"], ["AIR","Airbus","equity","AIR.PA"],
+    ["TTE","TotalEnergies","equity","TTE.PA"], ["SU","Schneider Electric","equity","SU.PA"],
+    ["BNP","BNP Paribas","equity","BNP.PA"], ["SIE","Siemens","equity","SIE.DE"],
+    ["ALV","Allianz","equity","ALV.DE"], ["NESN","Nestlé","equity","NESN.SW"],
+    ["NOVN","Novartis","equity","NOVN.SW"], ["ROG","Roche","equity","ROG.SW"],
+    ["SHEL","Shell","equity","SHEL"], ["AZN","AstraZeneca","equity","AZN"],
+
+    ["IWDA","iShares Core MSCI World","etf","IWDA.AS"],
+    ["EUNL","iShares Core MSCI World (DE)","etf","EUNL.DE"],
+    ["VWCE","Vanguard FTSE All-World","etf","VWCE.DE"],
+    ["CSPX","iShares Core S&P 500","etf","CSPX.AS"],
+    ["SPY","SPDR S&P 500","etf","SPY"], ["VOO","Vanguard S&P 500","etf","VOO"],
+    ["QQQ","Invesco QQQ Trust","etf","QQQ"], ["VTI","Vanguard Total Stock Market","etf","VTI"],
+    ["IEMA","iShares Core MSCI EM","etf","IEMA.AS"], ["AGGH","iShares Core Global Aggregate","etf","AGGH.AS"],
+    ["EUR","Compte en euros","cash",""], ["USD","Compte en dollars","cash",""]
+  ].map(function(r){
+    return {ticker:r[0], name:r[1], cls:r[2], quote:r[3], src:"catalogue"};
+  });
+
+  var acBox = document.getElementById("ac"), acList = document.getElementById("acList"),
+      acFoot = document.getElementById("acFoot");
+  var acWraps = {ticker:document.getElementById("acWrapTicker"),
+                 name:document.getElementById("acWrapName")};
+  var acItems = [], acIndex = -1, acTimer = null, acSeq = 0, acLastName = "";
+  /* le champ qui pilote la liste : ticker ou nom, la même liste se déplace sous lui */
+  var acFieldKey = "ticker", acProblem = "";
+  function acInput(){ return acFieldKey === "name" ? F.name : F.ticker; }
+
+  function acNorm(s){
+    return String(s || "").toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  /* Pertinence : ticker exact, puis début de ticker, début de nom, et enfin
+     simple présence des lettres. À score égal, le catalogue passe devant, puis
+     la capitalisation renvoyée par CoinGecko. */
+  function acScore(c, q){
+    var t = acNorm(c.ticker), n = acNorm(c.name);
+    if(t === q) return 0;
+    if(t.indexOf(q) === 0) return 1;
+    if(n.indexOf(q) === 0) return 2;
+    if(n.split(/[\s-]+/).some(function(w){ return w.indexOf(q) === 0; })) return 3;
+    if(t.indexOf(q) >= 0) return 4;
+    if(n.indexOf(q) >= 0) return 5;
+    return 9;
+  }
+
+  function acSort(list, q){
+    return list.map(function(c, i){ return {c:c, i:i, s:acScore(c, q)}; })
+      /* un résultat rapporté par une source en ligne est pertinent par construction,
+         même quand la requête est un ISIN qui n'apparaît ni dans le ticker ni dans le nom */
+      .filter(function(o){ return o.s < 9 || o.c.src !== "catalogue" || o.c.viaRemote; })
+      .sort(function(a, b){
+        if(a.s !== b.s) return a.s - b.s;
+        var ra = a.c.src === "catalogue" ? -1 : (a.c.rank == null ? 9999 : a.c.rank);
+        var rb = b.c.src === "catalogue" ? -1 : (b.c.rank == null ? 9999 : b.c.rank);
+        if(ra !== rb) return ra - rb;
+        if(a.c.ticker.length !== b.c.ticker.length) return a.c.ticker.length - b.c.ticker.length;
+        return a.i - b.i;
+      })
+      .map(function(o){ return o.c; });
+  }
+
+  function acLocal(q){
+    return acSort(CATALOG, acNorm(q));
+  }
+
+  function acKey(c){ return c.cls + "|" + acNorm(c.ticker) + "|" + acNorm(c.quote); }
+
+  function acMerge(base, extra){
+    var idx = {}, out = [];
+    base.forEach(function(c){
+      var k = acKey(c);
+      if(idx[k]) return;
+      /* copie : le drapeau posé ci-dessous ne doit pas survivre à la recherche */
+      idx[k] = {ticker:c.ticker, name:c.name, cls:c.cls, quote:c.quote, src:c.src, rank:c.rank};
+      out.push(idx[k]);
+    });
+    extra.forEach(function(c){
+      var k = acKey(c);
+      /* déjà au catalogue : la source en ligne le confirme, ce qui suffit à le garder
+         même si la requête est un ISIN absent du ticker comme du nom */
+      if(idx[k]){ idx[k].viaRemote = true; return; }
+      idx[k] = c; out.push(c);
+    });
+    return out;
+  }
+
+  function acRender(list, note){
+    acItems = list.slice(0, 10);
+    if(!acItems.length){ acEmpty(note); return; }
+    if(acIndex >= acItems.length) acIndex = -1;
+
+    var q = acNorm(acInput().value.trim());
+    acList.innerHTML = "";
+    acItems.forEach(function(c, i){
+      var li = document.createElement("li");
+      li.setAttribute("role", "option");
+      li.id = "ac-opt-" + i;
+      li.setAttribute("aria-selected", i === acIndex ? "true" : "false");
+      if(i === acIndex) li.className = "on";
+
+      var dot = document.createElement("i");
+      dot.style.background = "var(" + CLASSES[c.cls].varname + ")";
+
+      var tk = document.createElement("span");
+      tk.className = "tk";
+      var pos = acNorm(c.ticker).indexOf(q);
+      if(q && pos >= 0){                       /* met en évidence les lettres déjà saisies */
+        tk.appendChild(document.createTextNode(c.ticker.slice(0, pos)));
+        var b = document.createElement("b");
+        b.textContent = c.ticker.slice(pos, pos + q.length);
+        tk.appendChild(b);
+        tk.appendChild(document.createTextNode(c.ticker.slice(pos + q.length)));
+      } else {
+        tk.textContent = c.ticker;
+      }
+
+      var nm = document.createElement("span");
+      nm.className = "nm";
+      var npos = acNorm(c.name).indexOf(q);
+      if(q && npos >= 0){
+        nm.appendChild(document.createTextNode(c.name.slice(0, npos)));
+        var nb = document.createElement("b");
+        nb.textContent = c.name.slice(npos, npos + q.length);
+        nm.appendChild(nb);
+        nm.appendChild(document.createTextNode(c.name.slice(npos + q.length)));
+      } else {
+        nm.textContent = c.name;
+      }
+      var cl = document.createElement("span");
+      cl.className = "cl"; cl.textContent = CLASSES[c.cls].label;
+
+      li.appendChild(dot); li.appendChild(tk); li.appendChild(nm); li.appendChild(cl);
+      /* mousedown précède le blur du champ et l'empêche : c'est lui qui doit valider.
+         touchstart couvre le tactile, click rattrape les cas restants. */
+      var take = function(e){ e.preventDefault(); acPick(i); };
+      li.addEventListener("mousedown", take);
+      li.addEventListener("touchstart", take, {passive:false});
+      li.addEventListener("click", function(e){ e.preventDefault(); });
+      acList.appendChild(li);
+    });
+
+    acFoot.textContent = note;
+    if(acBox.parentNode !== acWraps[acFieldKey]) acWraps[acFieldKey].appendChild(acBox);
+    acBox.hidden = false;
+    acInput().setAttribute("aria-expanded", "true");
+    acSetActive(acIndex);
+  }
+
+  /* Une liste vide n'est pas une réponse : dire pourquoi, et quoi faire. */
+  function acEmpty(note){
+    acIndex = -1;
+    acList.innerHTML = "";
+    var li = document.createElement("li");
+    li.className = "ac-empty";
+    li.textContent = acProblem
+      ? "Aucune correspondance, et la recherche en ligne n'a pas abouti (" + acProblem +
+        "). Vous pouvez saisir le ticker exact et son symbole dans « Cotation en direct »."
+      : (apiKey
+        ? "Aucune correspondance. Tapez le ticker exact, ou son ISIN, puis vérifiez le symbole dans « Cotation en direct »."
+        : "Aucune correspondance dans le catalogue. Ajoutez une clé Finnhub dans Réglages pour chercher toutes les actions et ETF, ou tapez le ticker exact.");
+    acList.appendChild(li);
+    acFoot.textContent = note;
+    if(acBox.parentNode !== acWraps[acFieldKey]) acWraps[acFieldKey].appendChild(acBox);
+    acBox.hidden = false;
+    acInput().setAttribute("aria-expanded", "true");
+    acInput().removeAttribute("aria-activedescendant");
+  }
+
+  function acSetActive(i){
+    acIndex = i;
+    [].forEach.call(acList.children, function(li, k){
+      li.classList.toggle("on", k === i);
+      li.setAttribute("aria-selected", k === i ? "true" : "false");
+    });
+    if(i >= 0){
+      acInput().setAttribute("aria-activedescendant", "ac-opt-" + i);
+      var el = acList.children[i];
+      if(el && el.scrollIntoView) el.scrollIntoView({block:"nearest"});
+    } else {
+      acInput().removeAttribute("aria-activedescendant");
+    }
+  }
+
+  function acClose(){
+    /* couper aussi la recherche en attente : sans cela une réponse tardive
+       rouvrirait la liste que l'on vient de fermer */
+    if(acTimer){ clearTimeout(acTimer); acTimer = null; }
+    acSeq++;
+    acBox.hidden = true;
+    acItems = []; acIndex = -1;
+    [F.ticker, F.name].forEach(function(el){
+      el.setAttribute("aria-expanded", "false");
+      el.removeAttribute("aria-activedescendant");
+    });
+  }
+
+  function acPick(i){
+    var c = acItems[i];
+    if(!c) return;
+    F.ticker.value = c.ticker;
+    F.cls.value = c.cls;
+    /* choisir depuis le champ Nom vaut validation : le nom canonique remplace la frappe */
+    if(acFieldKey === "name" || !F.name.value.trim() || F.name.value.trim() === acLastName){
+      F.name.value = c.name;
+      acLastName = c.name;
+    }
+    if(c.cls === "crypto"){ F.cg.value = c.quote || ""; F.sym.value = ""; F.cur.value = "EUR"; }
+    else if(c.cls === "equity" || c.cls === "etf"){
+      F.sym.value = c.quote || c.ticker; F.cg.value = "";
+      F.cur.value = curFromSymbol(F.sym.value) || "USD";
+    }
+    syncCashFields();
+    acClose();
+    autoPrice();
+    F.qty.focus();
+  }
+
+  /* Recherche en direct : CoinGecko pour les cryptos, Finnhub pour les titres si une clé
+     est enregistrée. Sans réseau, seul le catalogue local répond. */
+  function acRemote(q, seq){
+    if(q.length < 2) return;                 /* une seule lettre : le catalogue suffit */
+    var jobs = [], found = [], sources = [], problems = [];
+
+    function why(e){
+      return isBlocked(e) ? "réseau bloqué" : (e && e.message) || "erreur";
+    }
+
+    jobs.push(
+      get("https://api.coingecko.com/api/v3/search?query=" + encodeURIComponent(q))
+        .then(function(d){
+          var coins = (d && d.coins) || [];
+          coins.slice(0, 8).forEach(function(c){
+            if(!c.symbol) return;
+            found.push({ticker:String(c.symbol).toUpperCase(), name:c.name || c.id,
+              cls:"crypto", quote:c.id, src:"CoinGecko", rank:c.market_cap_rank});
+          });
+          if(coins.length) sources.push("CoinGecko");
+        })
+        .catch(function(e){ problems.push("CoinGecko : " + why(e)); })
+    );
+
+    if(apiKey){
+      jobs.push(
+        get("https://finnhub.io/api/v1/search?q=" + encodeURIComponent(q) +
+            "&token=" + encodeURIComponent(apiKey))
+          .then(function(d){
+            var res = (d && d.result) || [];
+            res.slice(0, 8).forEach(function(r){
+              var sym = r.displaySymbol || r.symbol;
+              if(!sym) return;
+              var type = String(r.type || "");
+              found.push({ticker:String(sym).toUpperCase(), name:r.description || sym,
+                cls:/ETF|ETP|FUND/i.test(type) ? "etf" : "equity",
+                quote:r.symbol || sym, src:"Finnhub"});
+            });
+            if(res.length) sources.push("Finnhub");
+          })
+          .catch(function(e){ problems.push("Finnhub : " + why(e)); })
+      );
+    } else {
+      problems.push("actions et ETF non cherchés, clé Finnhub absente");
+    }
+
+    Promise.all(jobs).then(function(){
+      if(seq !== acSeq) return;                 /* une frappe plus récente a pris la main */
+      var merged = acSort(acMerge(CATALOG, found), acNorm(q));
+      acProblem = problems.length ? problems.join(" · ") : "";
+      acRender(merged, sources.length
+        ? "Catalogue + " + sources.join(" + ") + (problems.length ? " — " + acProblem : "")
+        : "Catalogue local — " + (acProblem || "recherche en ligne indisponible"));
+    });
+  }
+
+  /* Les suggestions répondent au ticker comme au nom : on cherche « BTC » ou « bitcoin ». */
+  function acWire(key, input){
+    input.addEventListener("input", function(){
+      acFieldKey = key;
+      var q = input.value.trim();
+      if(acTimer) clearTimeout(acTimer);
+      acSeq++;
+      if(!q){ acClose(); return; }
+      acIndex = -1; acProblem = "";
+      acRender(acLocal(q), "Catalogue local");
+      var seq = acSeq;
+      acTimer = setTimeout(function(){ acRemote(q, seq); }, 280);
+    });
+
+    input.addEventListener("keydown", function(e){
+      if(acBox.hidden){
+        if(e.key === "ArrowDown" && input.value.trim()){
+          acFieldKey = key;
+          acRender(acLocal(input.value.trim()), "Catalogue local");
+        }
+        return;
+      }
+      if(!acItems.length && e.key !== "Escape" && e.key !== "Tab") return;
+      if(e.key === "ArrowDown"){ e.preventDefault(); acSetActive((acIndex + 1) % acItems.length); }
+      else if(e.key === "ArrowUp"){ e.preventDefault(); acSetActive((acIndex - 1 + acItems.length) % acItems.length); }
+      else if(e.key === "Enter"){ if(acIndex >= 0){ e.preventDefault(); acPick(acIndex); } else acClose(); }
+      else if(e.key === "Escape"){ e.preventDefault(); acClose(); }
+      else if(e.key === "Tab"){ acClose(); }
+    });
+
+    /* Ne fermer que si le focus a vraiment quitté l'ensemble : passer du ticker au nom
+       ne doit pas tuer la liste que l'autre champ vient d'ouvrir. */
+    input.addEventListener("blur", function(){
+      setTimeout(function(){
+        var a = document.activeElement;
+        if(a === F.ticker || a === F.name || acBox.contains(a)) return;
+        acClose();
+      }, 140);
+    });
+  }
+  acWire("ticker", F.ticker);
+  acWire("name", F.name);
+
+  /* Cote une seule ligne, pour remplir le champ « cours actuel » sans attendre
+     une actualisation globale. Renvoie un prix en euros, ou null. */
+  function quoteOne(d){
+    if(d.cls === "crypto" && d.cg){
+      return get("https://api.coingecko.com/api/v3/simple/price?ids=" +
+          encodeURIComponent(d.cg) + "&vs_currencies=eur")
+        .then(function(r){
+          var q = r && r[d.cg];
+          return q && isFinite(q.eur) ? {price:q.eur, src:"CoinGecko"} : null;
+        });
+    }
+    if((d.cls === "equity" || d.cls === "etf") && d.sym && apiKey){
+      return get("https://finnhub.io/api/v1/quote?symbol=" + encodeURIComponent(d.sym) +
+          "&token=" + encodeURIComponent(apiKey))
+        .then(function(r){
+          if(!r || !isFinite(r.c) || r.c === 0) return null;
+          var k = rateOf(d.cur);
+          if(!k) throw new Error("devise de cotation " + (d.cur || "inconnue") + " sans taux");
+          return {price:r.c/k, src:"Finnhub"};   /* ramené en euros, référence interne */
+        });
+    }
+    return Promise.resolve(null);
+  }
+
+  var priceNote = document.getElementById("priceNote"), priceSeq = 0,
+      priceAuto = "", priceAutoSrc = "";
+
+  function pNote(text, cls){
+    priceNote.textContent = text;
+    priceNote.className = "field-note" + (cls ? " " + cls : "");
+  }
+
+  /* Va chercher le cours dès que l'actif est connu. Ne touche jamais à une valeur
+     que vous avez tapée vous-même. */
+  function autoPrice(){
+    var cls = F.cls.value;
+    var seq = ++priceSeq;
+    if(cls === "cash"){ pNote(""); return; }
+
+    var typed = F.price.value.trim();
+    if(typed && typed !== priceAuto){ pNote("Cours saisi à la main."); return; }
+
+    var d = {cls:cls, cg:F.cg.value.trim(), sym:F.sym.value.trim(), cur:F.cur.value};
+    if(!d.cg && !d.sym){ pNote(""); return; }
+    if((cls === "equity" || cls === "etf") && !apiKey){
+      pNote("Clé Finnhub absente : saisissez le cours, ou ajoutez la clé dans Réglages.", "warn");
+      return;
+    }
+
+    pNote("Recherche du cours…");
+    quoteOne(d).then(function(r){
+      if(seq !== priceSeq) return;
+      if(!r){ pNote("Cours introuvable pour cet identifiant : saisissez-le.", "warn"); return; }
+      F.price.value = round6(toDisplay(r.price));
+      priceAuto = F.price.value; priceAutoSrc = r.src;
+      pNote(money2(r.price) + " · " + r.src, "ok");
+    }).catch(function(e){
+      if(seq !== priceSeq) return;
+      pNote(isBlocked(e)
+        ? "Pas d'accès réseau ici : saisissez le cours à la main."
+        : "Cours non récupéré (" + e.message + ") : saisissez-le.", "warn");
+    });
+  }
+
+  function openForm(id){
+    showPage("positions");
+    editingId = id || null;
+    var p = id ? find(id) : null;
+    fErr.textContent = "";
+    fMode.textContent = p ? "Modifier " + p.ticker : "Nouvelle position";
+    F.cls.value = p ? p.cls : "crypto";
+    F.ticker.value = p ? p.ticker : "";
+    F.name.value = p ? (p.name || "") : "";
+    F.qty.value = p ? p.qty : "";
+    F.pru.value = p ? round6(toDisplay(p.pru)) : "";
+    F.date.value = p ? p.date : new Date().toISOString().slice(0,10);
+    F.price.value = p ? round6(toDisplay(p.price)) : "";
+    F.cg.value = p ? (p.cg || "") : "";
+    F.sym.value = p ? (p.sym || "") : "";
+    F.cur.value = p ? (p.cur || "EUR") : "EUR";
+    syncCashFields();
+    priceSeq++; priceAuto = ""; priceAutoSrc = ""; pNote(p ? "" : "Choisissez l'actif : le cours est récupéré tout seul.");
+    acClose(); acLastName = p ? (p.name || "") : "";
+    panel.classList.add("open");
+    F.ticker.focus();
+    panel.scrollIntoView({block:"nearest", behavior:reduced ? "auto" : "smooth"});
+  }
+  function closeForm(){ panel.classList.remove("open"); editingId = null; fErr.textContent = ""; }
+  function round6(v){ return Math.round(v*1e6)/1e6; }
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var ticker = F.ticker.value.trim().toUpperCase();
+    var qty = parseFloat(F.qty.value);
+    var pruIn = parseFloat(F.pru.value);
+    var priceIn = F.price.value === "" ? null : parseFloat(F.price.value);
+    var date = F.date.value;
+    var cls = F.cls.value;
+
+    if(!ticker) return fail("Indiquez un ticker, par exemple BTC ou AAPL.");
+    if(!isFinite(qty) || qty <= 0) return fail("La quantité doit être un nombre supérieur à 0.");
+    if(cls !== "cash" && (!isFinite(pruIn) || pruIn < 0)) return fail("Le PRU doit être un nombre positif.");
+    if(!date) return fail("Indiquez la date d'achat.");
+    if(new Date(date + "T00:00:00") > new Date()) return fail("La date d'achat ne peut pas être dans le futur.");
+
+    var pru, price;
+    if(cls === "cash"){
+      /* une unité de la devise affichée, convertie en euros pour le stockage */
+      pru = price = fromDisplay(1);
+    } else {
+      pru = fromDisplay(pruIn);
+      price = (priceIn === null || !isFinite(priceIn)) ? pru : fromDisplay(priceIn);
+    }
+    var priceMissing = (cls !== "cash") && (priceIn === null || !isFinite(priceIn));
+
+    var p = editingId ? find(editingId) : null;
+    if(!p){ p = {id:uid(), priceAt:null, priceSrc:"saisi"}; positions.push(p); }
+    /* dire d'où vient réellement le cours : la valeur peut avoir été rapportée
+       par la cotation automatique plutôt que tapée */
+    var fromAuto = priceAutoSrc && F.price.value.trim() === priceAuto;
+    if(p.price !== price){
+      p.priceSrc = priceMissing ? "à actualiser" : (fromAuto ? priceAutoSrc : "saisi");
+      if(fromAuto) p.priceAt = Date.now();
+    }
+    p.cls = cls; p.ticker = ticker; p.name = F.name.value.trim();
+    p.qty = qty; p.pru = pru; p.date = date; p.price = price;
+    p.cg = F.cg.value.trim() || (cls === "crypto" ? (CG[ticker] || "") : "");
+    p.sym = F.sym.value.trim() || (cls === "equity" || cls === "etf" ? ticker : "");
+    p.cur = F.cur.value;
+
+    demoSeeded = false; save(); closeForm(); renderAll();
+
+    /* cours laissé vide : on enregistre tout de suite, puis on le complète en arrière-plan */
+    if(priceMissing && (p.cg || p.sym)){
+      quoteOne(p).then(function(r){
+        if(!r || !find(p.id)) return;
+        p.price = r.price; p.priceSrc = r.src; p.priceAt = Date.now();
+        save(); renderAll();
+      }).catch(function(){});
+    }
+  });
+
+  function fail(msg){ fErr.textContent = msg; return false; }
+
+  function removePosition(p){
+    var i = positions.indexOf(p);
+    if(i < 0) return;
+    positions.splice(i, 1);
+    if(selected === p.id) selected = null;
+    demoSeeded = false; save(); renderAll();
+  }
+
+  function syncCashFields(){
+    var isCash = F.cls.value === "cash";
+    F.pru.disabled = isCash; F.price.disabled = isCash;
+    if(isCash){ F.pru.value = 1; F.price.value = 1; }
+  }
+
+  document.getElementById("addBtn").addEventListener("click", function(){ openForm(null); });
+  document.getElementById("cancelBtn").addEventListener("click", closeForm);
+  document.getElementById("demoBtn").addEventListener("click", function(){
+    positions = DEMO.map(seed); selected = null; demoSeeded = false; save(); renderAll();
+  });
+  document.getElementById("wipeBtn").addEventListener("click", function(){
+    positions = []; selected = null; demoSeeded = false; save(); renderAll();
+  });
+  F.cls.addEventListener("change", function(){ syncCashFields(); autoPrice(); });
+  F.cg.addEventListener("change", autoPrice);
+  F.sym.addEventListener("change", autoPrice);
+  F.cur.addEventListener("change", autoPrice);
+  F.price.addEventListener("input", function(){
+    if(F.price.value.trim() && F.price.value.trim() !== priceAuto) pNote("Cours saisi à la main.");
+    else if(!F.price.value.trim()) pNote("");
+  });
+  F.ticker.addEventListener("blur", function(){
+    var t = F.ticker.value.trim().toUpperCase();
+    var before = F.cg.value + "|" + F.sym.value;
+    if(F.cls.value === "crypto" && !F.cg.value && CG[t]) F.cg.value = CG[t];
+    if((F.cls.value === "equity" || F.cls.value === "etf") && !F.sym.value && t) F.sym.value = t;
+    if((F.cls.value === "equity" || F.cls.value === "etf") && F.sym.value){
+      var guess = curFromSymbol(F.sym.value);
+      if(guess) F.cur.value = guess;
+    }
+    if(F.cg.value + "|" + F.sym.value !== before) autoPrice();
+  });
+
+  /* ---------- mémoire : export, import, cloud ---------- */
+  var memMsg = document.getElementById("memMsg"), memState = document.getElementById("memState"),
+      syncBtn = document.getElementById("syncBtn");
+
+  function renderMemory(){
+    var when = updatedAt ? new Date(updatedAt).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "—";
+    var deck = backend === "deck";
+    var label = deck ? "Deck" : "cloud";
+    var cloudTxt = {
+      off:"Synchro " + label + " désactivée",
+      on:"Synchronisé avec le " + label,
+      pending:"Synchronisation…",
+      error:(deck ? "Deck" : "Cloud") + " en erreur",
+      absent:""
+    }[cloudState] || "";
+
+    memState.textContent = cloudState === "on" ? "Mémoire " + label : "Mémoire locale";
+    memMsg.className = "panel-msg" + (cloudState === "error" ? " err" : "");
+    memMsg.textContent = positions.length + (positions.length > 1 ? " lignes gardées" : " ligne gardée") +
+      (deck && cloudState === "on" ? " sur le Deck" : " sur cet appareil") +
+      ", dernier enregistrement à " + when + ". " +
+      (cloudState === "absent"
+        ? "Exportez un fichier pour transporter le portefeuille ailleurs."
+        : cloudTxt + ".");
+    syncBtn.hidden = (cloudState === "absent");
+    syncBtn.textContent = (deck ? "Deck" : "Cloud") + (S.sync ? " : activé" : " : désactivé");
+    syncBtn.className = "btn" + (S.sync ? " primary" : " ghost");
+    document.getElementById("footNote").textContent = cloudState === "on"
+      ? (deck ? "Portefeuille gardé sur le Deck, partagé entre tes appareils."
+              : "Portefeuille synchronisé avec le stockage de cet artifact.")
+      : "Portefeuille gardé dans ce navigateur — exportez un fichier pour le sauvegarder ailleurs.";
+  }
+
+  document.getElementById("exportBtn").addEventListener("click", function(){
+    var payload = JSON.stringify({app:"meridian", v:3, exportedAt:new Date().toISOString(),
+      settings:S, positions:positions}, null, 2);
+    var filename = "meridian-" + new Date().toISOString().slice(0,10) + ".json";
+    if(dlNS){
+      dlNS.save({filename:filename, data:payload}).then(function(){
+        memMsg.className = "panel-msg";
+        memMsg.textContent = "Fichier " + filename + " enregistré.";
+      }).catch(function(err){
+        memMsg.className = "panel-msg" + (err && err.code === "declined" ? "" : " err");
+        memMsg.textContent = err && err.code === "declined"
+          ? "Export annulé."
+          : "Export impossible : " + ((err && err.message) || "erreur inconnue") + ".";
+      });
+      return;
+    }
+    /* hors artifact : lien de téléchargement classique */
+    var url = URL.createObjectURL(new Blob([payload], {type:"application/json"}));
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    memMsg.className = "panel-msg";
+    memMsg.textContent = "Fichier " + filename + " proposé au téléchargement.";
+  });
+
+  var importFile = document.getElementById("importFile");
+  document.getElementById("importBtn").addEventListener("click", function(){ importFile.click(); });
+  importFile.addEventListener("change", function(){
+    var f = this.files && this.files[0];
+    if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var data = safeParse(String(reader.result));
+      var list = Array.isArray(data) ? data : (data && data.positions);
+      if(!Array.isArray(list)){
+        memMsg.className = "panel-msg err";
+        memMsg.textContent = "Ce fichier ne contient pas de portefeuille Meridian.";
+        return;
+      }
+      var parsed = list.map(function(d){ return normalize(Object.assign({}, d, {id:uid()})); })
+        .filter(Boolean);
+      if(!parsed.length){
+        memMsg.className = "panel-msg err";
+        memMsg.textContent = "Aucune position valide dans ce fichier — il faut au moins un ticker et une quantité.";
+        return;
+      }
+      positions = parsed;
+      if(data && data.settings) S = Object.assign(clone(DEFAULTS), data.settings);
+      selected = null; demoSeeded = false;
+      applyCurrency(); save(); renderAll();
+      memMsg.className = "panel-msg";
+      memMsg.textContent = parsed.length + (parsed.length > 1 ? " positions importées." : " position importée.");
+    };
+    reader.onerror = function(){
+      memMsg.className = "panel-msg err";
+      memMsg.textContent = "Lecture du fichier impossible.";
+    };
+    reader.readAsText(f);
+    this.value = "";
+  });
+
+  syncBtn.addEventListener("click", function(){
+    S.sync = !S.sync;
+    if(S.sync){ startCloud(); } else { stopCloud(); }
+    save(); renderMemory();
+  });
+
+  function startCloud(){
+    if(backend === "deck"){ startDeck(); return; }
+    if(!dbNS) return;
+    cloudState = "pending"; renderMemory();
+    pushCloud();
+    if(unsub) return;
+    unsub = dbNS.doc(CLOUD_DOC).onSnapshot(function(snap){
+      if(!snap.exists) return;
+      var d = snap.data();
+      if(!d || !Array.isArray(d.positions)) return;
+      if((d.updatedAt || 0) <= updatedAt) return;   /* notre état est déjà le plus récent */
+      adopt(d, false);
+      applyCurrency(); renderAll();
+      cloudState = "on"; renderMemory();
+    }, function(err){
+      cloudState = "error"; renderMemory();
+      memMsg.textContent = "Synchronisation interrompue (" + err.code + "). Vos données locales sont intactes.";
+    });
+  }
+
+  function stopCloud(){
+    if(backend === "deck"){ stopDeck(); return; }
+    if(unsub){ unsub(); unsub = null; }
+    cloudState = dbNS ? "off" : "absent";
+  }
+
+  function pushCloud(){
+    if(backend === "deck"){ if(S.sync) pushDeck(); return; }
+    if(!dbNS || !S.sync) return;
+    dbNS.doc(CLOUD_DOC).set(snapshot()).then(function(){
+      cloudState = "on"; renderMemory();
+    }).catch(function(err){
+      cloudState = "error"; renderMemory();
+      memMsg.textContent = "Écriture cloud refusée (" + err.code + "). Le portefeuille reste enregistré sur cet appareil.";
+    });
+  }
+
+  /* ---------- moteur « deck » ----------
+     Servie par le Deck, la page garde le portefeuille dans un fichier du Deck
+     (`/api/portfolio`), et plus seulement dans le navigateur : Safari efface ce
+     stockage après sept jours sans visite, et chaque appareil y aurait sa copie.
+
+     Deux règles, qui évitent d'écraser un vrai portefeuille :
+     1. On LIT le Deck avant d'écrire quoi que ce soit. Un appareil neuf démarre
+        sur la démo, puis l'enregistrement du démarrage lui donne l'horodatage
+        de l'instant : poussée d'emblée, elle passerait pour plus récente que
+        les vraies positions et les remplacerait.
+     2. Une démo posée faute de mieux ne part JAMAIS vers le Deck. Elle cède la
+        place à ce qu'il contient, quel que soit l'horodatage.
+     Le serveur ajoute sa propre garde : il refuse (409) une écriture plus
+     ancienne que ce qu'il détient, et la page relit alors l'état du Deck. */
+  var DECK_API = "/api/portfolio";
+
+  function deckGet(){
+    return fetch(DECK_API, {cache:"no-store", credentials:"same-origin"}).then(function(r){
+      if(r.status === 404) return null;
+      if(!r.ok) throw {code:r.status};
+      return r.json();
+    });
+  }
+
+  function deckKeepLocal(){
+    try{ localStorage.setItem(STORE, JSON.stringify(snapshot())); }catch(e){}
+  }
+
+  function deckAdopt(d){
+    if(!d || !Array.isArray(d.positions)) return false;
+    if(!demoSeeded && (d.updatedAt || 0) <= updatedAt) return false;
+    adopt(d, false); demoSeeded = false; deckKeepLocal();
+    applyCurrency(); renderAll();
+    return true;
+  }
+
+  function deckError(what, err){
+    cloudState = "error"; renderMemory();
+    memMsg.textContent = what + " (" + (err && err.code || "réseau") +
+      "). Le portefeuille reste enregistré sur cet appareil.";
+  }
+
+  function startDeck(){
+    deckReady = false;
+    cloudState = "pending"; renderMemory();
+    deckGet().then(function(d){
+      deckReady = true;
+      if(!deckAdopt(d) && !demoSeeded && (!d || (d.updatedAt || 0) < updatedAt)){
+        pushDeck();   /* notre état est plus récent, ou le Deck est vide */
+        return;
+      }
+      cloudState = "on"; renderMemory();
+    }).catch(function(err){ deckError("Lecture du Deck impossible", err); });
+    if(!deckTimer){
+      /* Les modifications faites sur un autre appareil arrivent au retour sur
+         la page, et toutes les 30 s tant qu'elle reste ouverte. */
+      deckTimer = setInterval(pullDeck, 30000);
+      document.addEventListener("visibilitychange", onDeckVisible);
+    }
+  }
+
+  function pullDeck(){
+    if(!S.sync || document.hidden) return;
+    deckGet().then(function(d){
+      if(deckAdopt(d)){ cloudState = "on"; renderMemory(); }
+    }).catch(function(){ /* un relevé manqué : le suivant réessaiera */ });
+  }
+
+  function onDeckVisible(){ if(!document.hidden) pullDeck(); }
+
+  function stopDeck(){
+    deckReady = false;
+    if(deckTimer){ clearInterval(deckTimer); deckTimer = null; }
+    document.removeEventListener("visibilitychange", onDeckVisible);
+    cloudState = "off";
+  }
+
+  function pushDeck(){
+    if(demoSeeded || !deckReady) return;
+    fetch(DECK_API, {method:"PUT", credentials:"same-origin",
+                     headers:{"Content-Type":"application/json"},
+                     body:JSON.stringify(snapshot())})
+      .then(function(r){
+        if(r.status === 409){
+          /* un autre appareil a écrit plus récemment : on reprend son état */
+          return deckGet().then(function(d){ deckAdopt(d); cloudState = "on"; renderMemory(); });
+        }
+        if(!r.ok) throw {code:r.status};
+        cloudState = "on"; renderMemory();
+      })
+      .catch(function(err){ deckError("Écriture sur le Deck refusée", err); });
+  }
+
+  function probeDeck(){
+    /* L'en-tête distingue le Deck de n'importe quel serveur qui répondrait
+       404 à cette adresse — la page ouverte depuis le disque, par exemple. */
+    return fetch(DECK_API, {cache:"no-store", credentials:"same-origin"})
+      .then(function(r){ return r.headers.get("X-Ashitaka-Portfolio") === "1"; })
+      .catch(function(){ return false; });
+  }
+
+  function wireCapabilities(){
+    cloudState = "absent";
+    if(!window.claude || typeof window.claude.use !== "function"){
+      probeDeck().then(function(isDeck){
+        if(isDeck){
+          backend = "deck";
+          /* La synchro est la raison d'être de cette version : activée d'office
+             une fois, puis le choix manuel est respecté. */
+          if(!S.deckAuto){ S.sync = true; S.deckAuto = true; }
+          cloudState = S.sync ? "pending" : "off";
+          if(S.sync) startDeck();
+        }
+        renderMemory();
+      });
+      return;
+    }
+    window.claude.use("downloads").then(function(ns){ dlNS = ns; }).catch(function(){});
+    window.claude.use("db").then(function(ns){
+      dbNS = ns; backend = ns ? "artifact" : null;
+      cloudState = ns ? (S.sync ? "pending" : "off") : "absent";
+      if(ns && S.sync) startCloud();
+      renderMemory();
+    }).catch(function(){ renderMemory(); });
+  }
+
+  /* ---------- fil Cerebras ----------
+     Deux voies, dans cet ordre : un flux RSS/JSON servi avec CORS si vous en indiquez un,
+     sinon le widget officiel de X. Aucune des deux ne fonctionne dans la page publiée,
+     dont la politique de sécurité bloque scripts tiers et requêtes réseau. */
+  var twEmbed = document.getElementById("twEmbed"), twList = document.getElementById("twList"),
+      twMsg = document.getElementById("twMsg"), twNote = document.getElementById("twNote"),
+      twHandleIn = document.getElementById("twHandle"), twFeedIn = document.getElementById("twFeed"),
+      twOpen = document.getElementById("twOpen");
+  var twScript = null, twState = "", twCheck = null;
+
+  function twSay(text, isErr){
+    twMsg.className = "panel-msg" + (isErr ? " err" : "");
+    twMsg.textContent = text;
+  }
+
+  function loadWidgets(){
+    if(twScript) return twScript;
+    twScript = new Promise(function(resolve, reject){
+      var s = document.createElement("script");
+      s.src = "https://platform.twitter.com/widgets.js";
+      s.async = true;
+      s.onload = function(){ resolve(window.twttr); };
+      s.onerror = function(){ twScript = null; reject(new Error("script refusé")); };
+      document.head.appendChild(s);
+      setTimeout(function(){ twScript = null; reject(new Error("délai dépassé")); }, 8000);
+    });
+    return twScript;
+  }
+
+  function twTheme(){
+    var g = cssVar("--ground").toLowerCase();
+    return g.indexOf("#0f") === 0 ? "dark" : "light";
+  }
+
+  function renderCerebras(force){
+    var handle = (S.twHandle || "CerebrasSystems").replace(/^@/, "");
+    var key = handle + "|" + (S.twFeed || "") + "|" + twTheme();
+    if(!force && twState === key) return;
+    twState = key;
+
+    twHandleIn.value = handle;
+    twFeedIn.value = S.twFeed || "";
+    twOpen.href = "https://x.com/" + encodeURIComponent(handle);
+    twNote.textContent = "@" + handle;
+    twEmbed.innerHTML = ""; twList.innerHTML = "";
+
+    if(twCheck){ clearTimeout(twCheck); twCheck = null; }
+    if(S.twFeed){ loadFeed(S.twFeed, handle); return; }
+
+    twSay("Chargement du fil officiel de @" + handle + "…");
+    var token = twState;
+
+    /* le verdict ne dépend pas de la promesse du widget : elle peut rester pendante
+       indéfiniment. Seule la hauteur de l'iframe dit si X a servi quelque chose. */
+    if(twCheck) clearTimeout(twCheck);
+    twCheck = setTimeout(function(){
+      if(twState !== token) return;
+      var f = twEmbed.querySelector("iframe");
+      if(!f || f.offsetHeight < 60) twFallback(handle, "le fil intégré est resté vide");
+      else twSay("Fil officiel de @" + handle + ", servi par X.");
+    }, 7000);
+
+    loadWidgets().then(function(twttr){
+      if(!twttr || !twttr.widgets) throw new Error("widget indisponible");
+      return twttr.widgets.createTimeline(
+        {sourceType:"profile", screenName:handle},
+        twEmbed,
+        {height:640, theme:twTheme(), chrome:"noheader nofooter transparent", dnt:true}
+      );
+    }).catch(function(e){
+      if(twState !== token) return;
+      clearTimeout(twCheck);
+      twFallback(handle, e.message);
+    });
+  }
+
+  function twFallback(handle, why){
+    if(twCheck){ clearTimeout(twCheck); twCheck = null; }
+    twEmbed.innerHTML = "";
+    twSay("Les tweets de @" + handle + " ne s'affichent pas ici (" + why + "). " +
+      "X n'ouvre ses fils aux pages web que par son propre widget, et la page publiée sur claude.ai " +
+      "bloque de toute façon les scripts tiers comme les requêtes réseau. Deux issues : ouvrir le compte sur X, " +
+      "ou indiquer ci-dessus un flux RSS ou JSON servi avec CORS, que cette page affichera dans sa propre mise en forme.", true);
+  }
+
+  function loadFeed(url, handle){
+    twSay("Lecture du flux…");
+    fetch(url, {mode:"cors"}).then(function(r){
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return r.text();
+    }).then(function(body){
+      var items = parseFeed(body);
+      if(!items.length) throw new Error("aucune entrée trouvée");
+      twList.innerHTML = "";
+      items.slice(0, 30).forEach(function(it){
+        var card = document.createElement("article");
+        card.className = "tw-card";
+        var d = document.createElement("div");
+        d.className = "tw-date";
+        var when = it.date ? new Date(it.date) : null;
+        d.textContent = (when && !isNaN(when))
+          ? when.toLocaleString("fr-FR",{day:"2-digit",month:"short",year:"2-digit",
+              hour:"2-digit",minute:"2-digit"})
+          : "@" + handle;
+        var t = document.createElement("p");
+        t.textContent = it.text;              /* contenu tiers : jamais injecté en HTML */
+        card.appendChild(d); card.appendChild(t);
+        if(it.link){
+          var a = document.createElement("a");
+          a.href = it.link; a.target = "_blank"; a.rel = "noopener noreferrer";
+          a.textContent = "Voir sur X";
+          card.appendChild(a);
+        }
+        twList.appendChild(card);
+      });
+      twSay(items.length + (items.length > 1 ? " publications lues" : " publication lue") +
+        " à " + new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) + ".");
+    }).catch(function(e){
+      twList.innerHTML = "";
+      if(isBlocked(e)){
+        twSay("Flux injoignable depuis la page (" + e.message + "). " +
+          "Un flux ne fonctionne que s'il est servi avec l'en-tête CORS voulu, " +
+          "et la page publiée sur claude.ai bloque toute requête sortante.", true);
+      } else {
+        twSay("Flux illisible : " + e.message + ".", true);
+      }
+    });
+  }
+
+  function parseFeed(body){
+    var out = [];
+    var data = safeParse(body);
+    if(data){
+      var arr = Array.isArray(data) ? data : (data.items || data.tweets || data.data || []);
+      if(Array.isArray(arr)){
+        arr.forEach(function(o){
+          var text = o.text || o.content_text || o.content || o.title || o.full_text;
+          if(!text) return;
+          out.push({
+            text: String(text),
+            date: o.date_published || o.created_at || o.date || o.pubDate || null,
+            link: o.url || o.link || (o.id_str ? "https://x.com/i/status/" + o.id_str : "")
+          });
+        });
+      }
+      return out;
+    }
+    /* RSS ou Atom */
+    var doc = new DOMParser().parseFromString(body, "application/xml");
+    if(doc.querySelector("parsererror")) return out;
+    [].forEach.call(doc.querySelectorAll("item, entry"), function(n){
+      var g = function(tag){ var e = n.querySelector(tag); return e ? e.textContent : ""; };
+      var text = g("description") || g("content") || g("summary") || g("title");
+      if(!text) return;
+      var linkEl = n.querySelector("link");
+      var link = linkEl ? (linkEl.textContent || linkEl.getAttribute("href") || "") : "";
+      out.push({text:stripTags(text), date:g("pubDate") || g("published") || g("updated") || null, link:link});
+    });
+    return out;
+  }
+
+  function stripTags(html){
+    var d = document.createElement("div");
+    d.innerHTML = String(html).replace(/<br\s*\/?>/gi, "\n").replace(/<\/p>/gi, "\n\n");
+    return (d.textContent || "").replace(/\n{3,}/g, "\n\n").trim();
+  }
+
+  document.getElementById("twLoad").addEventListener("click", function(){
+    S.twHandle = twHandleIn.value.trim().replace(/^@/, "") || "CerebrasSystems";
+    S.twFeed = twFeedIn.value.trim();
+    save();
+    renderCerebras(true);
+  });
+
+  /* ---------- cours en direct ---------- */
+  var elState = document.getElementById("feedState"), elMsg = document.getElementById("feedMsg"),
+      elCrypto = document.getElementById("srcCrypto"), elStocks = document.getElementById("srcStocks"),
+      btnRefresh = document.getElementById("refresh");
+
+  document.getElementById("keyToggle").addEventListener("click", function(){
+    document.getElementById("keyrow").classList.toggle("open");
+    document.getElementById("apiKey").value = apiKey;
+  });
+  document.getElementById("keySave").addEventListener("click", function(){
+    apiKey = document.getElementById("apiKey").value.trim();
+    try{ localStorage.setItem(KEYSTORE, apiKey); }catch(e){}
+    document.getElementById("keyrow").classList.remove("open");
+    elStocks.textContent = apiKey ? "Finnhub · clé enregistrée" : "Finnhub · clé requise";
+  });
+  document.getElementById("keyClear").addEventListener("click", function(){
+    apiKey = ""; document.getElementById("apiKey").value = "";
+    try{ localStorage.removeItem(KEYSTORE); }catch(e){}
+    elStocks.textContent = "Finnhub · clé requise";
+  });
+
+  function get(url){
+    return fetch(url, {mode:"cors"}).then(function(r){
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    });
+  }
+  function isBlocked(e){
+    return e instanceof TypeError ||
+      /Failed to fetch|NetworkError|Load failed|Content Security/i.test(e.message || "");
+  }
+  function uniq(v, i, a){ return a.indexOf(v) === i; }
+
+  btnRefresh.addEventListener("click", refresh);
+
+  function refresh(){
+    if(!positions.length){ elMsg.textContent = "Ajoutez une position avant d'actualiser."; return; }
+    btnRefresh.disabled = true;
+    btnRefresh.textContent = "Actualisation…";
+    elMsg.className = "panel-msg";
+    elMsg.textContent = "Interrogation des sources…";
+
+    var cryptos = positions.filter(function(p){ return p.cls === "crypto" && p.cg; });
+    var stocks = positions.filter(function(p){ return (p.cls === "equity" || p.cls === "etf") && p.sym; });
+    var updated = 0, notes = [], blocked = false, fxOk = false, jobs = [];
+
+    /* le taux sert à l'affichage en dollars comme à la conversion des cotations en USD ;
+       repli sur le prix d'un stablecoin coté dans les deux devises si le convertisseur tombe */
+    function setFx(r, src, table){
+      if(!isFinite(r) || r <= 0) throw new Error("taux absent");
+      S.fx = r; S.fxSrc = src; S.fxAt = Date.now(); fxOk = true;
+      if(table) S.rates = table;
+      applyCurrency();
+      return r;
+    }
+    var fxP = get("https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD,CHF,CAD,JPY")
+      .then(function(d){
+        var t = d && d.rates;
+        return setFx(t && t.USD, "Frankfurter", t);
+      })
+      .catch(function(e){
+        if(isBlocked(e)) blocked = true;
+        return get("https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=eur,usd")
+          .then(function(d){
+            var t = d && d.tether;
+            return setFx(t && t.usd/t.eur, "CoinGecko", null);
+          })
+          .catch(function(e2){
+            if(isBlocked(e2)) blocked = true;
+            notes.push("Taux EUR/USD indisponible, celui en place est conservé.");
+            return null;
+          });
+      });
+    jobs.push(fxP);
+
+    if(cryptos.length){
+      var ids = cryptos.map(function(p){ return p.cg; }).filter(uniq).join(",");
+      jobs.push(
+        get("https://api.coingecko.com/api/v3/simple/price?ids=" +
+            encodeURIComponent(ids) + "&vs_currencies=eur")
+        .then(function(d){
+          var n = 0;
+          cryptos.forEach(function(p){
+            var q = d[p.cg];
+            if(q && isFinite(q.eur)){ p.price = q.eur; p.priceSrc = "CoinGecko"; p.priceAt = Date.now(); n++; }
+          });
+          updated += n;
+          elCrypto.textContent = "CoinGecko · " + n + "/" + cryptos.length;
+          if(n < cryptos.length) notes.push("Certains identifiants CoinGecko sont introuvables (champ « Identifiant CoinGecko »).");
+        })
+        .catch(function(e){
+          if(isBlocked(e)) blocked = true;
+          elCrypto.textContent = "CoinGecko · échec";
+          notes.push("Crypto : " + e.message);
+        })
+      );
+    } else {
+      elCrypto.textContent = "CoinGecko · aucune ligne";
+    }
+
+    if(stocks.length && apiKey){
+      jobs.push(fxP.then(function(fx){
+        var n = 0;
+        return stocks.reduce(function(chain, p){
+          return chain.then(function(){
+            return get("https://finnhub.io/api/v1/quote?symbol=" +
+                encodeURIComponent(p.sym) + "&token=" + encodeURIComponent(apiKey))
+              .then(function(d){
+                if(!d || !isFinite(d.c) || d.c === 0) return;
+                var k = rateOf(p.cur);
+                if(!k){
+                  notes.push(p.ticker + " : devise de cotation " +
+                    (p.cur || "non renseignée") + ", taux indisponible.");
+                  return;
+                }
+                p.price = d.c/k;               /* ramené en euros, référence interne */
+                p.priceSrc = "Finnhub"; p.priceAt = Date.now(); n++;
+              })
+              .catch(function(e){
+                if(isBlocked(e)) blocked = true;
+                notes.push(p.ticker + " : " + e.message);
+              });
+          });
+        }, Promise.resolve()).then(function(){
+          updated += n;
+          elStocks.textContent = "Finnhub · " + n + "/" + stocks.length;
+          if(n < stocks.length) notes.push("Finnhub ne cote pas tous les symboles en offre gratuite, les places hors États-Unis notamment.");
+        });
+      }));
+    } else if(stocks.length){
+      elStocks.textContent = "Finnhub · clé requise";
+      notes.push("Actions et ETF : ajoutez une clé Finnhub gratuite pour les coter.");
+    } else {
+      elStocks.textContent = "Finnhub · aucune ligne";
+    }
+
+    Promise.all(jobs).then(function(){
+      btnRefresh.disabled = false;
+      btnRefresh.textContent = "Actualiser les cours";
+
+      if(blocked && !updated && !fxOk){
+        elState.innerHTML = '<span class="dotstate err"></span>Réseau bloqué';
+        elMsg.className = "panel-msg err";
+        elMsg.textContent = "Cet environnement bloque les appels réseau sortants : c'est le cas de la page publiée sur claude.ai, " +
+          "dont la politique de sécurité n'autorise aucune requête vers une API de marché. " +
+          "Ouvrez le fichier meridian.html depuis votre disque pour les cours en direct ; ici, les cours restent ceux que vous saisissez.";
+      } else if(updated){
+        elState.innerHTML = '<span class="dotstate live"></span>Cours en direct';
+        elMsg.className = "panel-msg";
+        elMsg.textContent = updated + (updated > 1 ? " lignes actualisées" : " ligne actualisée") +
+          " à " + new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) +
+          (notes.length ? " — " + notes.join(" ") : ".");
+      } else {
+        elState.innerHTML = '<span class="dotstate"></span>Cours saisis';
+        elMsg.className = "panel-msg";
+        elMsg.textContent = notes.length ? notes.join(" ")
+          : "Aucune ligne cotable : renseignez un identifiant CoinGecko ou un symbole Finnhub.";
+      }
+      save(); renderAll();
+    });
+  }
+
+  /* ---------- orchestration ---------- */
+  function renderAll(){
+    var m = metrics();
+    window.__m = m;
+    renderHead(m);
+    renderTable(m);
+    renderAlloc(m);
+    buildSteps();
+    buildScene();
+    drawChart();
+    updateReadout();
+    renderMemory();
+  }
+
+  load();
+  applyCurrency();
+  if(needSave) save();
+  if(apiKey) elStocks.textContent = "Finnhub · clé enregistrée";
+  if(window.THREE){ initScene(); frame(); }
+  else {
+    shell.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;' +
+      'justify-content:center;font-family:\'IBM Plex Mono\',monospace;font-size:11px;' +
+      'letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)">Vue 3D indisponible</div>';
+  }
+  renderAll();
+  routeFromHash();
+  wireCapabilities();
+  requestAnimationFrame(drawChart);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawChart);
+})();
+</script>

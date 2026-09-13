@@ -2224,6 +2224,7 @@ msgstr ""
 
 #: src/pages/SystemMonitorOverlay.tsx:141
 #: src/pages/SystemMonitorOverlay.tsx:171
+#: src/pages/SystemMonitorOverlay.tsx:201
 msgid "No monitoring service on this host."
 msgstr ""
 
@@ -2442,6 +2443,10 @@ msgstr "置顶"
 #: src/pages/VoiceSettingsOverlay.tsx:286
 msgid "Playing…"
 msgstr "播放中…"
+
+#: src/pages/SystemMonitorOverlay.tsx:197
+msgid "Portfolio"
+msgstr ""
 
 #: src/pages/RoutineEditor.tsx:561
 msgid "POST to"
@@ -3094,6 +3099,10 @@ msgstr "测试运行"
 #: src/components/SoftwareUpdateSection.tsx:206
 msgid "The API did not come back. Refresh this page."
 msgstr "API 未恢复。请刷新此页面。"
+
+#: src/pages/SystemMonitorOverlay.tsx:204
+msgid "The portfolio is served by the host service, which keeps it in a file on the host. See infra/monitoring in the repository."
+msgstr ""
 
 #: src/pages/MemorySettingsOverlay.tsx:218
 msgid "The selected memory provider is not available in this build."

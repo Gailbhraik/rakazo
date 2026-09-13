@@ -1213,22 +1213,125 @@ def _allowed_origin(origin, host_header):
     return None
 
 
+# --- portefeuille Meridian ---------------------------------------------------
+#
+# Meridian (`meridian.html`, à côté de ce fichier) est servi sur `/meridian`, et
+# son portefeuille gardé dans un fichier du Deck via `/api/portfolio`. Dans le
+# seul navigateur, Safari l'effacerait après sept jours sans visite, et chaque
+# appareil aurait sa propre copie.
+#
+# Écriture protégée à trois niveaux :
+# - PUT avec `Content-Type: application/json` n'est pas une requête « simple » :
+#   un autre site doit obtenir l'accord d'une requête OPTIONS préalable, et ce
+#   service n'y répond pas. Le navigateur bloque donc l'écriture avant l'envoi ;
+# - l'en-tête `Origin`, quand il est présent, doit désigner ce même hôte ;
+# - une écriture plus ancienne que l'état détenu est refusée (409) : un appareil
+#   resté hors ligne ne peut pas écraser ce qu'un autre a enregistré entre-temps.
+
+MERIDIAN_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "meridian.html")
+PORTFOLIO_DIR = os.path.expanduser(os.environ.get("ASHITAKA_DATA", "~/.local/share/ashitaka"))
+PORTFOLIO_FILE = os.path.join(PORTFOLIO_DIR, "portfolio.json")
+PORTFOLIO_MAX_BYTES = 2 * 1024 * 1024
+_portfolio_lock = threading.Lock()
+
+
+def _portfolio_read():
+    try:
+        with open(PORTFOLIO_FILE, encoding="utf-8") as fh:
+            state = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    return state if isinstance(state, dict) else None
+
+
+def _portfolio_write(state):
+    """Écriture atomique : un fichier temporaire, puis un renommage.
+
+    Une coupure en pleine écriture laisse ainsi l'ancien portefeuille intact
+    plutôt qu'un fichier tronqué. La version précédente est gardée à côté.
+    """
+    os.makedirs(PORTFOLIO_DIR, mode=0o700, exist_ok=True)
+    os.chmod(PORTFOLIO_DIR, 0o700)
+    tmp = PORTFOLIO_FILE + ".tmp"
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as fh:
+        json.dump(state, fh, ensure_ascii=False)
+        fh.flush()
+        os.fsync(fh.fileno())
+    if os.path.exists(PORTFOLIO_FILE):
+        shutil.copy2(PORTFOLIO_FILE, PORTFOLIO_FILE + ".prev")
+    os.replace(tmp, PORTFOLIO_FILE)
+
+
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     server_version = "deck-monitor"
 
-    def _send(self, code, body, content_type):
+    def _send(self, code, body, content_type, headers=None):
         payload = body.encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         allowed = _allowed_origin(self.headers.get("Origin"), self.headers.get("Host"))
         if allowed:
             self.send_header("Access-Control-Allow-Origin", allowed)
             self.send_header("Vary", "Origin")
         self.end_headers()
         self.wfile.write(payload)
+
+    def _portfolio_json(self, code, obj):
+        # L'en-tête permet à la page de reconnaître le Deck, y compris sur un
+        # 404 : « aucun portefeuille ici » n'est pas « aucun service ici ».
+        self._send(code, json.dumps(obj), "application/json; charset=utf-8",
+                   {"X-Ashitaka-Portfolio": "1"})
+
+    def do_PUT(self):
+        path = self.path.split("?", 1)[0].rstrip("/")
+        if path != "/api/portfolio":
+            self._send(404, "introuvable", "text/plain; charset=utf-8")
+            return
+        origin = self.headers.get("Origin")
+        if origin and not _allowed_origin(origin, self.headers.get("Host")):
+            self._portfolio_json(403, {"error": "origine refusée"})
+            return
+        if not (self.headers.get("Content-Type") or "").startswith("application/json"):
+            self._portfolio_json(415, {"error": "JSON attendu"})
+            return
+        try:
+            length = int(self.headers.get("Content-Length") or "")
+        except ValueError:
+            self._portfolio_json(411, {"error": "longueur manquante"})
+            return
+        if length <= 0 or length > PORTFOLIO_MAX_BYTES:
+            self._portfolio_json(413, {"error": "taille refusée"})
+            return
+        try:
+            state = json.loads(self.rfile.read(length))
+        except ValueError:
+            self._portfolio_json(400, {"error": "JSON invalide"})
+            return
+        if not isinstance(state, dict) or not isinstance(state.get("positions"), list):
+            self._portfolio_json(400, {"error": "portefeuille invalide"})
+            return
+        incoming = state.get("updatedAt")
+        if not isinstance(incoming, (int, float)):
+            self._portfolio_json(400, {"error": "updatedAt manquant"})
+            return
+        with _portfolio_lock:
+            current = _portfolio_read()
+            held = (current or {}).get("updatedAt") or 0
+            if current and incoming < held:
+                self._portfolio_json(409, {"error": "état plus récent sur le Deck", "updatedAt": held})
+                return
+            try:
+                _portfolio_write(state)
+            except OSError as exc:
+                self._portfolio_json(500, {"error": "écriture impossible : %s" % exc.strerror})
+                return
+        self._portfolio_json(200, {"ok": True, "updatedAt": incoming})
 
     def do_GET(self):
         path = self.path.split("?", 1)[0].rstrip("/") or "/"
@@ -1240,6 +1343,20 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, CLAUDE_PAGE, "text/html; charset=utf-8")
         elif path == "/api/claude":
             self._send(200, json.dumps(_claude_payload()), "application/json; charset=utf-8")
+        elif path == "/meridian":
+            # Relu à chaque requête : une retouche de la page s'applique sans
+            # redémarrer le service.
+            try:
+                with open(MERIDIAN_FILE, encoding="utf-8") as fh:
+                    self._send(200, fh.read(), "text/html; charset=utf-8")
+            except OSError:
+                self._send(404, "Meridian absent de ce Deck", "text/plain; charset=utf-8")
+        elif path == "/api/portfolio":
+            state = _portfolio_read()
+            if state is None:
+                self._portfolio_json(404, {"exists": False})
+            else:
+                self._portfolio_json(200, state)
         elif path == "/healthz":
             self._send(200, "ok", "text/plain; charset=utf-8")
         else:
