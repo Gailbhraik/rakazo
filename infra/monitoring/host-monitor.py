@@ -18,6 +18,7 @@ import subprocess
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections import deque
 from datetime import datetime, timedelta
@@ -1244,7 +1245,8 @@ PORTFOLIO_PAGE = (
   .summary .card { padding: 10px 11px; }
   .summary .big { font-size: 17px; overflow-wrap: anywhere; }
   .up { color: var(--ok); } .down { color: var(--bad); }
-  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+  .meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 12.5px; color: var(--muted); }
   button {
     font: inherit; font-size: 14px; border-radius: 10px; padding: 10px 14px;
     border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer;
@@ -1252,6 +1254,9 @@ PORTFOLIO_PAGE = (
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
   button.danger { color: var(--bad); }
   button:disabled { opacity: .5; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .seg button { border: 0; border-radius: 0; padding: 6px 11px; font-size: 13px; background: transparent; color: var(--muted); }
+  .seg button.on { background: var(--line); color: var(--ink); }
   .status { color: var(--muted); font-size: 12.5px; margin-left: auto; }
   .status.err { color: var(--bad); }
   .list { display: grid; gap: 8px; }
@@ -1260,10 +1265,13 @@ PORTFOLIO_PAGE = (
     text-align: left; padding: 11px 13px; border-radius: 12px;
   }
   .pos .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pos .sym { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 5px; }
   .pos .value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
   .pos .detail, .pos .pl { font-size: 12.5px; font-variant-numeric: tabular-nums; }
   .pos .detail { color: var(--muted); }
   .pos .pl { text-align: right; }
+  .pos .src { grid-column: 1 / -1; font-size: 11.5px; color: var(--muted); }
+  .pos .src.err { color: var(--warn); }
   .empty { color: var(--muted); text-align: center; padding: 28px 10px; }
   form { display: grid; gap: 10px; }
   label { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
@@ -1280,24 +1288,33 @@ PORTFOLIO_PAGE = (
 <header><h1>Portefeuille</h1></header>
 
 <div class="summary">
-  <div class="card"><h2>Valeur</h2><div class="big" id="sValue">—</div></div>
+  <div class="card"><h2>Valeur</h2><div class="big" id="sValue">—</div><div class="sub" id="sDay"></div></div>
   <div class="card"><h2>Investi</h2><div class="big" id="sInvested">—</div></div>
   <div class="card"><h2>Plus-value</h2><div class="big" id="sPl">—</div><div class="sub" id="sPct"></div></div>
 </div>
 
 <div class="toolbar">
   <button class="primary" id="addBtn" type="button">Ajouter une position</button>
+  <button id="refreshBtn" type="button">Actualiser</button>
   <span class="status" id="status">chargement…</span>
+</div>
+<div class="meta">
+  Prix d'achat en
+  <span class="seg"><button type="button" id="curEUR">€</button><button type="button" id="curUSD">$</button></span>
+  <span id="quoteInfo"></span>
 </div>
 
 <div class="card" id="formCard" hidden style="margin-bottom:12px">
   <form id="form" autocomplete="off">
-    <label>Nom ou symbole<input id="fName" required maxlength="40" placeholder="LVMH"></label>
+    <div class="row2">
+      <label>Nom<input id="fName" required maxlength="40" placeholder="Apple"></label>
+      <label>Symbole Nasdaq<input id="fSymbol" maxlength="15" placeholder="AAPL" autocapitalize="characters"></label>
+    </div>
     <div class="row2">
       <label>Quantité<input id="fQty" inputmode="decimal" required placeholder="10"></label>
-      <label>Prix d'achat (€)<input id="fPru" inputmode="decimal" required placeholder="650,00"></label>
+      <label id="lPru">Prix d'achat<input id="fPru" inputmode="decimal" required placeholder="180,00"></label>
     </div>
-    <label>Cours actuel (€) — vide = prix d'achat<input id="fPrice" inputmode="decimal" placeholder="700,00"></label>
+    <label id="lPrice">Cours manuel — utilisé si pas de symbole ou pas de cours<input id="fPrice" inputmode="decimal" placeholder="vide = prix d'achat"></label>
     <div class="actions">
       <button class="primary" type="submit">Enregistrer</button>
       <button type="button" id="cancelBtn">Annuler</button>
@@ -1312,13 +1329,20 @@ PORTFOLIO_PAGE = (
 <script>
 "use strict";
 const API = "/api/portfolio";
+const SYMBOL_RE = /^[A-Z0-9][A-Z0-9.\-]{0,14}$/;
 let positions = [];
-let editing = null;          // id de la position ouverte, ou "new"
+let currency = "EUR";         // devise des prix d'achat, commune à tous les appareils
+let live = {};                // symbole -> cours, en mémoire seulement
+let quoteMeta = null;         // { at, rate, rateDate } du dernier rafraîchissement
+let quoteError = "";
+let editing = null;           // id de la position ouverte, ou "new"
 let busy = false;
 
 const $ = (id) => document.getElementById(id);
-const eur = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" });
 const qtyFmt = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 6 });
+const money = (v) => new Intl.NumberFormat("fr-FR", { style: "currency", currency }).format(v);
+const signed = (v) => (v > 0 ? "+" : "") + money(v);
+const pct = (v, digits) => (v > 0 ? "+" : "") + v.toFixed(digits).replace(".", ",") + " %";
 
 // Saisie à la française : « 12,5 » comme « 12.5 », espaces de milliers tolérés.
 function parseNum(s) {
@@ -1329,13 +1353,14 @@ function parseNum(s) {
 function normalize(p) {
   if (!p || typeof p !== "object") return null;
   const name = String(p.name || p.ticker || "").trim().slice(0, 40);
-  const qty = Number(p.qty), pru = Number(p.pru);
-  const price = Number(p.price);
+  const qty = Number(p.qty), pru = Number(p.pru), price = Number(p.price);
+  const symbol = String(p.symbol || "").trim().toUpperCase();
   if (!name || !(qty > 0) || !(pru >= 0)) return null;
   return {
     id: String(p.id || crypto.randomUUID()),
     name, qty, pru,
     price: price >= 0 ? price : pru,
+    symbol: SYMBOL_RE.test(symbol) ? symbol : "",
   };
 }
 
@@ -1346,11 +1371,12 @@ function say(text, isErr) {
 
 async function fetchState() {
   const r = await fetch(API, { cache: "no-store" });
-  if (r.status === 404) return { positions: [], editedAt: 0 };
+  if (r.status === 404) return { positions: [], currency: "EUR", editedAt: 0 };
   if (!r.ok) throw new Error("lecture refusée (" + r.status + ")");
   const d = await r.json();
   return {
     positions: (Array.isArray(d.positions) ? d.positions : []).map(normalize).filter(Boolean),
+    currency: d.currency === "USD" ? "USD" : "EUR",
     editedAt: Number(d.editedAt) || 0,
   };
 }
@@ -1362,10 +1388,11 @@ async function fetchState() {
 async function commit(change) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const fresh = await fetchState();
-    const next = change(fresh.positions.slice());
+    const next = change({ positions: fresh.positions.slice(), currency: fresh.currency });
     const body = {
       v: 1,
-      positions: next,
+      positions: next.positions,
+      currency: next.currency,
       // Toujours après la version lue, même si l'horloge de cet appareil
       // retarde sur celle de l'appareil qui a écrit en dernier.
       editedAt: Math.max(Date.now(), fresh.editedAt + 1),
@@ -1376,21 +1403,77 @@ async function commit(change) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (r.ok) { positions = next; return; }
+    if (r.ok) { positions = next.positions; currency = next.currency; return; }
     if (r.status !== 409) throw new Error("écriture refusée (" + r.status + ")");
   }
   throw new Error("le portefeuille change trop vite ailleurs, réessaie");
 }
 
+// Les cours ne sont jamais enregistrés : récupérés à la demande, gardés en
+// mémoire, affichés avec leur heure. Le cours manuel reste le repli.
+async function refreshQuotes() {
+  const symbols = [...new Set(positions.map((p) => p.symbol).filter(Boolean))];
+  if (!symbols.length) { live = {}; quoteMeta = null; quoteError = ""; render(); return; }
+  try {
+    const r = await fetch("/api/quotes?currency=" + currency + "&symbols=" + encodeURIComponent(symbols.join(",")), { cache: "no-store" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || "cours indisponibles (" + r.status + ")");
+    // Une réponse pour une autre devise que celle affichée entre-temps est ignorée.
+    if (d.currency !== currency) return;
+    live = d.quotes || {};
+    quoteMeta = { at: Date.now(), rate: d.rate, rateDate: d.rateDate };
+    quoteError = "";
+  } catch (e) {
+    quoteError = e.message;
+  }
+  render();
+}
+
+// Un cours est « en direct » s'il date de moins de 20 minutes ; au-delà, c'est
+// la clôture d'une séance passée — marché fermé, week-end.
+function quoteLabel(q) {
+  if (!q || q.error) return null;
+  const at = new Date(q.t * 1000);
+  if (Date.now() - at.getTime() < 20 * 60 * 1000) {
+    return "en direct · " + at.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  }
+  return "clôture du " + at.toLocaleDateString("fr-FR", { weekday: "short", day: "2-digit", month: "2-digit" });
+}
+
+function effective(p) {
+  const q = p.symbol ? live[p.symbol] : null;
+  if (q && !q.error && q.price > 0) return { price: q.price, prev: q.prevClose, q };
+  return { price: p.price, prev: null, q };
+}
+
 function render() {
-  let value = 0, invested = 0;
-  for (const p of positions) { value += p.qty * p.price; invested += p.qty * p.pru; }
+  $("curEUR").className = currency === "EUR" ? "on" : "";
+  $("curUSD").className = currency === "USD" ? "on" : "";
+  $("lPru").firstChild.textContent = "Prix d'achat (" + (currency === "EUR" ? "€" : "$") + ")";
+
+  let value = 0, invested = 0, day = 0, dayKnown = false;
+  for (const p of positions) {
+    const e = effective(p);
+    value += p.qty * e.price;
+    invested += p.qty * p.pru;
+    if (e.prev) { day += p.qty * (e.price - e.prev); dayKnown = true; }
+  }
   const pl = value - invested;
-  $("sValue").textContent = eur.format(value);
-  $("sInvested").textContent = eur.format(invested);
-  $("sPl").textContent = (pl > 0 ? "+" : "") + eur.format(pl);
+  $("sValue").textContent = money(value);
+  $("sDay").textContent = dayKnown ? "jour " + signed(day) : "";
+  $("sDay").className = "sub " + (day > 0 ? "up" : day < 0 ? "down" : "");
+  $("sInvested").textContent = money(invested);
+  $("sPl").textContent = signed(pl);
   $("sPl").className = "big " + (pl > 0 ? "up" : pl < 0 ? "down" : "");
-  $("sPct").textContent = invested > 0 ? ((pl / invested) * 100).toFixed(2).replace(".", ",") + " %" : "";
+  $("sPct").textContent = invested > 0 ? pct((pl / invested) * 100, 2) : "";
+
+  let info = "";
+  if (quoteError) info = "Cours : " + quoteError;
+  else if (quoteMeta && currency === "EUR" && quoteMeta.rate) {
+    info = "1 $ = " + quoteMeta.rate.toFixed(4).replace(".", ",") + " € (BCE, " + quoteMeta.rateDate + ")";
+  }
+  $("quoteInfo").textContent = info;
+  $("quoteInfo").style.color = quoteError ? "var(--warn)" : "";
 
   const list = $("list");
   list.replaceChildren();
@@ -1401,21 +1484,29 @@ function render() {
     list.append(empty);
     return;
   }
-  const sorted = positions.slice().sort((a, b) => b.qty * b.price - a.qty * a.price);
-  for (const p of sorted) {
-    const v = p.qty * p.price, cost = p.qty * p.pru, diff = v - cost;
+  const rows = positions.map((p) => ({ p, e: effective(p) }))
+    .sort((a, b) => b.p.qty * b.e.price - a.p.qty * a.e.price);
+  for (const { p, e } of rows) {
+    const v = p.qty * e.price, cost = p.qty * p.pru, diff = v - cost;
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "pos card";
     // textContent partout : un nom saisi n'est jamais interprété comme du HTML.
     const cell = (cls, text) => { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; };
+    const name = cell("name", p.name);
+    if (p.symbol) name.append(cell("sym", p.symbol));
+    let src, srcErr = false;
+    if (!p.symbol) src = "cours saisi à la main";
+    else if (e.q && e.q.error) { src = p.symbol + " : " + e.q.error + " — cours saisi utilisé"; srcErr = true; }
+    else if (e.q) src = quoteLabel(e.q) + (e.q.changePct != null ? " · jour " + pct(e.q.changePct, 2) : "");
+    else src = "cours en attente…";
     btn.append(
-      cell("name", p.name),
-      cell("value", eur.format(v)),
-      cell("detail", qtyFmt.format(p.qty) + " × " + eur.format(p.price) + " · achat " + eur.format(p.pru)),
+      name,
+      cell("value", money(v)),
+      cell("detail", qtyFmt.format(p.qty) + " × " + money(e.price) + " · achat " + money(p.pru)),
       cell("pl " + (diff > 0 ? "up" : diff < 0 ? "down" : ""),
-           (diff > 0 ? "+" : "") + eur.format(diff) +
-           (cost > 0 ? " (" + ((diff / cost) * 100).toFixed(1).replace(".", ",") + " %)" : "")),
+           signed(diff) + (cost > 0 ? " (" + pct((diff / cost) * 100, 1) + ")" : "")),
+      cell("src" + (srcErr ? " err" : ""), src),
     );
     btn.addEventListener("click", () => openForm(p));
     list.append(btn);
@@ -1425,6 +1516,7 @@ function render() {
 function openForm(p) {
   editing = p ? p.id : "new";
   $("fName").value = p ? p.name : "";
+  $("fSymbol").value = p ? p.symbol : "";
   $("fQty").value = p ? String(p.qty).replace(".", ",") : "";
   $("fPru").value = p ? String(p.pru).replace(".", ",") : "";
   $("fPrice").value = p && p.price !== p.pru ? String(p.price).replace(".", ",") : "";
@@ -1441,7 +1533,7 @@ function closeForm() {
 }
 
 async function run(label, change) {
-  if (busy) return;
+  if (busy) return false;
   busy = true;
   say(label + "…");
   try {
@@ -1449,8 +1541,10 @@ async function run(label, change) {
     closeForm();
     render();
     say("Enregistré sur le Deck");
+    return true;
   } catch (e) {
     say(e.message, true);
+    return false;
   } finally {
     busy = false;
   }
@@ -1458,27 +1552,35 @@ async function run(label, change) {
 
 $("addBtn").addEventListener("click", () => openForm(null));
 $("cancelBtn").addEventListener("click", closeForm);
+$("refreshBtn").addEventListener("click", async () => {
+  say("Actualisation…");
+  await refreshQuotes();
+  say(quoteError ? "" : "Cours actualisés");
+});
 
-$("form").addEventListener("submit", (ev) => {
+$("form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const name = $("fName").value.trim();
+  const symbol = $("fSymbol").value.trim().toUpperCase();
   const qty = parseNum($("fQty").value);
   const pru = parseNum($("fPru").value);
   const priceIn = parseNum($("fPrice").value);
   if (!name) return say("Il faut un nom.", true);
+  if (symbol && !SYMBOL_RE.test(symbol)) return say("Symbole invalide (ex. AAPL).", true);
   if (!(qty > 0)) return say("La quantité doit être positive.", true);
   if (!(pru >= 0)) return say("Le prix d'achat est invalide.", true);
-  if ($("fPrice").value.trim() && !(priceIn >= 0)) return say("Le cours actuel est invalide.", true);
+  if ($("fPrice").value.trim() && !(priceIn >= 0)) return say("Le cours manuel est invalide.", true);
   const price = $("fPrice").value.trim() ? priceIn : pru;
   const id = editing === "new" ? crypto.randomUUID() : editing;
-  run("Enregistrement", (list) => {
-    const i = list.findIndex((x) => x.id === id);
-    const item = { id, name, qty, pru, price };
+  const ok = await run("Enregistrement", (state) => {
+    const i = state.positions.findIndex((x) => x.id === id);
+    const item = { id, name, symbol, qty, pru, price };
     // Position supprimée ailleurs pendant l'édition : on la garde, puisque
     // l'intention exprimée ici est de la conserver.
-    if (i < 0) list.push(item); else list[i] = item;
-    return list;
+    if (i < 0) state.positions.push(item); else state.positions[i] = item;
+    return state;
   });
+  if (ok && symbol) refreshQuotes();
 });
 
 // Suppression en deux temps : un premier appui arme le bouton, le second
@@ -1488,14 +1590,28 @@ $("deleteBtn").addEventListener("click", () => {
   const b = $("deleteBtn");
   if (!b.dataset.armed) { b.dataset.armed = "1"; b.textContent = "Confirmer la suppression"; return; }
   const id = editing;
-  run("Suppression", (list) => list.filter((x) => x.id !== id));
+  run("Suppression", (state) => { state.positions = state.positions.filter((x) => x.id !== id); return state; });
 });
+
+// Changer la devise ne convertit PAS les prix d'achat saisis : on déclare dans
+// quelle devise ils ont été tapés. Les cours, eux, suivent.
+async function setCurrency(c) {
+  if (c === currency || busy) return;
+  const ok = await run("Changement de devise", (state) => { state.currency = c; return state; });
+  if (ok) { live = {}; render(); refreshQuotes(); }
+}
+$("curEUR").addEventListener("click", () => setCurrency("EUR"));
+$("curUSD").addEventListener("click", () => setCurrency("USD"));
 
 async function refresh() {
   if (busy || editing || document.hidden) return;
   try {
-    positions = (await fetchState()).positions;
+    const s = await fetchState();
+    const currencyChanged = s.currency !== currency;
+    positions = s.positions; currency = s.currency;
+    if (currencyChanged) live = {};
     render();
+    await refreshQuotes();
     say("À jour");
   } catch (e) {
     say(e.message, true);
@@ -1503,12 +1619,14 @@ async function refresh() {
 }
 
 document.addEventListener("visibilitychange", refresh);
-setInterval(refresh, 30000);
+setInterval(refresh, 60000);
 (async () => {
   try {
-    positions = (await fetchState()).positions;
+    const s = await fetchState();
+    positions = s.positions; currency = s.currency;
     render();
     say(positions.length ? "À jour" : "");
+    await refreshQuotes();
   } catch (e) {
     render();
     say(e.message, true);
@@ -1524,6 +1642,121 @@ PORTFOLIO_DIR = os.path.expanduser(os.environ.get("ASHITAKA_DATA", "~/.local/sha
 PORTFOLIO_FILE = os.path.join(PORTFOLIO_DIR, "portfolio.json")
 PORTFOLIO_MAX_BYTES = 2 * 1024 * 1024
 _portfolio_lock = threading.Lock()
+
+
+# --- cours des actions ----------------------------------------------------------
+#
+# Finnhub, avec la clé posée par l'utilisateur dans `~/.config/ashitaka/finnhub.key`.
+# La clé ne quitte jamais le Deck : la page demande `/api/quotes`, et c'est ce
+# service qui interroge Finnhub. Son offre gratuite ne cote que les actions
+# américaines — vérifié le 13 septembre 2026 : AAPL, NVDA, MSFT répondent, et
+# Paris, Amsterdam, Francfort renvoient 403.
+#
+# Les cours ne sont pas stockés : ce sont des données de marché, récupérées à la
+# demande. Un cache court protège la limite gratuite (60 appels par minute)
+# quand plusieurs appareils ont la page ouverte.
+
+FINNHUB_KEY_FILE = os.path.expanduser("~/.config/ashitaka/finnhub.key")
+QUOTE_TTL = 30          # secondes
+FX_TTL = 3600           # le taux de la BCE ne change qu'une fois par jour ouvré
+MAX_SYMBOLS = 25        # 25 appels par rafraîchissement, sous la limite de 60/min
+_SYMBOL_RE = re.compile(r"^[A-Z0-9][A-Z0-9.\-]{0,14}$")
+# Sans identifiant de navigateur, la BCE et Frankfurter répondent 403 à urllib.
+_UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) deck-monitor"}
+_quote_cache = {}
+_fx_cache = {"at": 0.0, "rate": None, "date": None}
+_quotes_lock = threading.Lock()
+
+
+def _finnhub_key():
+    try:
+        with open(FINNHUB_KEY_FILE) as fh:
+            return fh.read().strip() or None
+    except OSError:
+        return None
+
+
+def _quote(symbol, key):
+    """Cours d'un symbole, ou `{"error": …}`. Jamais la clé dans une erreur."""
+    now = time.monotonic()
+    hit = _quote_cache.get(symbol)
+    if hit and now - hit[0] < QUOTE_TTL:
+        return dict(hit[1])
+    url = "https://finnhub.io/api/v1/quote?symbol=%s&token=%s" % (
+        urllib.parse.quote(symbol), urllib.parse.quote(key))
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=_UA), timeout=10) as r:
+            q = json.load(r)
+    except urllib.error.HTTPError as exc:
+        reason = {403: "place non couverte par la clé", 429: "limite Finnhub atteinte",
+                  401: "clé Finnhub refusée"}.get(exc.code, "cours indisponible")
+        return {"error": reason}
+    except Exception:
+        return {"error": "Finnhub injoignable"}
+    # Finnhub ne renvoie pas d'erreur pour un symbole inconnu : tout à zéro.
+    if not q.get("c") and not q.get("t"):
+        result = {"error": "symbole inconnu"}
+    else:
+        result = {"price": q.get("c"), "prevClose": q.get("pc"),
+                  "changePct": q.get("dp"), "t": q.get("t")}
+    _quote_cache[symbol] = (now, result)
+    return dict(result)
+
+
+def _usd_to_eur():
+    """Taux USD → EUR de la BCE, avec Frankfurter en secours. (taux, date) ou (None, None)."""
+    now = time.monotonic()
+    if _fx_cache["rate"] and now - _fx_cache["at"] < FX_TTL:
+        return _fx_cache["rate"], _fx_cache["date"]
+    rate = date = None
+    try:
+        req = urllib.request.Request("https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml", headers=_UA)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            xml = r.read().decode("utf-8", "replace")
+        usd = float(re.search(r"currency='USD' rate='([\d.]+)'", xml).group(1))
+        rate, date = 1.0 / usd, re.search(r"time='([\d-]+)'", xml).group(1)
+    except Exception:
+        try:
+            req = urllib.request.Request("https://api.frankfurter.dev/v1/latest?base=USD&symbols=EUR", headers=_UA)
+            with urllib.request.urlopen(req, timeout=10) as r:
+                d = json.load(r)
+            rate, date = float(d["rates"]["EUR"]), d.get("date")
+        except Exception:
+            pass
+    if rate:
+        _fx_cache.update(at=now, rate=rate, date=date)
+    return rate, date
+
+
+def _quotes_payload(query):
+    params = urllib.parse.parse_qs(query)
+    currency = "USD" if (params.get("currency") or ["EUR"])[0].upper() == "USD" else "EUR"
+    symbols = []
+    for raw in ",".join(params.get("symbols") or []).split(","):
+        sym = raw.strip().upper()
+        if sym and _SYMBOL_RE.match(sym) and sym not in symbols:
+            symbols.append(sym)
+    symbols = symbols[:MAX_SYMBOLS]
+    key = _finnhub_key()
+    if not key:
+        return 503, {"error": "clé Finnhub absente du Deck"}
+    rate = date = None
+    if currency == "EUR":
+        rate, date = _usd_to_eur()
+        if not rate:
+            return 502, {"error": "taux de change indisponible"}
+    quotes = {}
+    # Un seul rafraîchissement à la fois : deux appareils ouverts ensemble ne
+    # doublent pas les appels, le second profite du cache du premier.
+    with _quotes_lock:
+        for sym in symbols:
+            q = _quote(sym, key)
+            if rate and "price" in q:
+                q["price"] = q["price"] * rate
+                if q.get("prevClose"):
+                    q["prevClose"] = q["prevClose"] * rate
+            quotes[sym] = q
+    return 200, {"currency": currency, "rate": rate, "rateDate": date, "quotes": quotes}
 
 
 def _portfolio_read():
@@ -1660,6 +1893,9 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, json.dumps(_claude_payload()), "application/json; charset=utf-8")
         elif path == "/portfolio":
             self._send(200, PORTFOLIO_PAGE, "text/html; charset=utf-8")
+        elif path == "/api/quotes":
+            code, body = _quotes_payload(self.path.split("?", 1)[1] if "?" in self.path else "")
+            self._send(code, json.dumps(body), "application/json; charset=utf-8")
         elif path == "/api/portfolio":
             state = _portfolio_read()
             if state is None:
