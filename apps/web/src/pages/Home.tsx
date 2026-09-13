@@ -143,7 +143,7 @@ export function HomePage() {
           <h2 id="today-title" className="mb-3 text-lg font-semibold">
             En ce moment
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <RecentRunsCard key={`runs-${revision}`} />
             <UpcomingRoutinesCard bots={bots} />
           </div>

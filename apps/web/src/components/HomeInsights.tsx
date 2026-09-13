@@ -201,7 +201,7 @@ export function RecentRunsCard() {
   const failures = runs?.filter((run) => run.status === "failed").length ?? 0;
 
   return (
-    <BuiCard className="p-5">
+    <BuiCard className="min-w-0 p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h3 className="font-semibold">Activité récente</h3>
         {failures > 0 ? (
@@ -220,9 +220,9 @@ export function RecentRunsCard() {
       ) : runs.length === 0 ? (
         <p className="text-sm text-[var(--rk-muted)]">Aucun run pour l’instant.</p>
       ) : (
-        <ul className="grid gap-1">
+        <ul className="grid grid-cols-1 gap-1">
           {runs.map((run) => (
-            <li key={run.runId}>
+            <li key={run.runId} className="min-w-0">
               <Link
                 to={run.groupId ? `/app/g/${run.groupId}` : `/app/${run.botId}`}
                 className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-[var(--rk-surface)]"
@@ -306,7 +306,7 @@ export function UpcomingRoutinesCard({ bots }: { bots: Bot[] }) {
   }, [bots]);
 
   return (
-    <BuiCard className="p-5">
+    <BuiCard className="min-w-0 p-5">
       <h3 className="mb-3 flex items-center gap-2 font-semibold">
         <CalendarClock size={16} className="text-[var(--rk-accent)]" aria-hidden="true" />À venir
       </h3>
@@ -317,14 +317,14 @@ export function UpcomingRoutinesCard({ bots }: { bots: Bot[] }) {
       ) : items.length === 0 ? (
         <p className="text-sm text-[var(--rk-muted)]">Aucune routine programmée.</p>
       ) : (
-        <ul className="grid gap-1">
+        <ul className="grid grid-cols-1 gap-1">
           {items.map((item) => (
-            <li key={item.id}>
+            <li key={item.id} className="min-w-0">
               <Link
                 to={`/app/${item.botId}`}
                 className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-[var(--rk-surface)]"
               >
-                <span className="w-24 shrink-0 text-xs font-medium tabular-nums">
+                <span className="shrink-0 whitespace-nowrap text-xs font-medium tabular-nums">
                   {upcomingTime(item.nextRunAt)}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -394,7 +394,7 @@ export function WeeklySpendCard() {
     new Intl.NumberFormat("fr-FR", { style: "currency", currency: "USD" }).format(value);
 
   return (
-    <BuiCard className="p-5">
+    <BuiCard className="min-w-0 p-5">
       <div className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-2 font-medium">
           <Wallet size={16} className="text-[var(--rk-accent)]" aria-hidden="true" />
