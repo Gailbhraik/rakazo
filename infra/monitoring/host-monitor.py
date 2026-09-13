@@ -1288,25 +1288,38 @@ class Handler(BaseHTTPRequestHandler):
         self._send(code, json.dumps(obj), "application/json; charset=utf-8",
                    {"X-Ashitaka-Portfolio": "1"})
 
+    def _refuse(self, code, obj):
+        """Refus prononcé AVANT d'avoir lu le corps de la requête.
+
+        Ce corps resterait en attente sur la connexion. En HTTP/1.1 elle reste
+        ouverte, et le proxy de Tailscale la réutilise : la requête suivante —
+        celle d'un autre appareil, peut-être — serait lue à partir de ces octets
+        et échouerait en 501. Constaté : trois écritures refusées, trois lectures
+        légitimes perdues juste après. On ferme donc la connexion.
+        """
+        self.close_connection = True
+        self._send(code, json.dumps(obj), "application/json; charset=utf-8",
+                   {"X-Ashitaka-Portfolio": "1", "Connection": "close"})
+
     def do_PUT(self):
         path = self.path.split("?", 1)[0].rstrip("/")
         if path != "/api/portfolio":
-            self._send(404, "introuvable", "text/plain; charset=utf-8")
+            self._refuse(404, {"error": "introuvable"})
             return
         origin = self.headers.get("Origin")
         if origin and not _allowed_origin(origin, self.headers.get("Host")):
-            self._portfolio_json(403, {"error": "origine refusée"})
+            self._refuse(403, {"error": "origine refusée"})
             return
         if not (self.headers.get("Content-Type") or "").startswith("application/json"):
-            self._portfolio_json(415, {"error": "JSON attendu"})
+            self._refuse(415, {"error": "JSON attendu"})
             return
         try:
             length = int(self.headers.get("Content-Length") or "")
         except ValueError:
-            self._portfolio_json(411, {"error": "longueur manquante"})
+            self._refuse(411, {"error": "longueur manquante"})
             return
         if length <= 0 or length > PORTFOLIO_MAX_BYTES:
-            self._portfolio_json(413, {"error": "taille refusée"})
+            self._refuse(413, {"error": "taille refusée"})
             return
         try:
             state = json.loads(self.rfile.read(length))
@@ -1316,22 +1329,26 @@ class Handler(BaseHTTPRequestHandler):
         if not isinstance(state, dict) or not isinstance(state.get("positions"), list):
             self._portfolio_json(400, {"error": "portefeuille invalide"})
             return
-        incoming = state.get("updatedAt")
+        # On arbitre sur `editedAt`, date de la dernière modification faite par
+        # quelqu'un, et non sur `updatedAt`, que la page avance aussi en
+        # actualisant un cours : un appareil simplement ouvert passait sinon pour
+        # plus récent qu'un ajout fait ailleurs, et l'écrasait.
+        incoming = state.get("editedAt")
         if not isinstance(incoming, (int, float)):
-            self._portfolio_json(400, {"error": "updatedAt manquant"})
+            self._portfolio_json(400, {"error": "editedAt manquant"})
             return
         with _portfolio_lock:
             current = _portfolio_read()
-            held = (current or {}).get("updatedAt") or 0
+            held = (current or {}).get("editedAt") or 0
             if current and incoming < held:
-                self._portfolio_json(409, {"error": "état plus récent sur le Deck", "updatedAt": held})
+                self._portfolio_json(409, {"error": "modification plus récente sur le Deck", "editedAt": held})
                 return
             try:
                 _portfolio_write(state)
             except OSError as exc:
                 self._portfolio_json(500, {"error": "écriture impossible : %s" % exc.strerror})
                 return
-        self._portfolio_json(200, {"ok": True, "updatedAt": incoming})
+        self._portfolio_json(200, {"ok": True, "editedAt": incoming})
 
     def do_GET(self):
         path = self.path.split("?", 1)[0].rstrip("/") or "/"

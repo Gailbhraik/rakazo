@@ -703,7 +703,14 @@
     return (S.rates && S.rates[cur]) || null;
   }
 
-  var positions = [], S = clone(DEFAULTS), updatedAt = 0;
+  /* `updatedAt` date le dernier ENREGISTREMENT, quelle qu'en soit la cause :
+     cours actualisé, migration au démarrage… `editedAt` date la dernière
+     MODIFICATION faite par quelqu'un. La synchro arbitre sur le second : sur le
+     premier, un appareil qu'on se contente d'ouvrir passait pour plus récent
+     qu'un ajout fait ailleurs, et l'écrasait — constaté en test. */
+  var positions = [], S = clone(DEFAULTS), updatedAt = 0, editedAt = 0;
+
+  function markEdited(){ demoSeeded = false; editedAt = Date.now(); }
   var selected = null, editingId = null, apiKey = "";
   var dbNS = null, dlNS = null, unsub = null, cloudState = "absent";
   /* `backend` : "artifact" (stockage de claude.ai) ou "deck" (fichier sur le Deck).
@@ -795,6 +802,7 @@
       positions = state.positions.map(normalize).filter(Boolean);
       S = Object.assign(clone(DEFAULTS), state.settings || {});
       updatedAt = state.updatedAt || Date.now();
+      editedAt = state.editedAt || 0;
     }
     if(markDirty) updatedAt = Date.now();
   }
@@ -820,7 +828,7 @@
   function seed(d){ return normalize(Object.assign({id:uid()}, d)); }
 
   function snapshot(){
-    return {v:3, positions:positions, settings:S, updatedAt:updatedAt};
+    return {v:3, positions:positions, settings:S, updatedAt:updatedAt, editedAt:editedAt};
   }
 
   function save(){
@@ -879,7 +887,7 @@
   document.getElementById("curUSD").addEventListener("click", function(){ setCurrency("USD"); });
   function setCurrency(c){
     if(S.currency === c) return;
-    S.currency = c;
+    S.currency = c; markEdited();
     applyCurrency(); save(); renderAll();
   }
   document.getElementById("fxRate").addEventListener("change", function(){
@@ -1915,7 +1923,7 @@
     p.sym = F.sym.value.trim() || (cls === "equity" || cls === "etf" ? ticker : "");
     p.cur = F.cur.value;
 
-    demoSeeded = false; save(); closeForm(); renderAll();
+    markEdited(); save(); closeForm(); renderAll();
 
     /* cours laissé vide : on enregistre tout de suite, puis on le complète en arrière-plan */
     if(priceMissing && (p.cg || p.sym)){
@@ -1934,7 +1942,7 @@
     if(i < 0) return;
     positions.splice(i, 1);
     if(selected === p.id) selected = null;
-    demoSeeded = false; save(); renderAll();
+    markEdited(); save(); renderAll();
   }
 
   function syncCashFields(){
@@ -1946,10 +1954,10 @@
   document.getElementById("addBtn").addEventListener("click", function(){ openForm(null); });
   document.getElementById("cancelBtn").addEventListener("click", closeForm);
   document.getElementById("demoBtn").addEventListener("click", function(){
-    positions = DEMO.map(seed); selected = null; demoSeeded = false; save(); renderAll();
+    positions = DEMO.map(seed); selected = null; markEdited(); save(); renderAll();
   });
   document.getElementById("wipeBtn").addEventListener("click", function(){
-    positions = []; selected = null; demoSeeded = false; save(); renderAll();
+    positions = []; selected = null; markEdited(); save(); renderAll();
   });
   F.cls.addEventListener("change", function(){ syncCashFields(); autoPrice(); });
   F.cg.addEventListener("change", autoPrice);
@@ -2053,7 +2061,7 @@
       }
       positions = parsed;
       if(data && data.settings) S = Object.assign(clone(DEFAULTS), data.settings);
-      selected = null; demoSeeded = false;
+      selected = null; markEdited();
       applyCurrency(); save(); renderAll();
       memMsg.className = "panel-msg";
       memMsg.textContent = parsed.length + (parsed.length > 1 ? " positions importées." : " position importée.");
@@ -2139,8 +2147,13 @@
 
   function deckAdopt(d){
     if(!d || !Array.isArray(d.positions)) return false;
-    if(!demoSeeded && (d.updatedAt || 0) <= updatedAt) return false;
-    adopt(d, false); demoSeeded = false; deckKeepLocal();
+    if(!demoSeeded && (d.editedAt || 0) <= editedAt) return false;
+    /* La synchro est un choix de CET appareil, pas du portefeuille : sans cette
+       préservation, adopter l'état d'un autre appareil reprendrait aussi son
+       interrupteur — et un téléphone qui l'a coupé la couperait partout. */
+    var mine = {sync:S.sync, deckAuto:S.deckAuto};
+    adopt(d, false); S.sync = mine.sync; S.deckAuto = mine.deckAuto;
+    demoSeeded = false; deckKeepLocal();
     applyCurrency(); renderAll();
     return true;
   }
@@ -2156,7 +2169,7 @@
     cloudState = "pending"; renderMemory();
     deckGet().then(function(d){
       deckReady = true;
-      if(!deckAdopt(d) && !demoSeeded && (!d || (d.updatedAt || 0) < updatedAt)){
+      if(!deckAdopt(d) && !demoSeeded && (!d || (d.editedAt || 0) < editedAt)){
         pushDeck();   /* notre état est plus récent, ou le Deck est vide */
         return;
       }
