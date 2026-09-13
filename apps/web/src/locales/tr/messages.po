@@ -2224,7 +2224,7 @@ msgstr ""
 
 #: src/pages/SystemMonitorOverlay.tsx:141
 #: src/pages/SystemMonitorOverlay.tsx:171
-#: src/pages/SystemMonitorOverlay.tsx:201
+#: src/pages/SystemMonitorOverlay.tsx:202
 msgid "No monitoring service on this host."
 msgstr ""
 
@@ -2444,7 +2444,7 @@ msgstr "Sabitle"
 msgid "Playing…"
 msgstr "Çalınıyor…"
 
-#: src/pages/SystemMonitorOverlay.tsx:197
+#: src/pages/SystemMonitorOverlay.tsx:198
 msgid "Portfolio"
 msgstr ""
 
@@ -3100,7 +3100,7 @@ msgstr ""
 msgid "The API did not come back. Refresh this page."
 msgstr ""
 
-#: src/pages/SystemMonitorOverlay.tsx:204
+#: src/pages/SystemMonitorOverlay.tsx:205
 msgid "The portfolio is served by the host service, which keeps it in a file on the host. See infra/monitoring in the repository."
 msgstr ""
 
