@@ -1307,14 +1307,13 @@ PORTFOLIO_PAGE = (
 <div class="card" id="formCard" hidden style="margin-bottom:12px">
   <form id="form" autocomplete="off">
     <div class="row2">
-      <label>Nom<input id="fName" required maxlength="40" placeholder="Apple"></label>
-      <label>Symbole Nasdaq<input id="fSymbol" maxlength="15" placeholder="AAPL" autocapitalize="characters"></label>
+      <label>Symbole Nasdaq<input id="fSymbol" required maxlength="15" placeholder="AAPL" autocapitalize="characters"></label>
+      <label>Nom<input id="fName" maxlength="40" placeholder="facultatif"></label>
     </div>
     <div class="row2">
       <label>Quantité<input id="fQty" inputmode="decimal" required placeholder="10"></label>
       <label id="lPru">Prix d'achat<input id="fPru" inputmode="decimal" required placeholder="180,00"></label>
     </div>
-    <label id="lPrice">Cours manuel — utilisé si pas de symbole ou pas de cours<input id="fPrice" inputmode="decimal" placeholder="vide = prix d'achat"></label>
     <div class="actions">
       <button class="primary" type="submit">Enregistrer</button>
       <button type="button" id="cancelBtn">Annuler</button>
@@ -1350,18 +1349,16 @@ function parseNum(s) {
   return t === "" ? NaN : Number(t);
 }
 
+// Le cours n'est plus saisi : il vient de Finnhub. Un ancien champ `price`
+// éventuellement enregistré est simplement ignoré.
 function normalize(p) {
   if (!p || typeof p !== "object") return null;
-  const name = String(p.name || p.ticker || "").trim().slice(0, 40);
-  const qty = Number(p.qty), pru = Number(p.pru), price = Number(p.price);
-  const symbol = String(p.symbol || "").trim().toUpperCase();
+  const raw = String(p.symbol || "").trim().toUpperCase();
+  const symbol = SYMBOL_RE.test(raw) ? raw : "";
+  const name = String(p.name || p.ticker || symbol).trim().slice(0, 40);
+  const qty = Number(p.qty), pru = Number(p.pru);
   if (!name || !(qty > 0) || !(pru >= 0)) return null;
-  return {
-    id: String(p.id || crypto.randomUUID()),
-    name, qty, pru,
-    price: price >= 0 ? price : pru,
-    symbol: SYMBOL_RE.test(symbol) ? symbol : "",
-  };
+  return { id: String(p.id || crypto.randomUUID()), name, symbol, qty, pru };
 }
 
 function say(text, isErr) {
@@ -1440,10 +1437,12 @@ function quoteLabel(q) {
   return "clôture du " + at.toLocaleDateString("fr-FR", { weekday: "short", day: "2-digit", month: "2-digit" });
 }
 
+// Sans cours disponible, la ligne est valorisée à son prix d'achat — plus-value
+// nulle — et le dit, plutôt que de disparaître des totaux sans explication.
 function effective(p) {
   const q = p.symbol ? live[p.symbol] : null;
-  if (q && !q.error && q.price > 0) return { price: q.price, prev: q.prevClose, q };
-  return { price: p.price, prev: null, q };
+  if (q && !q.error && q.price > 0) return { price: q.price, prev: q.prevClose, q, ok: true };
+  return { price: p.pru, prev: null, q, ok: false };
 }
 
 function render() {
@@ -1496,9 +1495,9 @@ function render() {
     const name = cell("name", p.name);
     if (p.symbol) name.append(cell("sym", p.symbol));
     let src, srcErr = false;
-    if (!p.symbol) src = "cours saisi à la main";
-    else if (e.q && e.q.error) { src = p.symbol + " : " + e.q.error + " — cours saisi utilisé"; srcErr = true; }
-    else if (e.q) src = quoteLabel(e.q) + (e.q.changePct != null ? " · jour " + pct(e.q.changePct, 2) : "");
+    if (!p.symbol) { src = "sans symbole — valorisée au prix d'achat"; srcErr = true; }
+    else if (e.q && e.q.error) { src = p.symbol + " : " + e.q.error + " — valorisée au prix d'achat"; srcErr = true; }
+    else if (e.ok) src = quoteLabel(e.q) + (e.q.changePct != null ? " · jour " + pct(e.q.changePct, 2) : "");
     else src = "cours en attente…";
     btn.append(
       name,
@@ -1519,12 +1518,11 @@ function openForm(p) {
   $("fSymbol").value = p ? p.symbol : "";
   $("fQty").value = p ? String(p.qty).replace(".", ",") : "";
   $("fPru").value = p ? String(p.pru).replace(".", ",") : "";
-  $("fPrice").value = p && p.price !== p.pru ? String(p.price).replace(".", ",") : "";
   $("deleteBtn").hidden = !p;
   $("deleteBtn").textContent = "Supprimer";
   $("deleteBtn").dataset.armed = "";
   $("formCard").hidden = false;
-  $("fName").focus();
+  $("fSymbol").focus();
 }
 
 function closeForm() {
@@ -1560,27 +1558,33 @@ $("refreshBtn").addEventListener("click", async () => {
 
 $("form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
-  const name = $("fName").value.trim();
   const symbol = $("fSymbol").value.trim().toUpperCase();
+  const name = $("fName").value.trim() || symbol;
   const qty = parseNum($("fQty").value);
   const pru = parseNum($("fPru").value);
-  const priceIn = parseNum($("fPrice").value);
-  if (!name) return say("Il faut un nom.", true);
-  if (symbol && !SYMBOL_RE.test(symbol)) return say("Symbole invalide (ex. AAPL).", true);
+  if (!SYMBOL_RE.test(symbol)) return say("Symbole invalide (ex. AAPL).", true);
   if (!(qty > 0)) return say("La quantité doit être positive.", true);
   if (!(pru >= 0)) return say("Le prix d'achat est invalide.", true);
-  if ($("fPrice").value.trim() && !(priceIn >= 0)) return say("Le cours manuel est invalide.", true);
-  const price = $("fPrice").value.trim() ? priceIn : pru;
+  // Plus de cours de secours : on vérifie que Finnhub connaît le symbole AVANT
+  // d'enregistrer, pour qu'une faute de frappe ne laisse pas une ligne sans cours.
+  // Seul « symbole inconnu » bloque ; une panne passagère n'empêche pas la saisie.
+  say("Vérification de " + symbol + "…");
+  try {
+    const r = await fetch("/api/quotes?currency=USD&symbols=" + encodeURIComponent(symbol), { cache: "no-store" });
+    const d = await r.json();
+    const q = d.quotes && d.quotes[symbol];
+    if (q && q.error === "symbole inconnu") return say(symbol + " est inconnu de Finnhub — vérifie le symbole.", true);
+  } catch (e) { /* Finnhub injoignable : on enregistre quand même */ }
   const id = editing === "new" ? crypto.randomUUID() : editing;
   const ok = await run("Enregistrement", (state) => {
     const i = state.positions.findIndex((x) => x.id === id);
-    const item = { id, name, symbol, qty, pru, price };
+    const item = { id, name, symbol, qty, pru };
     // Position supprimée ailleurs pendant l'édition : on la garde, puisque
     // l'intention exprimée ici est de la conserver.
     if (i < 0) state.positions.push(item); else state.positions[i] = item;
     return state;
   });
-  if (ok && symbol) refreshQuotes();
+  if (ok) refreshQuotes();
 });
 
 // Suppression en deux temps : un premier appui arme le bouton, le second
