@@ -1821,7 +1821,9 @@ _openrouter_lock = threading.Lock()
 
 def _openrouter_key():
     try:
-        with open(OPENROUTER_KEY_FILE) as fh:
+        # Une clé envoyée par un tube PowerShell arrive précédée d'une marque
+        # d'ordre des octets, invisible mais refusée par OpenRouter.
+        with open(OPENROUTER_KEY_FILE, encoding="utf-8-sig") as fh:
             return fh.read().strip() or None
     except OSError:
         return None
