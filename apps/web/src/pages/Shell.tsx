@@ -118,6 +118,7 @@ import {
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ArtifactFileCard } from "../components/ArtifactFileCard";
 import { AskCard } from "../components/AskCard";
+import { type BotModelOption, BotModelPicker } from "../components/BotModelPicker";
 import {
   ActiveBotGlyph,
   CollaborationMarker,
@@ -5818,12 +5819,7 @@ function BotSettings({
       .catch(() => undefined);
   }, []);
 
-  const connectedOptions: Array<{
-    key: string;
-    provider: string;
-    modelId: string;
-    label: string;
-  }> = [];
+  const connectedOptions: BotModelOption[] = [];
   const seenOptions = new Set<string>();
   for (const credential of credentials) {
     const providerModels = catalog.filter(
@@ -5841,14 +5837,16 @@ function BotSettings({
               key: modelOptionKey(credential.provider, credential.modelId),
               provider: credential.provider,
               modelId: credential.modelId,
-              label: `${credential.label} · ${credential.modelId}`,
+              name: credential.modelId,
+              providerName: credential.label,
             },
           ]
         : providerModels.map((entry) => ({
             key: modelOptionKey(entry.provider, entry.id),
             provider: entry.provider,
             modelId: entry.id,
-            label: `${entry.providerName ?? entry.provider} · ${entry.label}`,
+            name: entry.label,
+            providerName: entry.providerName ?? entry.provider,
           }));
     for (const option of options) {
       if (seenOptions.has(option.key)) continue;
@@ -5930,6 +5928,53 @@ function BotSettings({
           className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
         />
       </label>
+      <BotModelPicker
+        options={connectedOptions}
+        value={modelKey}
+        savedValue={
+          bot.modelProvider && bot.modelId ? modelOptionKey(bot.modelProvider, bot.modelId) : ""
+        }
+        defaultModel={
+          me?.defaultModel
+            ? {
+                name: catalogLabel(catalog, me.defaultProvider, me.defaultModel) ?? me.defaultModel,
+                providerName:
+                  catalog.find((entry) => entry.provider === me.defaultProvider)?.providerName ??
+                  me.defaultProvider ??
+                  "",
+              }
+            : null
+        }
+        onChange={(next) => {
+          setModelKey(next);
+          setOpenrouterHost("");
+          setThinkingLevel("");
+        }}
+      />
+      {effectiveProvider === "openrouter" && effectiveModelId ? (
+        <OpenRouterHostPicker
+          modelId={effectiveModelId}
+          value={openrouterHost}
+          onChange={setOpenrouterHost}
+        />
+      ) : null}
+      {thinkingOptions.length ? (
+        <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
+          <Trans>Thinking</Trans>
+          <select
+            value={thinkingLevel}
+            onChange={(event) => setThinkingLevel(event.target.value)}
+            className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
+          >
+            <option value="">{t`Default (medium)`}</option>
+            {thinkingOptions.map((level) => (
+              <option key={level} value={level}>
+                {thinkingLevelLabel(level)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <details data-testid="bot-settings-advanced" className="group mt-5">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14px] text-[var(--rk-n29)]">
           <span className="text-[var(--rk-n29)]">
@@ -5943,57 +5988,6 @@ function BotSettings({
         <Suspense fallback={null}>
           <ScratchpadSection botId={bot.id} />
         </Suspense>
-        <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
-          <Trans>Model</Trans>
-          <select
-            value={modelKey}
-            onChange={(event) => {
-              setModelKey(event.target.value);
-              setOpenrouterHost("");
-              setThinkingLevel("");
-            }}
-            className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
-          >
-            <option value="">
-              {t`Space default`}
-              {me?.defaultModel
-                ? ` (${catalogLabel(catalog, me.defaultProvider, me.defaultModel) ?? me.defaultModel})`
-                : ""}
-            </option>
-            {modelKey && !connectedOptions.some((option) => option.key === modelKey) ? (
-              <option value={modelKey}>{parseModelOptionKey(modelKey)?.modelId ?? modelKey}</option>
-            ) : null}
-            {connectedOptions.map((option) => (
-              <option key={option.key} value={option.key}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        {effectiveProvider === "openrouter" && effectiveModelId ? (
-          <OpenRouterHostPicker
-            modelId={effectiveModelId}
-            value={openrouterHost}
-            onChange={setOpenrouterHost}
-          />
-        ) : null}
-        {thinkingOptions.length ? (
-          <label className="mt-4 block text-[14px] text-[var(--rk-n29)]">
-            <Trans>Thinking</Trans>
-            <select
-              value={thinkingLevel}
-              onChange={(event) => setThinkingLevel(event.target.value)}
-              className="mt-2 w-full rounded-[11px] border border-[var(--rk-n62)] bg-transparent px-3.5 py-3 text-[var(--rk-n08)]"
-            >
-              <option value="">{t`Default (medium)`}</option>
-              {thinkingOptions.map((level) => (
-                <option key={level} value={level}>
-                  {thinkingLevelLabel(level)}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
         {memoryProviderConfigured ? (
           <div className="mt-4 text-[14px] text-[var(--rk-n29)]">
             <Trans>Memory scope</Trans>
