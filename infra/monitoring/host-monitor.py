@@ -1799,6 +1799,376 @@ def _portfolio_write(state):
     os.replace(tmp, PORTFOLIO_FILE)
 
 
+# --- consommation OpenRouter ----------------------------------------------------
+#
+# Le détail par jour, par modèle et par hébergeur (`/activity`), le solde du
+# compte (`/credits`) et la dépense de chaque clé (`/keys`) ne sont servis
+# qu'avec une clé de GESTION OpenRouter : une clé d'inférence ordinaire est
+# refusée. L'utilisateur la pose lui-même dans
+# `~/.config/ashitaka/openrouter-management.key` ; comme celle de Finnhub, elle
+# ne quitte jamais le Deck. Une clé de gestion ne peut pas lancer de requêtes
+# de modèle, seulement lire et administrer les clés.
+#
+# `/activity` ne couvre que les jours UTC TERMINÉS (30 au plus) : la dépense du
+# jour vient donc de `usage_daily`, cumulé sur toutes les clés.
+
+OPENROUTER_KEY_FILE = os.path.expanduser("~/.config/ashitaka/openrouter-management.key")
+OPENROUTER_API = "https://openrouter.ai/api/v1"
+OPENROUTER_TTL = 120    # secondes : l'activité n'est agrégée qu'à la journée
+_openrouter_cache = {"at": 0.0, "body": None}
+_openrouter_lock = threading.Lock()
+
+
+def _openrouter_key():
+    try:
+        with open(OPENROUTER_KEY_FILE) as fh:
+            return fh.read().strip() or None
+    except OSError:
+        return None
+
+
+def _openrouter_get(path, key):
+    request = urllib.request.Request(
+        OPENROUTER_API + path,
+        headers={**_UA, "Authorization": "Bearer " + key, "Accept": "application/json"})
+    with urllib.request.urlopen(request, timeout=15) as r:
+        return json.load(r)
+
+
+def _num(value):
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _openrouter_fetch(key):
+    results, errors = {}, {}
+
+    def one(name, path):
+        try:
+            results[name] = _openrouter_get(path, key)
+        except urllib.error.HTTPError as exc:
+            errors[name] = exc.code
+        except Exception:
+            errors[name] = 0
+
+    threads = [threading.Thread(target=one, args=args) for args in (
+        ("credits", "/credits"), ("keys", "/keys"), ("activity", "/activity"))]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    if errors and not results:
+        codes = set(errors.values())
+        if codes & {401, 403}:
+            return {"state": "refused",
+                    "error": "OpenRouter refuse cette clé. Il faut une clé de GESTION "
+                             "(Settings → Management keys), pas une clé d'API ordinaire."}
+        return {"state": "error", "error": "OpenRouter injoignable pour le moment."}
+
+    body = {"state": "ok", "partial": sorted(errors), "fetchedAt": time.time()}
+
+    credits = (results.get("credits") or {}).get("data") or {}
+    if credits:
+        total, used = _num(credits.get("total_credits")), _num(credits.get("total_usage"))
+        body["credits"] = {"total": total, "used": used, "remaining": total - used}
+
+    keys = []
+    for row in (results.get("keys") or {}).get("data") or []:
+        if row.get("disabled"):
+            continue
+        keys.append({
+            "name": row.get("name") or row.get("label") or "clé",
+            "label": row.get("label") or "",
+            "day": _num(row.get("usage_daily")), "week": _num(row.get("usage_weekly")),
+            "month": _num(row.get("usage_monthly")), "total": _num(row.get("usage")),
+            "limit": row.get("limit"), "limitRemaining": row.get("limit_remaining"),
+        })
+    keys.sort(key=lambda k: -k["month"])
+    body["keys"] = keys
+    if keys:
+        body["periods"] = {p: sum(k[p] for k in keys) for p in ("day", "week", "month", "total")}
+
+    days, models, hosts = {}, {}, {}
+    for row in (results.get("activity") or {}).get("data") or []:
+        cost = _num(row.get("usage")) + _num(row.get("byok_usage_inference"))
+        req = int(_num(row.get("requests")))
+        pin, pout = int(_num(row.get("prompt_tokens"))), int(_num(row.get("completion_tokens")))
+        reason = int(_num(row.get("reasoning_tokens")))
+        date = str(row.get("date") or "")[:10]
+        d = days.setdefault(date, {"date": date, "cost": 0.0, "requests": 0})
+        d["cost"] += cost
+        d["requests"] += req
+        model = row.get("model") or row.get("model_permaslug") or "?"
+        m = models.setdefault(model, {"model": model, "cost": 0.0, "requests": 0,
+                                      "input": 0, "output": 0, "reasoning": 0, "hosts": {}})
+        m["cost"] += cost
+        m["requests"] += req
+        m["input"] += pin
+        m["output"] += pout
+        m["reasoning"] += reason
+        host = row.get("provider_name") or "?"
+        m["hosts"][host] = m["hosts"].get(host, 0.0) + cost
+        h = hosts.setdefault(host, {"host": host, "cost": 0.0, "requests": 0})
+        h["cost"] += cost
+        h["requests"] += req
+    for m in models.values():
+        m["hosts"] = sorted(m["hosts"].items(), key=lambda kv: -kv[1])
+    body["activity"] = "activity" in results
+    body["days"] = sorted(days.values(), key=lambda d: d["date"])
+    body["models"] = sorted(models.values(), key=lambda m: -m["cost"])
+    body["hosts"] = sorted(hosts.values(), key=lambda h: -h["cost"])
+    return body
+
+
+def _openrouter_payload():
+    key = _openrouter_key()
+    if not key:
+        return {"state": "no-key", "keyFile": OPENROUTER_KEY_FILE}
+    with _openrouter_lock:
+        now = time.monotonic()
+        cached = _openrouter_cache["body"]
+        if cached is not None and now - _openrouter_cache["at"] < OPENROUTER_TTL:
+            return cached
+        body = _openrouter_fetch(key)
+        # Un échec n'est pas mis en cache : la prochaine ouverture réessaie.
+        if body.get("state") == "ok":
+            _openrouter_cache.update(at=now, body=body)
+        return body
+
+
+OPENROUTER_PAGE = (
+    r"""<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Consommation OpenRouter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>"""
+    + CSS
+    + r"""
+  .muted { color: var(--muted); font-size: 12px; }
+  .chart { display: flex; align-items: flex-end; gap: 3px; height: 130px; margin-top: 6px; }
+  .chart button {
+    flex: 1 1 0; min-width: 0; height: 100%; padding: 0; border: 0; background: none;
+    display: flex; align-items: flex-end; cursor: pointer;
+  }
+  .chart button i { display: block; width: 100%; min-height: 2px; background: var(--accent); border-radius: 2px 2px 0 0; opacity: .85; }
+  .chart button.zero i { background: #2a2a31; }
+  .chart button.sel i, .chart button:hover i { opacity: 1; background: #ff5a5f; }
+  .axis { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; margin-top: 5px; }
+  .pick { margin-top: 8px; font-size: 12.5px; color: var(--muted); min-height: 1.4em; font-variant-numeric: tabular-nums; }
+  .pick b { color: var(--ink); font-weight: 500; }
+  td .hosts { display: block; color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+  td.model { max-width: 260px; overflow-wrap: anywhere; }
+  .share { display: inline-block; width: 46px; height: 5px; background: #26262c; border-radius: 3px; overflow: hidden; vertical-align: middle; margin-left: 6px; }
+  .share > i { display: block; height: 100%; background: var(--accent); }
+  code.cmd {
+    display: block; white-space: pre-wrap; word-break: break-all; background: #0b0b0d;
+    border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; margin: 8px 0;
+    font-size: 12px; color: var(--ink);
+  }
+  .setup ol { margin: 6px 0 0; padding-left: 20px; }
+  .setup li { margin: 6px 0; }
+  .setup a { color: var(--ink); }
+  .err { color: var(--bad); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Consommation OpenRouter</h1>
+  <span class="stamp" id="stamp">lecture…</span>
+</header>
+<div id="out"></div>
+<div class="note">
+  Montants facturés par OpenRouter, en dollars. Le détail par jour, modèle et
+  hébergeur couvre les 30 derniers <b>jours UTC terminés</b> (la journée en cours
+  n'y figure qu'à partir du lendemain, vers 2 h 30) ; « aujourd'hui », « cette
+  semaine » et « ce mois-ci » sont en direct, toutes clés confondues, découpés à
+  minuit UTC. Tout ce qui passe par ton compte est compté : Ashitaka, Hermes et
+  tout autre outil utilisant une de tes clés.
+</div>
+<script>
+const F = {
+  money(v) {
+    if (v === null || v === undefined) return "—";
+    if (v > 0 && v < 0.01) return "< 0,01 $US";
+    return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "USD" }).format(v);
+  },
+  // Le coût d'une requête tient souvent en millièmes de dollar : deux chiffres
+  // significatifs le rendent lisible là où l'arrondi au centime affiche zéro.
+  unit(v) {
+    if (!v) return "—";
+    if (v >= 0.01) return F.money(v);
+    return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "USD", maximumSignificantDigits: 2 }).format(v);
+  },
+  tokens(n) {
+    if (!n) return "0";
+    if (n >= 1e6) return (n / 1e6).toFixed(2).replace(".", ",") + " M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(".", ",") + " k";
+    return String(n);
+  },
+  int(n) { return new Intl.NumberFormat("fr-FR").format(n || 0); },
+  day(iso) {
+    const [, m, d] = iso.split("-");
+    return d + "/" + m;
+  },
+};
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"]/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+}
+
+function card(title, big, sub, cls) {
+  return '<div class="card' + (cls ? " " + cls : "") + '"><h2>' + title + '</h2><div class="big">'
+    + big + '</div>' + (sub ? '<div class="sub">' + sub + "</div>" : "") + "</div>";
+}
+
+// Les 30 derniers jours UTC terminés, y compris ceux sans aucune dépense : un
+// trou dans le graphique doit se voir comme un jour à zéro, pas disparaître.
+function lastDays(days) {
+  const byDate = new Map(days.map((d) => [d.date, d]));
+  const out = [];
+  const today = new Date();
+  for (let i = 30; i >= 1; i--) {
+    const at = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - i));
+    const iso = at.toISOString().slice(0, 10);
+    out.push(byDate.get(iso) || { date: iso, cost: 0, requests: 0 });
+  }
+  return out;
+}
+
+function setup(d) {
+  const file = esc(d.keyFile || "~/.config/ashitaka/openrouter-management.key");
+  return '<div class="card setup"><h2>Une clé de gestion est nécessaire</h2>'
+    + "<p>OpenRouter ne donne le détail de la consommation (par jour, modèle, hébergeur et clé) "
+    + "qu'à une <b>clé de gestion</b>. Elle ne peut rien générer ni dépenser : elle sert seulement à lire les relevés.</p>"
+    + "<ol>"
+    + '<li>Crée-la sur <a href="https://openrouter.ai/settings/management-keys" target="_blank" rel="noreferrer">openrouter.ai → Settings → Management keys</a>.</li>'
+    + "<li>Dans un terminal du Deck, colle cette commande, puis la clé quand elle est demandée (elle ne s'affiche pas) :"
+    + '<code class="cmd">mkdir -p ~/.config/ashitaka &amp;&amp; read -rsp "Clé de gestion : " k &amp;&amp; printf %s "$k" &gt; ' + file
+    + " &amp;&amp; chmod 600 " + file + " &amp;&amp; echo &amp;&amp; echo OK</code></li>"
+    + "<li>Recharge cette page.</li></ol></div>";
+}
+
+let chartDays = [];
+function pick(i) {
+  const d = chartDays[i];
+  if (!d) return;
+  document.querySelectorAll(".chart button").forEach((b, j) => b.classList.toggle("sel", j === i));
+  document.getElementById("pick").innerHTML = "<b>" + F.day(d.date) + "</b> · " + F.money(d.cost)
+    + " · " + F.int(d.requests) + " requête" + (d.requests > 1 ? "s" : "");
+}
+
+function render(d) {
+  const out = document.getElementById("out");
+  if (d.state === "no-key") { out.innerHTML = setup(d); return; }
+  if (d.state !== "ok") {
+    out.innerHTML = '<div class="card"><h2>Relevé impossible</h2><p class="err">' + esc(d.error) + "</p></div>"
+      + (d.state === "refused" ? setup(d) : "");
+    return;
+  }
+  let html = '<div class="grid">';
+  if (d.credits) {
+    const pct = d.credits.total > 0 ? Math.min(100, (d.credits.used / d.credits.total) * 100) : 0;
+    html += '<div class="card"><h2>Solde</h2><div class="big">' + F.money(d.credits.remaining) + "</div>"
+      + '<div class="sub">' + F.money(d.credits.used) + " dépensés sur " + F.money(d.credits.total) + "</div>"
+      + '<div class="bar"><i style="width:' + pct.toFixed(1) + '%"></i></div></div>';
+  }
+  if (d.periods) {
+    html += card("Aujourd'hui (UTC)", F.money(d.periods.day));
+    html += card("Cette semaine", F.money(d.periods.week));
+    html += card("Ce mois-ci", F.money(d.periods.month));
+  }
+
+  if (d.activity) {
+    chartDays = lastDays(d.days);
+    const max = Math.max(...chartDays.map((x) => x.cost), 0);
+    const total = chartDays.reduce((s, x) => s + x.cost, 0);
+    const reqs = chartDays.reduce((s, x) => s + x.requests, 0);
+    html += '<div class="card wide"><h2>30 derniers jours</h2><div class="big">' + F.money(total)
+      + "<small>" + F.int(reqs) + " requêtes</small></div>"
+      + '<div class="chart">' + chartDays.map((x, i) => {
+        const h = max > 0 ? Math.max(1.5, (x.cost / max) * 100) : 1.5;
+        return '<button type="button" class="' + (x.cost > 0 ? "" : "zero") + '" onclick="pick(' + i + ')" '
+          + 'onmouseenter="pick(' + i + ')" aria-label="' + F.day(x.date) + " : " + F.money(x.cost) + '">'
+          + '<i style="height:' + h.toFixed(1) + '%"></i></button>';
+      }).join("") + "</div>"
+      + '<div class="axis"><span>' + F.day(chartDays[0].date) + "</span><span>"
+      + F.day(chartDays[chartDays.length - 1].date) + "</span></div>"
+      + '<div class="pick" id="pick">Touche une barre pour le détail du jour.</div></div>';
+
+    const modelTotal = d.models.reduce((s, m) => s + m.cost, 0);
+    html += '<div class="card wide"><h2>Par modèle · 30 jours</h2>';
+    if (!d.models.length) {
+      html += '<p class="muted">Aucune requête sur la période.</p>';
+    } else {
+      html += '<div class="scroll"><table><thead><tr><th>Modèle</th><th class="num">Req.</th>'
+        + '<th class="num">Entrée</th><th class="num">Sortie</th><th class="num">Coût</th>'
+        + '<th class="num">Par req.</th></tr></thead><tbody>'
+        + d.models.map((m) => {
+          const share = modelTotal > 0 ? (m.cost / modelTotal) * 100 : 0;
+          const hosts = m.hosts.slice(0, 3).map(([h]) => esc(h)).join(" · ")
+            + (m.hosts.length > 3 ? " · +" + (m.hosts.length - 3) : "");
+          return '<tr><td class="model">' + esc(m.model) + '<span class="hosts">' + hosts + "</span></td>"
+            + '<td class="num">' + F.int(m.requests) + "</td>"
+            + '<td class="num">' + F.tokens(m.input) + "</td>"
+            + '<td class="num">' + F.tokens(m.output)
+            + (m.reasoning ? '<span class="hosts">dont ' + F.tokens(m.reasoning) + " réfl.</span>" : "") + "</td>"
+            + '<td class="num">' + F.money(m.cost) + '<span class="share"><i style="width:' + share.toFixed(1) + '%"></i></span></td>'
+            + '<td class="num">' + F.unit(m.requests ? m.cost / m.requests : 0) + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+    html += "</div>";
+
+    if (d.hosts.length) {
+      html += '<div class="card"><h2>Par hébergeur · 30 jours</h2><table><tbody>'
+        + d.hosts.map((h) => "<tr><td>" + esc(h.host) + '</td><td class="num">' + F.int(h.requests)
+          + ' req.</td><td class="num">' + F.money(h.cost) + "</td></tr>").join("")
+        + "</tbody></table></div>";
+    }
+  }
+
+  if (d.keys && d.keys.length) {
+    html += '<div class="card"><h2>Par clé</h2><div class="scroll"><table><thead><tr><th>Clé</th>'
+      + '<th class="num">Jour</th><th class="num">Mois</th><th class="num">Total</th></tr></thead><tbody>'
+      + d.keys.map((k) => "<tr><td>" + esc(k.name) + '</td><td class="num">' + F.money(k.day)
+        + '</td><td class="num">' + F.money(k.month) + '</td><td class="num">' + F.money(k.total)
+        + "</td></tr>").join("")
+      + "</tbody></table></div></div>";
+  }
+  html += "</div>";
+  if (d.partial && d.partial.length) {
+    html += '<p class="muted">Une partie du relevé n\'a pas répondu (' + esc(d.partial.join(", ")) + ") ; réessaie dans un instant.</p>";
+  }
+  out.innerHTML = html;
+}
+
+async function load() {
+  const stamp = document.getElementById("stamp");
+  try {
+    const res = await fetch("/api/openrouter", { cache: "no-store" });
+    const d = await res.json();
+    render(d);
+    stamp.textContent = d.fetchedAt
+      ? "relevé à " + new Date(d.fetchedAt * 1000).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+      : "";
+  } catch (e) {
+    stamp.textContent = "service injoignable";
+  }
+}
+load();
+setInterval(() => { if (!document.hidden) load(); }, 120000);
+</script>
+</body>
+</html>
+"""
+)
+
+
 class Handler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     server_version = "deck-monitor"
@@ -1914,6 +2284,10 @@ class Handler(BaseHTTPRequestHandler):
                 self._portfolio_json(404, {"exists": False})
             else:
                 self._portfolio_json(200, state)
+        elif path == "/openrouter":
+            self._send(200, OPENROUTER_PAGE, "text/html; charset=utf-8")
+        elif path == "/api/openrouter":
+            self._send(200, json.dumps(_openrouter_payload()), "application/json; charset=utf-8")
         elif path == "/healthz":
             self._send(200, "ok", "text/plain; charset=utf-8")
         else:

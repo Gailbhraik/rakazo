@@ -183,6 +183,37 @@ export function ClaudeUsageOverlay({ onClose }: { onClose: () => void }) {
 }
 
 /**
+ * Consommation OpenRouter détaillée : par jour, modèle, hébergeur et clé.
+ *
+ * Ce détail n'est servi qu'avec une clé de gestion OpenRouter, que l'API
+ * d'Ashitaka n'a pas — elle ne détient que des clés d'inférence. Le service de
+ * l'hôte la lit dans un fichier posé par l'utilisateur, comme celle de Finnhub,
+ * et sa page explique comment l'installer quand elle manque.
+ */
+export function OpenRouterUsageOverlay({ onClose }: { onClose: () => void }) {
+  return (
+    <MonitorFrame
+      path="/openrouter"
+      onClose={onClose}
+      title={<Trans>OpenRouter usage</Trans>}
+      absence={
+        <>
+          <p className="text-[14px] text-[var(--rk-n08)]">
+            <Trans>No monitoring service on this host.</Trans>
+          </p>
+          <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--rk-n29)]">
+            <Trans>
+              The detailed usage is read by the host service with an OpenRouter management key kept
+              on the host. See infra/monitoring in the repository.
+            </Trans>
+          </p>
+        </>
+      }
+    />
+  );
+}
+
+/**
  * Portefeuille boursier : une liste de positions saisies à la main, servie par
  * le même service de l'hôte.
  *
@@ -203,8 +234,8 @@ export function PortfolioOverlay({ onClose }: { onClose: () => void }) {
           </p>
           <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--rk-n29)]">
             <Trans>
-              The portfolio is served by the host service, which keeps it in a file on the
-              host. See infra/monitoring in the repository.
+              The portfolio is served by the host service, which keeps it in a file on the host. See
+              infra/monitoring in the repository.
             </Trans>
           </p>
         </>

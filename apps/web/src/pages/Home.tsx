@@ -8,6 +8,7 @@ import {
   Gauge,
   MessageCircle,
   Puzzle,
+  Receipt,
   RefreshCw,
   Settings,
   Star,
@@ -44,6 +45,9 @@ const ClaudeUsage = lazy(() =>
 );
 const Portfolio = lazy(() =>
   import("./SystemMonitorOverlay").then((m) => ({ default: m.PortfolioOverlay })),
+);
+const OpenRouterUsage = lazy(() =>
+  import("./SystemMonitorOverlay").then((m) => ({ default: m.OpenRouterUsageOverlay })),
 );
 type Balance = Awaited<ReturnType<typeof rpc.usage.balances>>[number];
 const names: Record<string, string> = {
@@ -99,6 +103,12 @@ const TOOLS = [
     description: "Mes actions",
     Icon: ChartCandlestick,
   },
+  {
+    id: "openrouter" as const,
+    label: "Conso OpenRouter",
+    description: "Dépense par modèle",
+    Icon: Receipt,
+  },
 ];
 
 export function HomePage() {
@@ -111,7 +121,15 @@ export function HomePage() {
   const [error, setError] = useState("");
   const [balanceError, setBalanceError] = useState("");
   const [panel, setPanel] = useState<
-    "models" | "favorites" | "plugins" | "mcp" | "monitor" | "claude" | "portfolio" | null
+    | "models"
+    | "favorites"
+    | "plugins"
+    | "mcp"
+    | "monitor"
+    | "claude"
+    | "portfolio"
+    | "openrouter"
+    | null
   >(null);
   const [query, setQuery] = useState("");
   const [revision, setRevision] = useState(0);
@@ -385,6 +403,7 @@ export function HomePage() {
           {panel === "monitor" && <Monitor onClose={close} />}
           {panel === "claude" && <ClaudeUsage onClose={close} />}
           {panel === "portfolio" && <Portfolio onClose={close} />}
+          {panel === "openrouter" && <OpenRouterUsage onClose={close} />}
         </div>
       </Suspense>
     </div>

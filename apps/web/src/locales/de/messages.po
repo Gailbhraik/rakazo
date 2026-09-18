@@ -2268,6 +2268,7 @@ msgstr ""
 #: src/pages/SystemMonitorOverlay.tsx:141
 #: src/pages/SystemMonitorOverlay.tsx:171
 #: src/pages/SystemMonitorOverlay.tsx:202
+#: src/pages/SystemMonitorOverlay.tsx:233
 msgid "No monitoring service on this host."
 msgstr ""
 
@@ -2390,6 +2391,10 @@ msgstr "Thread geöffnet."
 msgid "Opening your Space…"
 msgstr "Dein Arbeitsbereich wird geöffnet…"
 
+#: src/pages/SystemMonitorOverlay.tsx:198
+msgid "OpenRouter usage"
+msgstr ""
+
 #: src/pages/ModelSettingsOverlay.tsx:636
 #: src/pages/Onboarding.tsx:458
 msgid "Optional"
@@ -2491,7 +2496,7 @@ msgstr "Anheften"
 msgid "Playing…"
 msgstr "Wiedergabe…"
 
-#: src/pages/SystemMonitorOverlay.tsx:198
+#: src/pages/SystemMonitorOverlay.tsx:229
 msgid "Portfolio"
 msgstr ""
 
@@ -3156,6 +3161,10 @@ msgid "The API did not come back. Refresh this page."
 msgstr ""
 
 #: src/pages/SystemMonitorOverlay.tsx:205
+msgid "The detailed usage is read by the host service with an OpenRouter management key kept on the host. See infra/monitoring in the repository."
+msgstr ""
+
+#: src/pages/SystemMonitorOverlay.tsx:236
 msgid "The portfolio is served by the host service, which keeps it in a file on the host. See infra/monitoring in the repository."
 msgstr ""
 
